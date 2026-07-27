@@ -1,0 +1,9 @@
+import React from 'react';
+import { Plus, CheckCircle2 } from 'lucide-react';
+import type { ReleaseAction } from '../../core/releases/ReleaseGovernanceTypes';
+import type { Task } from '../../types';
+
+export default function ReleaseActionQueue({ actions, tasks, onCreateTask }: { actions: ReleaseAction[]; tasks: Task[]; onCreateTask: (title: string, description: string) => Promise<void> }) {
+  const [creating, setCreating] = React.useState<string | null>(null);
+  return <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-5"><h3 className="font-black text-[var(--text-main)]">Fila de liberação</h3><div className="space-y-3 mt-4">{actions.length === 0 ? <p className="text-sm text-[var(--text-secondary)]">Nenhum bloqueio relevante identificado.</p> : actions.map((action) => { const exists = tasks.some((task) => task.status !== 'completed' && task.title.trim().toLowerCase() === action.taskTitle.trim().toLowerCase()); return <div key={action.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)]/35 p-4 flex flex-col md:flex-row md:items-center justify-between gap-3"><div><strong className="text-sm text-[var(--text-main)]">{action.title}</strong><p className="text-xs text-[var(--text-secondary)] mt-1">{action.description}</p></div><button type="button" disabled={exists || creating === action.id} onClick={async () => { setCreating(action.id); try { await onCreateTask(action.taskTitle, action.description); } finally { setCreating(null); } }} className="px-3 py-2 rounded-xl border border-[var(--border-color)] text-xs font-black text-[var(--cyan-accent)] disabled:opacity-50 flex items-center gap-2">{exists ? <CheckCircle2 size={14} /> : <Plus size={14} />}{exists ? 'Encaminhada' : creating === action.id ? 'Criando...' : 'Criar tarefa'}</button></div>; })}</div></div>;
+}

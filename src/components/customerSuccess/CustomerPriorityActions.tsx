@@ -1,0 +1,12 @@
+import React from 'react';
+import { CheckCircle2, Loader2, Plus } from 'lucide-react';
+import type { CustomerPortfolioAction } from '../../core/customerSuccess/CustomerPortfolioTypes';
+
+interface Props { actions: CustomerPortfolioAction[]; existingTaskTitles: string[]; creatingId: string | null; onCreate: (action: CustomerPortfolioAction) => void; }
+
+export default function CustomerPriorityActions({ actions, existingTaskTitles, creatingId, onCreate }: Props) {
+  const normalizedTitles = new Set(existingTaskTitles.map((title) => title.trim().toLowerCase()));
+  return <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-5"><span className="text-[10px] uppercase font-mono tracking-[0.22em] text-[var(--text-secondary)] font-black">Ações recomendadas</span><h2 className="text-lg font-black text-[var(--text-main)] mt-1">Fila da Beta para sucesso do cliente</h2><div className="space-y-3 mt-4">{actions.length === 0 && <p className="text-sm text-[var(--text-secondary)]">Nenhuma ação crítica identificada.</p>}{actions.slice(0, 8).map((action) => { const exists = normalizedTitles.has(action.taskTitle.toLowerCase()); return <article key={action.id} className="rounded-xl border border-[var(--border-color)] bg-white/[0.02] p-4"><div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"><div><div className="flex items-center gap-2"><span className={`text-[9px] uppercase font-black ${priorityClass(action.priority)}`}>{action.priority}</span><span className="text-[9px] uppercase font-mono text-[var(--text-secondary)]">{action.area}</span></div><h3 className="text-sm font-black text-[var(--text-main)] mt-1">{action.title}</h3><p className="text-xs text-[var(--text-secondary)] mt-1">{action.description}</p></div><button type="button" disabled={exists || creatingId === action.id} onClick={() => onCreate(action)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-xs font-black text-blue-200 disabled:opacity-60">{creatingId === action.id ? <Loader2 className="w-4 h-4 animate-spin" /> : exists ? <CheckCircle2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}{exists ? 'Ação encaminhada' : 'Criar tarefa'}</button></div></article>; })}</div></section>;
+}
+
+function priorityClass(priority: CustomerPortfolioAction['priority']) { if (priority === 'alta') return 'text-red-300'; if (priority === 'média') return 'text-amber-300'; return 'text-emerald-300'; }

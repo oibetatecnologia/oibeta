@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main, #0d1117);
+  color: var(--text-main, #f0f6fc);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  line-height: 1.6;
+}
+
+/* Custom scrollbar rules matching code editor themes */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-sidebar, #010409);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color, #30363d);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary, #8b949e);
+}

@@ -1,0 +1,20 @@
+export const DEFAULT_LICITA_FORM_FIELDS = {
+  title: '',
+  description: '',
+  status: 'ACTIVE',
+  number: '',
+  modalidade: 'Pregão Eletrônico',
+  orgao: 'Secretaria Municipal de Administração',
+  valorEstimado: '',
+  supplierName: '',
+  supplierId: '',
+  bidId: '',
+  documentNumber: '',
+  value: '',
+  gestor: '',
+  vigenciaDe: '',
+  vigenciaAte: '',
+  origem: '',
+  motivo: '',
+  grauRisco: 'BAIXO'
+};

@@ -1,0 +1,118 @@
+[
+  {
+    "id": "47071f9a-3ae6-47c7-9591-68f41cff530e",
+    "organizationId": "org-oi-beta",
+    "workspaceId": "default-workspace",
+    "version": "RC-1",
+    "status": "attention",
+    "controls": [
+      {
+        "id": "lint",
+        "category": "quality",
+        "title": "Lint aprovado",
+        "description": "TypeScript sem erros no ambiente oficial.",
+        "required": true,
+        "status": "approved",
+        "owner": "douglas",
+        "reviewedAt": "2026-07-15T12:31:17.137Z",
+        "evidence": "Validado no ambiente oficial"
+      },
+      {
+        "id": "build",
+        "category": "quality",
+        "title": "Build aprovada",
+        "description": "Frontend e backend compilados no ambiente oficial.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "rbac",
+        "category": "security",
+        "title": "RBAC e sessões validados",
+        "description": "Perfis, rotas protegidas e revogação de sessões revisados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "access-review",
+        "category": "security",
+        "title": "Revisão de acessos concluída",
+        "description": "Acessos privilegiados e usuários sem escopo foram certificados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "lgpd",
+        "category": "privacy",
+        "title": "Controles LGPD revisados",
+        "description": "Retenção, exportação, exclusão e isolamento de dados foram avaliados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "backup",
+        "category": "continuity",
+        "title": "Backup e restauração testados",
+        "description": "Existe evidência de backup e teste de restauração.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "rollback",
+        "category": "continuity",
+        "title": "Rollback operacional validado",
+        "description": "A versão anterior pode ser restaurada com rastreabilidade.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "monitoring",
+        "category": "operations",
+        "title": "Monitoramento e incidentes ativos",
+        "description": "Alertas, incidentes, notificações e escalonamento foram revisados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "support",
+        "category": "operations",
+        "title": "Suporte e SLA preparados",
+        "description": "Responsáveis, SLA e fluxo de atendimento foram confirmados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "contracts",
+        "category": "commercial",
+        "title": "Contratos e licenças consistentes",
+        "description": "Produtos contratados, licenças e receita recorrente foram conciliados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "product-acceptance",
+        "category": "product",
+        "title": "Aceite funcional dos produtos",
+        "description": "Fluxos críticos dos produtos vendáveis foram homologados.",
+        "required": true,
+        "status": "pending"
+      },
+      {
+        "id": "performance",
+        "category": "operations",
+        "title": "Performance mínima validada",
+        "description": "Tempos de resposta e operações críticas foram avaliados.",
+        "required": true,
+        "status": "pending"
+      }
+    ],
+    "score": 8,
+    "approvedControls": 1,
+    "pendingControls": 11,
+    "blockedControls": 0,
+    "requiredControls": 12,
+    "createdBy": "douglas",
+    "createdAt": "2026-07-15T12:30:56.028Z",
+    "updatedAt": "2026-07-15T12:31:17.137Z"
+  }
+]

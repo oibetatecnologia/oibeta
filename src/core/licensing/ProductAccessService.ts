@@ -1,0 +1,116 @@
+import type {
+  ProductDefinition,
+  ProductStatus,
+} from '../../products/productRegistry';
+import {
+  PRODUCT_REGISTRY,
+  getProductByTab,
+} from '../../products/productRegistry';
+import type { PlatformUserContext } from '../../contexts/platform/platformContextTypes';
+
+const PRIVILEGED_ROLES = new Set([
+  'master_admin',
+  'super_admin',
+  'superadmin',
+  'owner',
+]);
+
+const ALWAYS_AVAILABLE_STATUSES = new Set<ProductStatus>([
+  'embedded',
+]);
+
+export interface ProductAccessSnapshot {
+  licensedProductIds: string[];
+  availableProducts: ProductDefinition[];
+  unavailableProducts: ProductDefinition[];
+  isPrivileged: boolean;
+  coverageScore: number;
+}
+
+export class ProductAccessService {
+  static buildSnapshot(
+    user: PlatformUserContext | null | undefined,
+  ): ProductAccessSnapshot {
+    const role = String(user?.role || '').trim().toLowerCase();
+    const isPrivileged = PRIVILEGED_ROLES.has(role);
+    const tenantLicensedProductIds = this.normalizeProductIds(user?.licensedProductIds);
+    const userProductIds = this.normalizeProductIds(user?.productIds);
+    const licensedProductIds = isPrivileged
+      ? tenantLicensedProductIds
+      : tenantLicensedProductIds.length > 0
+        ? userProductIds.filter((productId) => tenantLicensedProductIds.includes(productId))
+        : userProductIds;
+
+    const availableProducts = PRODUCT_REGISTRY.filter((product) =>
+      this.canAccessProduct(product, licensedProductIds, isPrivileged),
+    );
+    const unavailableProducts = PRODUCT_REGISTRY.filter(
+      (product) =>
+        !this.canAccessProduct(product, licensedProductIds, isPrivileged),
+    );
+
+    return {
+      licensedProductIds,
+      availableProducts,
+      unavailableProducts,
+      isPrivileged,
+      coverageScore:
+        PRODUCT_REGISTRY.length === 0
+          ? 100
+          : Math.round(
+              (availableProducts.length / PRODUCT_REGISTRY.length) * 100,
+            ),
+    };
+  }
+
+  static canAccessTab(
+    tabId: string,
+    snapshot: ProductAccessSnapshot,
+  ): boolean {
+    const product = getProductByTab(tabId);
+
+    if (!product) return true;
+
+    return snapshot.availableProducts.some(
+      (availableProduct) => availableProduct.id === product.id,
+    );
+  }
+
+  static canAccessProductId(
+    productId: string,
+    snapshot: ProductAccessSnapshot,
+  ): boolean {
+    return snapshot.availableProducts.some(
+      (product) => product.id === productId,
+    );
+  }
+
+  static getRequiredProductForTab(
+    tabId: string,
+  ): ProductDefinition | undefined {
+    return getProductByTab(tabId);
+  }
+
+  private static canAccessProduct(
+    product: ProductDefinition,
+    licensedProductIds: string[],
+    isPrivileged: boolean,
+  ): boolean {
+    if (isPrivileged) return product.status !== 'planned';
+    if (ALWAYS_AVAILABLE_STATUSES.has(product.status)) return true;
+
+    return licensedProductIds.includes(product.id);
+  }
+
+  private static normalizeProductIds(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+
+    return Array.from(
+      new Set(
+        value
+          .map((productId) => String(productId).trim())
+          .filter(Boolean),
+      ),
+    );
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A project created by the user to track goals, progress, and state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the project" },
+        "name": { "type": "string", "description": "The project's name" },
+        "description": { "type": "string", "description": "Description of the project" },
+        "status": { "type": "string", "enum": ["active", "paused", "completed"], "description": "The status of the project" },
+        "lastStopPoint": { "type": "string", "description": "Explicit text describing exactly where this project stopped" },
+        "userId": { "type": "string", "description": "Owner user's ID" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the project was created" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "When the project was last updated" }
+      },
+      "required": ["id", "name", "status", "userId", "createdAt", "updatedAt"]
+    },
+    "Decision": {
+      "title": "Decision",
+      "description": "An important decision recorded for a specific project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the decision" },
+        "projectId": { "type": "string", "description": "Associated project ID" },
+        "title": { "type": "string", "description": "The core of the decision made" },
+        "description": { "type": "string", "description": "Context or justification of the decision" },
+        "userId": { "type": "string", "description": "The ID of the user who made the decision" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the decision was recorded" }
+      },
+      "required": ["id", "projectId", "title", "userId", "createdAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "An actionable item or task under a project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the task" },
+        "projectId": { "type": "string", "description": "Associated project ID" },
+        "title": { "type": "string", "description": "What needs to be done" },
+        "status": { "type": "string", "enum": ["pending", "in_progress", "completed"], "description": "Current task status" },
+        "userId": { "type": "string", "description": "Assignee user ID" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the task was created" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "When the task was last updated" }
+      },
+      "required": ["id", "projectId", "title", "status", "userId", "createdAt", "updatedAt"]
+    },
+    "Memory": {
+      "title": "Memory",
+      "description": "An important piece of contextual information, lesson learned, or key point to remember",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the memory" },
+        "projectId": { "type": "string", "description": "Associated project ID (optional)" },
+        "content": { "type": "string", "description": "The memory details" },
+        "userId": { "type": "string", "description": "User's ID" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When this memory was saved" }
+      },
+      "required": ["id", "content", "userId", "createdAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A message sent in the chat between the user and Beta",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier" },
+        "projectId": { "type": "string", "description": "Active context project ID (optional)" },
+        "userId": { "type": "string", "description": "The user's ID" },
+        "sender": { "type": "string", "enum": ["user", "beta"], "description": "Sender of the message" },
+        "content": { "type": "string", "description": "The message body text" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the message was sent" }
+      },
+      "required": ["id", "userId", "sender", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Collection of user projects"
+    },
+    "/projects/{projectId}/decisions/{decisionId}": {
+      "schema": "Decision",
+      "description": "Important decisions under a specific project"
+    },
+    "/projects/{projectId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Tasks under a project"
+    },
+    "/projects/{projectId}/memories/{memoryId}": {
+      "schema": "Memory",
+      "description": "Memories under a project"
+    },
+    "/users/{userId}/chatHistory/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Standalone or historic chat messages with Beta"
+    }
+  }
+}

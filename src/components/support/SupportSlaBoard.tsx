@@ -1,0 +1,8 @@
+import React from 'react';
+import type { SupportTicketIntelligenceItem } from '../../core/support/SupportIntelligenceTypes';
+import RiskBadge from '../shared/RiskBadge';
+
+export default function SupportSlaBoard({ items }: { items: SupportTicketIntelligenceItem[] }) {
+  const active = items.filter((item) => !['resolved', 'closed'].includes(item.status)).slice(0, 8);
+  return <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-5 space-y-4"><div><span className="text-[10px] uppercase font-mono tracking-[0.24em] text-[var(--text-secondary)] font-black">SLA inteligente</span><h2 className="text-lg font-black text-[var(--text-main)] mt-1">Fila por urgência</h2></div>{active.length === 0 ? <p className="text-sm text-[var(--text-secondary)]">Nenhum chamado ativo.</p> : <div className="space-y-3">{active.map((item) => <article key={`${item.clientId}-${item.id}`} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)]/35 p-4"><div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-black text-[var(--text-main)]">{item.title}</h3><RiskBadge level={item.risk === 'critical' ? 'overdue' : item.risk === 'attention' ? 'attention' : 'healthy'} /></div><p className="text-xs text-[var(--text-secondary)] mt-1">{item.clientName} • {item.ageHours}h em aberto • {item.idleHours}h sem atualização</p></div><strong className={`text-xs font-black ${item.breached ? 'text-red-300' : item.remainingHours <= 8 ? 'text-amber-300' : 'text-emerald-300'}`}>{item.breached ? `${Math.abs(item.remainingHours)}h fora do SLA` : `${item.remainingHours}h restantes`}</strong></div></article>)}</div>}</section>;
+}

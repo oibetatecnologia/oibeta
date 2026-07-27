@@ -1,0 +1,56 @@
+{
+  "environments": [
+    {
+      "id": "222fd954-c976-45e3-bdc6-e8635146716d",
+      "tenantId": "org-oi-beta",
+      "organizationId": "org-oi-beta",
+      "workspaceId": "default-workspace",
+      "kind": "development",
+      "name": "Ambiente de desenvolvimento",
+      "status": "ready",
+      "version": "RC-1-dev",
+      "url": "local.oibeta.dev",
+      "databaseStatus": "ready",
+      "storageStatus": "pending",
+      "apiStatus": "ready",
+      "notes": "Ambiente local oficial para evolução incremental, lint, build e testes.",
+      "createdAt": "2026-07-11T19:37:40.763Z",
+      "updatedAt": "2026-07-11T19:37:40.763Z"
+    },
+    {
+      "id": "b88e8586-ddc4-4ee4-946d-a2afb4ba7853",
+      "tenantId": "org-oi-beta",
+      "organizationId": "org-oi-beta",
+      "workspaceId": "default-workspace",
+      "kind": "staging",
+      "name": "Ambiente de homologação",
+      "status": "pending",
+      "version": "A preparar",
+      "url": "staging.betaplatform.com.br",
+      "databaseStatus": "pending",
+      "storageStatus": "pending",
+      "apiStatus": "pending",
+      "notes": "Ambiente de validação de autenticação, multi-tenant, permissões e integrações.",
+      "createdAt": "2026-07-11T19:37:40.763Z",
+      "updatedAt": "2026-07-11T19:37:40.763Z"
+    },
+    {
+      "id": "ee31c85e-66d0-4004-b6ee-c8d890fb77aa",
+      "tenantId": "org-oi-beta",
+      "organizationId": "org-oi-beta",
+      "workspaceId": "default-workspace",
+      "kind": "production",
+      "name": "Ambiente de produção",
+      "status": "pending",
+      "version": "A preparar",
+      "url": "app.betaplatform.com.br",
+      "databaseStatus": "pending",
+      "storageStatus": "pending",
+      "apiStatus": "pending",
+      "notes": "Ambiente comercial oficial após aprovação dos gates de produção.",
+      "createdAt": "2026-07-11T19:37:40.763Z",
+      "updatedAt": "2026-07-11T19:37:40.763Z"
+    }
+  ],
+  "deployments": []
+}

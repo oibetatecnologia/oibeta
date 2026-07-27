@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: oibeta-site
+    runtime: static
+    rootDir: oibeta-site
+    buildCommand: npm install --no-audit --no-fund && npm run build
+    staticPublishPath: ./out
+    envVars:
+      - key: NEXT_PUBLIC_PLATFORM_URL
+        value: https://app.oibeta.com.br

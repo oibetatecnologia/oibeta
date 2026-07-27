@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1aaa8952-2494-4d70-8810-90ac696e3f46",
+    "organizationId": "org-oi-beta",
+    "userId": "dev-user-douglas",
+    "inAppEnabled": true,
+    "incidentAlertsEnabled": true,
+    "minimumEscalationLevel": "standard",
+    "markReadOnOpen": true,
+    "createdAt": "2026-07-13T23:13:54.467Z",
+    "updatedAt": "2026-07-13T23:13:54.467Z"
+  }
+]

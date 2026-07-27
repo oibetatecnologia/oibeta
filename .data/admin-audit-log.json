@@ -1,0 +1,256 @@
+[
+  {
+    "id": "a932daab-8300-4716-b645-88c2146654f2",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T14:44:16.338Z"
+  },
+  {
+    "id": "238f8b8f-4a70-4246-b534-933069479127",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T14:44:15.748Z"
+  },
+  {
+    "id": "79325640-a003-4677-90b2-e32cdbdd2b61",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T12:04:11.582Z"
+  },
+  {
+    "id": "9bf2f9a5-069f-4809-90a1-6dd709c8cba2",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T12:04:11.435Z"
+  },
+  {
+    "id": "166c6acd-7e00-4190-96c9-1860b9bf094e",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T12:04:08.303Z"
+  },
+  {
+    "id": "a67a809c-919f-4ef5-9162-0a79cdad1775",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T12:04:08.178Z"
+  },
+  {
+    "id": "df6e7c54-b067-43f1-9d75-2d4c4ca270d4",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T12:02:30.746Z"
+  },
+  {
+    "id": "961a45c9-e3d8-40ce-bc22-c3c3d5964f5d",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-27T12:02:30.252Z"
+  },
+  {
+    "id": "961fa991-9067-40d6-8862-09f23de27b6d",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:57:00.847Z"
+  },
+  {
+    "id": "c41f8f65-087e-45f8-b2a0-d5f380c2b8fc",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:57:00.835Z"
+  },
+  {
+    "id": "db11592c-e85f-40b4-8db4-0b912da795c0",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:56:52.174Z"
+  },
+  {
+    "id": "5003d2b4-7e81-4c6d-8f34-15a3552677a4",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:56:52.054Z"
+  },
+  {
+    "id": "0e66f9b2-0213-43f0-a6e7-2715db6bd4cf",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:56:48.183Z"
+  },
+  {
+    "id": "4c88ac70-34c8-4fa0-92a3-d3612313751e",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:56:48.060Z"
+  },
+  {
+    "id": "52086db3-7d3f-4e71-bac4-6cdb377d959a",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:54:42.442Z"
+  },
+  {
+    "id": "0d388d5e-bb24-42ae-9e32-31c49ac164b3",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "directory_viewed",
+    "entityType": "directory",
+    "entityId": "audit-log",
+    "description": "Histórico de auditoria consultado.",
+    "metadata": {
+      "limit": 50
+    },
+    "createdAt": "2026-07-26T14:54:41.913Z"
+  },
+  {
+    "id": "493c6c3d-4d41-4388-bc7a-0524d1759a56",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "rc_certification_created",
+    "entityType": "directory",
+    "entityId": "47071f9a-3ae6-47c7-9591-68f41cff530e",
+    "description": "Certificação RC-1 iniciada.",
+    "metadata": {
+      "version": "RC-1",
+      "requiredControls": 12
+    },
+    "createdAt": "2026-07-15T12:30:58.977Z"
+  },
+  {
+    "id": "b7ab5d5a-0ae4-45fe-ace8-c9f38b37741a",
+    "actorUserId": "dev-user-douglas",
+    "actorName": "Douglas",
+    "organizationId": "org-oi-beta",
+    "actionType": "rc_certification_created",
+    "entityType": "directory",
+    "entityId": "47071f9a-3ae6-47c7-9591-68f41cff530e",
+    "description": "Certificação RC-1 iniciada.",
+    "metadata": {
+      "version": "RC-1",
+      "requiredControls": 12
+    },
+    "createdAt": "2026-07-15T12:30:56.031Z"
+  }
+]

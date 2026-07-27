@@ -1,0 +1,975 @@
+server/beta/core/types.ts:  apiKey?: string;
+server/beta/providers/ClaudeProvider.ts:  private apiKey: string = "";
+server/beta/providers/ClaudeProvider.ts:  private baseUrl: string = "https://api.anthropic.com/v1";
+server/beta/providers/ClaudeProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/ClaudeProvider.ts:    this.apiKey = apiKey;
+server/beta/providers/ClaudeProvider.ts:      if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/ClaudeProvider.ts:          "x-api-key": this.apiKey,
+server/beta/providers/ClaudeProvider.ts:    if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/ClaudeProvider.ts:        "x-api-key": this.apiKey,
+server/beta/providers/OpenAIProvider.ts:  private apiKey: string = "";
+server/beta/providers/OpenAIProvider.ts:  private baseUrl: string = "https://api.openai.com/v1";
+server/beta/providers/OpenAIProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/OpenAIProvider.ts:    this.apiKey = apiKey;
+server/beta/providers/OpenAIProvider.ts:      if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/OpenAIProvider.ts:          "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/OpenAIProvider.ts:    if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/OpenAIProvider.ts:        "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/GeminiProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/GeminiProvider.ts:      apiKey: apiKey || process.env.GEMINI_API_KEY,
+server/beta/providers/CustomProvider.ts:  private apiKey: string = "";
+server/beta/providers/CustomProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/CustomProvider.ts:    this.apiKey = apiKey;
+server/beta/providers/CustomProvider.ts:      if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/CustomProvider.ts:          "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/CustomProvider.ts:    if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/CustomProvider.ts:        "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/GroqProvider.ts:  private apiKey: string = "";
+server/beta/providers/GroqProvider.ts:  private baseUrl: string = "https://api.groq.com/openai/v1";
+server/beta/providers/GroqProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/GroqProvider.ts:    this.apiKey = apiKey;
+server/beta/providers/GroqProvider.ts:      if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/GroqProvider.ts:          "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/GroqProvider.ts:    if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/GroqProvider.ts:        "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/OpenRouterProvider.ts:  private apiKey: string = "";
+server/beta/providers/OpenRouterProvider.ts:  private baseUrl: string = "https://openrouter.ai/api/v1";
+server/beta/providers/OpenRouterProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/OpenRouterProvider.ts:    this.apiKey = apiKey;
+server/beta/providers/OpenRouterProvider.ts:      if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/OpenRouterProvider.ts:          "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/OpenRouterProvider.ts:    if (!this.apiKey || this.apiKey.includes("dummy")) {
+server/beta/providers/OpenRouterProvider.ts:        "Authorization": `Bearer ${this.apiKey}`
+server/beta/providers/OllamaProvider.ts:  private apiKey: string = "ollama";
+server/beta/providers/OllamaProvider.ts:  async initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void> {
+server/beta/providers/OllamaProvider.ts:    this.apiKey = apiKey || "ollama";
+server/beta/providers/OllamaProvider.ts:      const response = await fetch(`${this.baseUrl}/api/tags`, {
+server/beta/providers/OllamaProvider.ts:      const response = await fetch(`${this.baseUrl}/api/generate`, {
+server/beta/providers/BaseProvider.ts:  initialize(apiKey: string, baseUrl?: string, model?: string): Promise<void>;
+server/beta/AIConnectionManager.ts:    apiKey: string;
+server/beta/AIConnectionManager.ts:    const encryptedKey = encrypt(data.apiKey);
+server/beta/AIConnectionManager.ts:      apiKeyEncrypted: encryptedKey,
+server/beta/AIConnectionManager.ts:      apiKeyMasked: conn.apiKeyEncrypted ? "••••••••••••••••" : ""
+server/beta/AIConnectionManager.ts:      const rawApiKey = decrypt(conn.apiKeyEncrypted);
+server/beta/AIHealthMonitor.ts:        const rawApiKey = connection.apiKeyEncrypted ? decrypt(connection.apiKeyEncrypted) : "";
+server/beta/AIRouter.ts:        const rawApiKey = conn.apiKeyEncrypted ? decrypt(conn.apiKeyEncrypted) : "";
+server/database/SupabaseDatabaseAdapter.ts:      api_key_encrypted: data.apiKeyEncrypted,
+server/database/JsonDatabaseAdapter.ts:      apiKeyEncrypted: data.apiKeyEncrypted,
+src/index.css:@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+src/engines/BetaContextEngine.ts:    const architectureKeywords = ['db', 'banco', 'modelagem', 'arquitetura', 'api', 'backend', 'schema', 'setup', 'esquiço', 'wireframe'];
+src/App.tsx:        fetch('/api/projects'),
+src/App.tsx:        fetch('/api/decisions'),
+src/App.tsx:        fetch('/api/tasks'),
+src/App.tsx:        fetch('/api/memories'),
+src/App.tsx:        fetch('/api/chat'),
+src/App.tsx:        fetch('/api/project-states'),
+src/App.tsx:        fetch('/api/workspace-state')
+src/App.tsx:      const res = await fetch('/api/auth/session');
+src/App.tsx:      await fetch('/api/workspace-state', {
+src/App.tsx:      const response = await fetch('/api/projects', {
+src/App.tsx:      await fetch('/api/projects', {
+src/App.tsx:      const response = await fetch(`/api/projects/${projectId}/stop-point`, {
+src/App.tsx:      const response = await fetch(`/api/project-states/${pId}/update`, {
+src/App.tsx:      const response = await fetch(`/api/projects/${pId}/rebuild-context`, {
+src/App.tsx:      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+src/App.tsx:      const res = await fetch('/api/decisions', {
+src/App.tsx:      const res = await fetch(`/api/decisions/${id}`, { method: 'DELETE' });
+src/App.tsx:      const res = await fetch('/api/tasks', {
+src/App.tsx:      await fetch('/api/tasks', {
+src/App.tsx:      const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+src/App.tsx:      const res = await fetch('/api/memories', {
+src/App.tsx:      const res = await fetch(`/api/memories/${id}`, { method: 'DELETE' });
+src/App.tsx:      const response = await fetch('/api/chat', {
+src/App.tsx:      const res = await fetch('/api/chat/clear', { method: 'POST' });
+src/App.tsx:                  await fetch('/api/auth/logout', { method: 'POST' });
+src/components/AuthOverlay.tsx:        const res = await fetch('/api/auth/login', {
+src/components/AuthOverlay.tsx:        const res = await fetch('/api/auth/register', {
+src/components/AuthOverlay.tsx:        const res = await fetch('/api/auth/reset', {
+src/components/ManagerPanel.tsx:        fetch('/api/core/modules'),
+src/components/ManagerPanel.tsx:        fetch('/api/core/modules/active'),
+src/components/ManagerPanel.tsx:        fetch('/api/core/features/active')
+src/components/ManagerPanel.tsx:      const res = await fetch(`/api/objectives?projectId=${selectedProjectId}`);
+src/components/ManagerPanel.tsx:      const response = await fetch('/api/objectives', {
+src/components/ManagerPanel.tsx:      const response = await fetch(`/api/objectives/${id}`, {
+src/components/ManagerPanel.tsx:      const response = await fetch(`/api/objectives/${id}`, {
+src/components/ManagerPanel.tsx:      const res = await fetch('/api/actions');
+src/components/ManagerPanel.tsx:      const res = await fetch('/api/debug-logs');
+src/components/ManagerPanel.tsx:      const res = await fetch("/api/ai-connections");
+src/components/ManagerPanel.tsx:      const hRes = await fetch("/api/ai-health");
+src/components/ManagerPanel.tsx:      const res = await fetch("/api/ai-connections", {
+src/components/ManagerPanel.tsx:          apiKey: newConnApiKey,
+src/components/ManagerPanel.tsx:      const res = await fetch(`/api/ai-connections/${id}`, {
+src/components/ManagerPanel.tsx:      const res = await fetch("/api/ai-connections/test", {
+src/components/ElectoralWorkspace.tsx:      // 1. Fetch Summary Snapshot (GET /api/electoral/summary)
+src/components/ElectoralWorkspace.tsx:      const resSummary = await fetch('/api/electoral/summary');
+src/components/ElectoralWorkspace.tsx:      const response = await fetch('/api/electoral/campaign', {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch(`/api/electoral/campaigns/${editingCampaignId}`, {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch('/api/electoral/coordinator', {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch(`/api/electoral/coordinators/${editingCoordinatorId}`, {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch('/api/electoral/territory', {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch('/api/electoral/invite', {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch('/api/electoral/invite/accept', {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch(`/api/electoral/invite/${inviteId}/decline`, {
+src/components/ElectoralWorkspace.tsx:      const response = await fetch(`/api/electoral/invite/${inviteId}/revoke`, {
+src/components/ElectoralWorkspace.tsx:      const endpoint = `/api/electoral/analytics/${analysisType}?${queryParams.toString()}`;
+src/components/ElectoralWorkspace.tsx:      const response = await fetch('/api/electoral/analysis', {
+src/components/LicitaWorkspace.tsx:      const initRes = await fetch(`/api/licita/workspace?workspaceId=${workspaceId}`);
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/summary?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/opportunities?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/bids?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/suppliers?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/contracts?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/arps?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/compliance-summary?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/audit-events?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/compliance-events?workspaceId=${workspaceId}`),
+src/components/LicitaWorkspace.tsx:        fetch(`/api/licita/reports?workspaceId=${workspaceId}`)
+src/components/LicitaWorkspace.tsx:        endpoint = '/api/licita/bids';
+src/components/LicitaWorkspace.tsx:        endpoint = '/api/licita/suppliers';
+src/components/LicitaWorkspace.tsx:        endpoint = '/api/licita/contracts';
+src/components/LicitaWorkspace.tsx:        endpoint = '/api/licita/arps';
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/objectives?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/programs?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/projects?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/actions?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/indicators?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/goals?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/results?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/administrative-audits?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/administrative-compliances?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/administrative-monitorings?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/administrative-occurrences?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/briefs?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/monitoring?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/governance/reviews?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/reports?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/program-summary?workspaceId=${workspaceId}`).catch(() => null),
+src/components/GovWorkspace.tsx:        fetch(`/api/gov/performance-summary?workspaceId=${workspaceId}`).catch(() => null)
+src/components/GovWorkspace.tsx:        const resTransReports = await fetch(`/api/gov/transparency/reports?workspaceId=${workspaceId}`).catch(() => null);
+src/components/GovWorkspace.tsx:        endpoint = '/api/gov/programs';
+src/components/GovWorkspace.tsx:          const resObj = await fetch(`/api/gov/objectives`, {
+src/components/GovWorkspace.tsx:        endpoint = '/api/gov/projects';
+src/components/GovWorkspace.tsx:        endpoint = '/api/gov/actions';
+src/components/GovWorkspace.tsx:        endpoint = '/api/gov/goals';
+src/components/GovWorkspace.tsx:          const resInd = await fetch(`/api/gov/indicators`, {
+src/components/GovWorkspace.tsx:                    <span className="text-[10px] uppercase font-mono text-indigo-400 font-bold capitalize">{key}</span>
+src/components/Sistema1Workspace.tsx:        fetch(`/api/gov/public-publications?workspaceId=${workspaceId}`),
+src/components/Sistema1Workspace.tsx:        fetch(`/api/gov/ombudsman/requests?workspaceId=${workspaceId}`),
+src/components/Sistema1Workspace.tsx:        fetch(`/api/gov/ombudsman/responses?workspaceId=${workspaceId}`),
+src/components/Sistema1Workspace.tsx:        fetch(`/api/gov/transparency/reports?workspaceId=${workspaceId}`)
+src/components/Sistema1Workspace.tsx:      const res = await fetch('/api/gov/public-publications', {
+src/components/Sistema1Workspace.tsx:      const res = await fetch('/api/gov/ombudsman/requests', {
+src/components/Sistema1Workspace.tsx:      const res = await fetch('/api/gov/ombudsman/requests', {
+src/components/Sistema1Workspace.tsx:      const res = await fetch('/api/gov/ombudsman/responses', {
+src/components/Sistema1Workspace.tsx:      const res = await fetch('/api/gov/transparency/reports', {
+supabase/schema.sql:  api_key_encrypted text not null,
+package-lock.json:    "node_modules/@napi-rs/canvas": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-0.1.80.tgz",
+package-lock.json:        "@napi-rs/canvas-android-arm64": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-darwin-arm64": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-darwin-x64": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-linux-arm-gnueabihf": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-linux-arm64-gnu": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-linux-arm64-musl": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-linux-riscv64-gnu": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-linux-x64-gnu": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-linux-x64-musl": "0.1.80",
+package-lock.json:        "@napi-rs/canvas-win32-x64-msvc": "0.1.80"
+package-lock.json:    "node_modules/@napi-rs/canvas-android-arm64": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-android-arm64/-/canvas-android-arm64-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-darwin-arm64": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-darwin-arm64/-/canvas-darwin-arm64-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-darwin-x64": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-darwin-x64/-/canvas-darwin-x64-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-linux-arm-gnueabihf": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm-gnueabihf/-/canvas-linux-arm-gnueabihf-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-linux-arm64-gnu": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-gnu/-/canvas-linux-arm64-gnu-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-linux-arm64-musl": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-musl/-/canvas-linux-arm64-musl-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-linux-riscv64-gnu": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-riscv64-gnu/-/canvas-linux-riscv64-gnu-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-linux-x64-gnu": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-gnu/-/canvas-linux-x64-gnu-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-linux-x64-musl": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-musl/-/canvas-linux-x64-musl-0.1.80.tgz",
+package-lock.json:    "node_modules/@napi-rs/canvas-win32-x64-msvc": {
+package-lock.json:      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-0.1.80.tgz",
+package-lock.json:        "@napi-rs/wasm-runtime",
+package-lock.json:        "@emnapi/core",
+package-lock.json:        "@emnapi/runtime",
+package-lock.json:        "@emnapi/wasi-threads",
+package-lock.json:        "@emnapi/core": "^1.10.0",
+package-lock.json:        "@emnapi/runtime": "^1.10.0",
+package-lock.json:        "@emnapi/wasi-threads": "^1.2.1",
+package-lock.json:        "@napi-rs/wasm-runtime": "^1.1.4",
+package-lock.json:        "@napi-rs/canvas": "0.1.80",
+package-lock.json:        "@napi-rs/canvas": "^0.1.80"
+server.ts:  if (req.path.startsWith('/api/auth')) {
+server.ts:  } else if (req.path.includes('upload') || req.path.startsWith('/api/core/imports')) {
+server.ts:  } else if (req.path.startsWith('/api/core/ai-router') || req.path === '/api/chat') {
+server.ts:  const isInternal = req.path.startsWith('/api/debug') || req.path.startsWith('/api/internal') || req.path.startsWith('/api/mock') || req.path.startsWith('/api/test') || req.path.startsWith('/api/dev');
+server.ts:  if (!req.path.startsWith('/api/')) return next();
+server.ts:  const isPublic = req.path.startsWith('/api/health') || req.path === '/api/status' || req.path.startsWith('/api/auth');
+server.ts:  if (req.path.startsWith('/api/admin')) {
+server.ts:    "/api/auth/login",
+server.ts:    "/api/auth/register",
+server.ts:    "/api/auth/reset",
+server.ts:    "/api/auth/session",
+server.ts:app.post("/api/documents/upload", async (req, res) => {
+server.ts:app.get("/api/documents/:id/preview", async (req, res) => {
+server.ts:app.post("/api/documents/:id/extract", async (req, res) => {
+server.ts:app.get("/api/documents/:id/chunks", async (req, res) => {
+server.ts:app.get("/api/documents/:id/outputs", async (req, res) => {
+server.ts:app.get("/api/documents/jobs/:id", async (req, res) => {
+server.ts:app.post("/api/documents/jobs/:id/cancel", async (req, res) => {
+server.ts:app.get("/api/documents/health", async (req, res) => {
+server.ts:app.get("/api/documents/stats", async (req, res) => {
+server.ts:app.get("/api/projects", async (req, res) => {
+server.ts:app.post("/api/projects", async (req, res) => {
+server.ts:app.delete("/api/projects/:id", async (req, res) => {
+server.ts:app.post("/api/auth/register", async (req, res) => {
+server.ts:app.post("/api/auth/login", async (req, res) => {
+server.ts:app.post("/api/auth/logout", async (req, res) => {
+server.ts:app.post("/api/auth/reset", async (req, res) => {
+server.ts:app.get("/api/auth/session", async (req, res) => {
+server.ts:app.get("/api/objectives", async (req, res) => {
+server.ts:app.post("/api/objectives", async (req, res) => {
+server.ts:app.put("/api/objectives/:id", async (req, res) => {
+server.ts:app.delete("/api/objectives/:id", async (req, res) => {
+server.ts:app.get("/api/workspace-state", async (req, res) => {
+server.ts:app.post("/api/workspace-state", async (req, res) => {
+server.ts:app.get("/api/projects/:projectId/details", async (req, res) => {
+server.ts:app.get("/api/knowledge/context/:projectId", async (req, res) => {
+server.ts:app.get("/api/projects/:id/context", async (req, res) => {
+server.ts:app.post("/api/projects/:id/rebuild-context", async (req, res) => {
+server.ts:app.post("/api/projects/:projectId/stop-point", async (req, res) => {
+server.ts:app.get("/api/decisions", async (req, res) => {
+server.ts:app.post("/api/decisions", async (req, res) => {
+server.ts:app.delete("/api/decisions/:id", async (req, res) => {
+server.ts:app.get("/api/tasks", async (req, res) => {
+server.ts:app.post("/api/tasks", async (req, res) => {
+server.ts:app.delete("/api/tasks/:id", async (req, res) => {
+server.ts:app.get("/api/memories", async (req, res) => {
+server.ts:app.post("/api/memories", async (req, res) => {
+server.ts:app.delete("/api/memories/:id", async (req, res) => {
+server.ts:app.get("/api/project-states", async (req, res) => {
+server.ts:app.get("/api/project-states/:projectId", async (req, res) => {
+server.ts:app.post("/api/project-states/:projectId/update", async (req, res) => {
+server.ts:app.get("/api/actions", async (req, res) => {
+server.ts:app.get("/api/debug-logs", async (req, res) => {
+server.ts:app.get("/api/ai-connections", async (req, res) => {
+server.ts:app.post("/api/ai-connections", async (req, res) => {
+server.ts:app.put("/api/ai-connections/:id", async (req, res) => {
+server.ts:    if (data.apiKey) {
+server.ts:      data.apiKeyEncrypted = encrypt(data.apiKey);
+server.ts:      delete data.apiKey;
+server.ts:app.delete("/api/ai-connections/:id", async (req, res) => {
+server.ts:app.post("/api/ai-connections/test", async (req, res) => {
+server.ts:    } else if (data.apiKey) {
+server.ts:        apiKeyEncrypted: encrypt(data.apiKey),
+server.ts:app.get("/api/ai-health", async (req, res) => {
+server.ts:app.get("/api/chat", async (req, res) => {
+server.ts:app.post("/api/chat/clear", async (req, res) => {
+server.ts:// GET /api/memory/health
+server.ts:app.get("/api/memory/health", async (req, res) => {
+server.ts:// GET /api/workspace/health
+server.ts:app.get("/api/workspace/health", async (req, res) => {
+server.ts:// GET /api/projects/:id/workspace-summary
+server.ts:app.get("/api/projects/:id/workspace-summary", async (req, res) => {
+server.ts:app.get("/api/licita/workspace", async (req, res) => {
+server.ts:app.get("/api/licita/summary", async (req, res) => {
+server.ts:app.get("/api/licita/health", async (req, res) => {
+server.ts:app.get("/api/licita/timeline", async (req, res) => {
+server.ts:app.get("/api/licita/opportunities", async (req, res) => {
+server.ts:app.post("/api/licita/opportunities", async (req, res) => {
+server.ts:app.get("/api/licita/bids", async (req, res) => {
+server.ts:app.post("/api/licita/bids", async (req, res) => {
+server.ts:app.get("/api/licita/participations", async (req, res) => {
+server.ts:app.post("/api/licita/participations", async (req, res) => {
+server.ts:app.get("/api/licita/suppliers", async (req, res) => {
+server.ts:app.get("/api/licita/lots", async (req, res) => {
+server.ts:app.post("/api/licita/lots", async (req, res) => {
+server.ts:app.get("/api/licita/proposals", async (req, res) => {
+server.ts:app.post("/api/licita/proposals", async (req, res) => {
+server.ts:app.get("/api/licita/bid-summary", async (req, res) => {
+server.ts:app.get("/api/licita/bid-health", async (req, res) => {
+server.ts:app.get("/api/licita/contracts", async (req, res) => {
+server.ts:app.post("/api/licita/contracts", async (req, res) => {
+server.ts:app.get("/api/licita/contract-executions", async (req, res) => {
+server.ts:app.post("/api/licita/contract-executions", async (req, res) => {
+server.ts:app.get("/api/licita/inspections", async (req, res) => {
+server.ts:app.post("/api/licita/inspections", async (req, res) => {
+server.ts:app.get("/api/licita/deliveries", async (req, res) => {
+server.ts:app.post("/api/licita/deliveries", async (req, res) => {
+server.ts:app.get("/api/licita/measurements", async (req, res) => {
+server.ts:app.post("/api/licita/measurements", async (req, res) => {
+server.ts:app.get("/api/licita/contract-issues", async (req, res) => {
+server.ts:app.post("/api/licita/contract-issues", async (req, res) => {
+server.ts:app.get("/api/licita/contract-summary", async (req, res) => {
+server.ts:app.get("/api/licita/contract-health", async (req, res) => {
+server.ts:app.get("/api/licita/arps", async (req, res) => {
+server.ts:app.post("/api/licita/arps", async (req, res) => {
+server.ts:app.get("/api/licita/arp-items", async (req, res) => {
+server.ts:app.post("/api/licita/arp-items", async (req, res) => {
+server.ts:app.get("/api/licita/arp-consumptions", async (req, res) => {
+server.ts:app.post("/api/licita/arp-consumptions", async (req, res) => {
+server.ts:app.get("/api/licita/arp-participants", async (req, res) => {
+server.ts:app.post("/api/licita/arp-participants", async (req, res) => {
+server.ts:app.get("/api/licita/arp-caronas", async (req, res) => {
+server.ts:app.post("/api/licita/arp-caronas", async (req, res) => {
+server.ts:app.get("/api/licita/audit-events", async (req, res) => {
+server.ts:app.post("/api/licita/audit-events", async (req, res) => {
+server.ts:app.get("/api/licita/compliance-events", async (req, res) => {
+server.ts:app.post("/api/licita/compliance-events", async (req, res) => {
+server.ts:app.get("/api/licita/compliance-summary", async (req, res) => {
+server.ts:app.get("/api/licita/compliance-health", async (req, res) => {
+server.ts:app.get("/api/licita/suppliers", async (req, res) => {
+server.ts:app.post("/api/licita/suppliers", async (req, res) => {
+server.ts:app.get("/api/licita/supplier-documents", async (req, res) => {
+server.ts:app.post("/api/licita/supplier-documents", async (req, res) => {
+server.ts:app.get("/api/licita/supplier-certificates", async (req, res) => {
+server.ts:app.post("/api/licita/supplier-certificates", async (req, res) => {
+server.ts:app.get("/api/licita/supplier-qualifications", async (req, res) => {
+server.ts:app.post("/api/licita/supplier-qualifications", async (req, res) => {
+server.ts:app.get("/api/licita/supplier-registries", async (req, res) => {
+server.ts:app.post("/api/licita/supplier-registries", async (req, res) => {
+server.ts:app.get("/api/licita/supplier-summary", async (req, res) => {
+server.ts:app.get("/api/licita/supplier-health", async (req, res) => {
+server.ts:app.get("/api/licita/reports", async (req, res) => {
+server.ts:app.get("/api/licita/reports/:id", async (req, res) => {
+server.ts:app.post("/api/licita/reports", async (req, res) => {
+server.ts:app.get("/api/licita/executive-briefs", async (req, res) => {
+server.ts:app.get("/api/licita/executive-briefs/:id", async (req, res) => {
+server.ts:app.post("/api/licita/executive-briefs", async (req, res) => {
+server.ts:app.get("/api/licita/monitoring-snapshots", async (req, res) => {
+server.ts:app.post("/api/licita/monitoring-snapshots", async (req, res) => {
+server.ts:app.get("/api/licita/reporting-summary", async (req, res) => {
+server.ts:app.get("/api/licita/reporting-health", async (req, res) => {
+server.ts:app.get("/api/gov/workspace", async (req, res) => {
+server.ts:app.get("/api/gov/summary", async (req, res) => {
+server.ts:app.get("/api/gov/reports", async (req, res) => {
+server.ts:app.post("/api/gov/reports", async (req, res) => {
+server.ts:app.get("/api/gov/reports/:id", async (req, res) => {
+server.ts:app.get("/api/gov/briefs", async (req, res) => {
+server.ts:app.post("/api/gov/briefs", async (req, res) => {
+server.ts:app.get("/api/gov/briefs/:id", async (req, res) => {
+server.ts:app.get("/api/gov/monitoring", async (req, res) => {
+server.ts:app.post("/api/gov/monitoring", async (req, res) => {
+server.ts:app.get("/api/gov/governance/reviews", async (req, res) => {
+server.ts:app.post("/api/gov/governance/reviews", async (req, res) => {
+server.ts:app.get("/api/gov/governance/reviews/:id", async (req, res) => {
+server.ts:app.get("/api/gov/governance/meetings", async (req, res) => {
+server.ts:app.post("/api/gov/governance/meetings", async (req, res) => {
+server.ts:app.get("/api/gov/governance/meetings/:id", async (req, res) => {
+server.ts:app.get("/api/gov/governance/cycles", async (req, res) => {
+server.ts:app.post("/api/gov/governance/cycles", async (req, res) => {
+server.ts:app.get("/api/gov/governance/cycles/:id", async (req, res) => {
+server.ts:app.get("/api/gov/governance/decisions", async (req, res) => {
+server.ts:app.post("/api/gov/governance/decisions", async (req, res) => {
+server.ts:app.get("/api/gov/governance/decisions/:id", async (req, res) => {
+server.ts:app.get("/api/gov/governance/monitoring", async (req, res) => {
+server.ts:app.post("/api/gov/governance/monitoring", async (req, res) => {
+server.ts:app.get("/api/gov/governance/monitoring/:id", async (req, res) => {
+server.ts:app.get("/api/gov/governance/summary", async (req, res) => {
+server.ts:app.get("/api/gov/governance/health", async (req, res) => {
+server.ts:app.get("/api/gov/health", async (req, res) => {
+server.ts:app.get("/api/gov/timeline", async (req, res) => {
+server.ts:app.get("/api/gov/indicators", async (req, res) => {
+server.ts:app.post("/api/gov/indicators", async (req, res) => {
+server.ts:app.get("/api/gov/goals", async (req, res) => {
+server.ts:app.post("/api/gov/goals", async (req, res) => {
+server.ts:app.get("/api/gov/results", async (req, res) => {
+server.ts:app.post("/api/gov/results", async (req, res) => {
+server.ts:app.get("/api/gov/performance", async (req, res) => {
+server.ts:app.get("/api/gov/performance-summary", async (req, res) => {
+server.ts:app.get("/api/gov/performance-health", async (req, res) => {
+server.ts:app.get("/api/gov/objectives", async (req, res) => {
+server.ts:app.post("/api/gov/objectives", async (req, res) => {
+server.ts:app.get("/api/gov/programs", async (req, res) => {
+server.ts:app.post("/api/gov/programs", async (req, res) => {
+server.ts:app.get("/api/gov/projects", async (req, res) => {
+server.ts:app.post("/api/gov/projects", async (req, res) => {
+server.ts:app.get("/api/gov/actions", async (req, res) => {
+server.ts:app.post("/api/gov/actions", async (req, res) => {
+server.ts:app.get("/api/gov/program-health", async (req, res) => {
+server.ts:app.get("/api/gov/program-summary", async (req, res) => {
+server.ts:app.get("/api/gov/contracts", async (req, res) => {
+server.ts:app.get("/api/gov/bids", async (req, res) => {
+server.ts:app.get("/api/gov/risks", async (req, res) => {
+server.ts:app.get("/api/gov/parliamentarians", async (req, res) => {
+server.ts:app.post("/api/gov/parliamentarians", async (req, res) => {
+server.ts:app.get("/api/gov/amendments", async (req, res) => {
+server.ts:app.post("/api/gov/amendments", async (req, res) => {
+server.ts:app.get("/api/gov/beneficiaries", async (req, res) => {
+server.ts:app.post("/api/gov/beneficiaries", async (req, res) => {
+server.ts:app.get("/api/gov/destinations", async (req, res) => {
+server.ts:app.post("/api/gov/destinations", async (req, res) => {
+server.ts:app.get("/api/gov/executions", async (req, res) => {
+server.ts:app.post("/api/gov/executions", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-summary", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-health", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-milestones", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-milestones", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-monitorings", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-monitorings", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-evidences", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-evidences", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-accountabilities", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-accountabilities", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-issues", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-issues", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-monitoring-summary", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-monitoring-health", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-reports", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-reports", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-executive-briefs", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-executive-briefs", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-snapshots", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-snapshots", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-reviews", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-reviews", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-cycles", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-cycles", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-reporting-summary", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-reporting-health", async (req, res) => {
+server.ts:app.get("/api/gov/health/units", async (req, res) => {
+server.ts:app.post("/api/gov/health/units", async (req, res) => {
+server.ts:app.get("/api/gov/health/teams", async (req, res) => {
+server.ts:app.post("/api/gov/health/teams", async (req, res) => {
+server.ts:app.get("/api/gov/health/programs", async (req, res) => {
+server.ts:app.post("/api/gov/health/programs", async (req, res) => {
+server.ts:app.get("/api/gov/health/indicators", async (req, res) => {
+server.ts:app.post("/api/gov/health/indicators", async (req, res) => {
+server.ts:app.get("/api/gov/health/coverages", async (req, res) => {
+server.ts:app.post("/api/gov/health/coverages", async (req, res) => {
+server.ts:app.get("/api/gov/health/productions", async (req, res) => {
+server.ts:app.post("/api/gov/health/productions", async (req, res) => {
+server.ts:app.get("/api/gov/health/summary", async (req, res) => {
+server.ts:app.get("/api/gov/health/status", async (req, res) => {
+server.ts:app.get("/api/gov/health/goals", async (req, res) => {
+server.ts:app.post("/api/gov/health/goals", async (req, res) => {
+server.ts:app.get("/api/gov/health/results", async (req, res) => {
+server.ts:app.post("/api/gov/health/results", async (req, res) => {
+server.ts:app.get("/api/gov/health/monitorings", async (req, res) => {
+server.ts:app.post("/api/gov/health/monitorings", async (req, res) => {
+server.ts:app.get("/api/gov/health/evidences", async (req, res) => {
+server.ts:app.post("/api/gov/health/evidences", async (req, res) => {
+server.ts:app.get("/api/gov/health/issues", async (req, res) => {
+server.ts:app.post("/api/gov/health/issues", async (req, res) => {
+server.ts:app.get("/api/gov/health/snapshots", async (req, res) => {
+server.ts:app.post("/api/gov/health/snapshots", async (req, res) => {
+server.ts:app.get("/api/gov/health/monitoring-summary", async (req, res) => {
+server.ts:app.get("/api/gov/health/monitoring-status", async (req, res) => {
+server.ts:app.get("/api/gov/education/goals", async (req, res) => {
+server.ts:app.post("/api/gov/education/goals", async (req, res) => {
+server.ts:app.get("/api/gov/education/results", async (req, res) => {
+server.ts:app.post("/api/gov/education/results", async (req, res) => {
+server.ts:app.get("/api/gov/education/monitorings", async (req, res) => {
+server.ts:app.post("/api/gov/education/monitorings", async (req, res) => {
+server.ts:app.get("/api/gov/education/evidences", async (req, res) => {
+server.ts:app.post("/api/gov/education/evidences", async (req, res) => {
+server.ts:app.get("/api/gov/education/issues", async (req, res) => {
+server.ts:app.post("/api/gov/education/issues", async (req, res) => {
+server.ts:app.get("/api/gov/education/snapshots", async (req, res) => {
+server.ts:app.post("/api/gov/education/snapshots", async (req, res) => {
+server.ts:app.get("/api/gov/education/monitoring-summary", async (req, res) => {
+server.ts:app.get("/api/gov/education/monitoring-status", async (req, res) => {
+server.ts:app.get("/api/gov/education/units", async (req, res) => {
+server.ts:app.post("/api/gov/education/units", async (req, res) => {
+server.ts:app.get("/api/gov/education/teams", async (req, res) => {
+server.ts:app.post("/api/gov/education/teams", async (req, res) => {
+server.ts:app.get("/api/gov/education/programs", async (req, res) => {
+server.ts:app.post("/api/gov/education/programs", async (req, res) => {
+server.ts:app.get("/api/gov/education/indicators", async (req, res) => {
+server.ts:app.post("/api/gov/education/indicators", async (req, res) => {
+server.ts:app.get("/api/gov/education/coverages", async (req, res) => {
+server.ts:app.post("/api/gov/education/coverages", async (req, res) => {
+server.ts:app.get("/api/gov/education/productions", async (req, res) => {
+server.ts:app.post("/api/gov/education/productions", async (req, res) => {
+server.ts:app.get("/api/gov/education/summary", async (req, res) => {
+server.ts:app.get("/api/gov/education/status", async (req, res) => {
+server.ts:app.get("/api/gov/funding-opportunities", async (req, res) => {
+server.ts:app.post("/api/gov/funding-opportunities", async (req, res) => {
+server.ts:app.get("/api/gov/funding-programs", async (req, res) => {
+server.ts:app.post("/api/gov/funding-programs", async (req, res) => {
+server.ts:app.get("/api/gov/funding-notices", async (req, res) => {
+server.ts:app.post("/api/gov/funding-notices", async (req, res) => {
+server.ts:app.get("/api/gov/funding-requirements", async (req, res) => {
+server.ts:app.post("/api/gov/funding-requirements", async (req, res) => {
+server.ts:app.get("/api/gov/funding-proposals", async (req, res) => {
+server.ts:app.post("/api/gov/funding-proposals", async (req, res) => {
+server.ts:app.get("/api/gov/funding-submissions", async (req, res) => {
+server.ts:app.post("/api/gov/funding-submissions", async (req, res) => {
+server.ts:app.get("/api/gov/funding-summary", async (req, res) => {
+server.ts:app.get("/api/gov/funding-health", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-portfolios", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-portfolios", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-portfolio-items", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-portfolio-items", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-priorities", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-priorities", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-objectives", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-objectives", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-action-plans", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-action-plans", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-followups", async (req, res) => {
+server.ts:app.post("/api/gov/amendment-followups", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-portfolio-summary", async (req, res) => {
+server.ts:app.get("/api/gov/amendment-portfolio-health", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/publications", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/publications", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/categories", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/categories", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/datasets", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/datasets", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/indicators", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/indicators", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/documents", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/documents", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/reports", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/reports", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/summary", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/health", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/requests", async (req, res) => {
+server.ts:app.post("/api/gov/ombudsman/requests", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/categories", async (req, res) => {
+server.ts:app.post("/api/gov/ombudsman/categories", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/protocols", async (req, res) => {
+server.ts:app.post("/api/gov/ombudsman/protocols", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/responses", async (req, res) => {
+server.ts:app.post("/api/gov/ombudsman/responses", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/attachments", async (req, res) => {
+server.ts:app.post("/api/gov/ombudsman/attachments", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/summary", async (req, res) => {
+server.ts:app.get("/api/gov/ombudsman/health", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/metrics", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/metrics", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/kpis", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/kpis", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/compliance", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/compliance", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/audits", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/audits", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/monitorings", async (req, res) => {
+server.ts:app.post("/api/gov/transparency/monitorings", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/analytics-summary", async (req, res) => {
+server.ts:app.get("/api/gov/transparency/analytics-health", async (req, res) => {
+server.ts:app.get("/api/gov/public-portal", async (req, res) => {
+server.ts:app.post("/api/gov/public-portal", async (req, res) => {
+server.ts:app.get("/api/gov/public-catalogs", async (req, res) => {
+server.ts:app.post("/api/gov/public-catalogs", async (req, res) => {
+server.ts:app.get("/api/gov/public-datasets", async (req, res) => {
+server.ts:app.post("/api/gov/public-datasets", async (req, res) => {
+server.ts:app.get("/api/gov/public-publications", async (req, res) => {
+server.ts:app.post("/api/gov/public-publications", async (req, res) => {
+server.ts:app.get("/api/gov/public-queries", async (req, res) => {
+server.ts:app.post("/api/gov/public-queries", async (req, res) => {
+server.ts:app.get("/api/gov/public-access-logs", async (req, res) => {
+server.ts:app.post("/api/gov/public-access-logs", async (req, res) => {
+server.ts:app.get("/api/gov/public-portal-summary", async (req, res) => {
+server.ts:app.get("/api/gov/public-portal-health", async (req, res) => {
+server.ts:app.get("/api/gov/protocols", async (req, res) => {
+server.ts:app.post("/api/gov/protocols", async (req, res) => {
+server.ts:app.get("/api/gov/processes", async (req, res) => {
+server.ts:app.post("/api/gov/processes", async (req, res) => {
+server.ts:app.get("/api/gov/document-records", async (req, res) => {
+server.ts:app.post("/api/gov/document-records", async (req, res) => {
+server.ts:app.get("/api/gov/dispatches", async (req, res) => {
+server.ts:app.post("/api/gov/dispatches", async (req, res) => {
+server.ts:app.get("/api/gov/routings", async (req, res) => {
+server.ts:app.post("/api/gov/routings", async (req, res) => {
+server.ts:app.get("/api/gov/process-steps", async (req, res) => {
+server.ts:app.post("/api/gov/process-steps", async (req, res) => {
+server.ts:app.get("/api/gov/process-history", async (req, res) => {
+server.ts:app.post("/api/gov/process-history", async (req, res) => {
+server.ts:app.get("/api/gov/zero-paper-summary", async (req, res) => {
+server.ts:app.get("/api/gov/zero-paper-health", async (req, res) => {
+server.ts:app.get("/api/gov/departments", async (req, res) => {
+server.ts:app.post("/api/gov/departments", async (req, res) => {
+server.ts:app.get("/api/gov/protocol-queues", async (req, res) => {
+server.ts:app.post("/api/gov/protocol-queues", async (req, res) => {
+server.ts:app.get("/api/gov/process-assignments", async (req, res) => {
+server.ts:app.post("/api/gov/process-assignments", async (req, res) => {
+server.ts:app.get("/api/gov/process-movements", async (req, res) => {
+server.ts:app.post("/api/gov/process-movements", async (req, res) => {
+server.ts:app.get("/api/gov/process-responsibles", async (req, res) => {
+server.ts:app.post("/api/gov/process-responsibles", async (req, res) => {
+server.ts:app.get("/api/gov/process-sectors", async (req, res) => {
+server.ts:app.post("/api/gov/process-sectors", async (req, res) => {
+server.ts:app.get("/api/gov/process-management-summary", async (req, res) => {
+server.ts:app.get("/api/gov/process-management-health", async (req, res) => {
+server.ts:app.get("/api/gov/workflows", async (req, res) => {
+server.ts:app.post("/api/gov/workflows", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-stages", async (req, res) => {
+server.ts:app.post("/api/gov/workflow-stages", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-transitions", async (req, res) => {
+server.ts:app.post("/api/gov/workflow-transitions", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-queues", async (req, res) => {
+server.ts:app.post("/api/gov/workflow-queues", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-executions", async (req, res) => {
+server.ts:app.post("/api/gov/workflow-executions", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-routes", async (req, res) => {
+server.ts:app.post("/api/gov/workflow-routes", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-summary", async (req, res) => {
+server.ts:app.get("/api/gov/workflow-health", async (req, res) => {
+server.ts:app.get("/api/gov/document-versions", async (req, res) => {
+server.ts:app.post("/api/gov/document-versions", async (req, res) => {
+server.ts:app.get("/api/gov/document-classifications", async (req, res) => {
+server.ts:app.post("/api/gov/document-classifications", async (req, res) => {
+server.ts:app.get("/api/gov/document-retentions", async (req, res) => {
+server.ts:app.post("/api/gov/document-retentions", async (req, res) => {
+server.ts:app.get("/api/gov/document-archives", async (req, res) => {
+server.ts:app.post("/api/gov/document-archives", async (req, res) => {
+server.ts:app.get("/api/gov/document-movements", async (req, res) => {
+server.ts:app.post("/api/gov/document-movements", async (req, res) => {
+server.ts:app.get("/api/gov/document-audits", async (req, res) => {
+server.ts:app.post("/api/gov/document-audits", async (req, res) => {
+server.ts:app.get("/api/gov/document-lifecycle-summary", async (req, res) => {
+server.ts:app.get("/api/gov/document-lifecycle-health", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-indicators", async (req, res) => {
+server.ts:app.post("/api/gov/administrative-indicators", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-audits", async (req, res) => {
+server.ts:app.post("/api/gov/administrative-audits", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-compliances", async (req, res) => {
+server.ts:app.post("/api/gov/administrative-compliances", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-responsibilities", async (req, res) => {
+server.ts:app.post("/api/gov/administrative-responsibilities", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-monitorings", async (req, res) => {
+server.ts:app.post("/api/gov/administrative-monitorings", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-occurrences", async (req, res) => {
+server.ts:app.post("/api/gov/administrative-occurrences", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-governance-summary", async (req, res) => {
+server.ts:app.get("/api/gov/administrative-governance-health", async (req, res) => {
+server.ts:// GET /api/procurement/summary
+server.ts:app.get("/api/procurement/summary", async (req, res) => {
+server.ts:// GET /api/procurement/health
+server.ts:app.get("/api/procurement/health", async (req, res) => {
+server.ts:// GET /api/electoral/summary
+server.ts:app.get("/api/electoral/summary", async (req, res) => {
+server.ts:// GET /api/electoral/health
+server.ts:app.get("/api/electoral/health", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns
+server.ts:app.get("/api/electoral/campaigns", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns/:id
+server.ts:app.get("/api/electoral/campaigns/:id", async (req, res) => {
+server.ts:// PUT /api/electoral/campaigns/:id
+server.ts:app.put("/api/electoral/campaigns/:id", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns/:id/objectives
+server.ts:app.get("/api/electoral/campaigns/:id/objectives", async (req, res) => {
+server.ts:// POST /api/electoral/campaigns/:id/objectives
+server.ts:app.post("/api/electoral/campaigns/:id/objectives", async (req, res) => {
+server.ts:// PUT /api/electoral/campaigns/:id/objectives/:objId
+server.ts:app.put("/api/electoral/campaigns/:id/objectives/:objId", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns/:id/tasks
+server.ts:app.get("/api/electoral/campaigns/:id/tasks", async (req, res) => {
+server.ts:// POST /api/electoral/campaigns/:id/tasks
+server.ts:app.post("/api/electoral/campaigns/:id/tasks", async (req, res) => {
+server.ts:// PUT /api/electoral/campaigns/:id/tasks/:taskId
+server.ts:app.put("/api/electoral/campaigns/:id/tasks/:taskId", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns/:id/progress
+server.ts:app.get("/api/electoral/campaigns/:id/progress", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns/:id/health
+server.ts:app.get("/api/electoral/campaigns/:id/health", async (req, res) => {
+server.ts:// GET /api/electoral/campaigns/:id/intelligence
+server.ts:app.get("/api/electoral/campaigns/:id/intelligence", async (req, res) => {
+server.ts:// GET /api/electoral/territories
+server.ts:app.get("/api/electoral/territories", async (req, res) => {
+server.ts:// GET /api/electoral/coordinators
+server.ts:app.get("/api/electoral/coordinators", async (req, res) => {
+server.ts:// POST /api/electoral/campaign
+server.ts:app.post("/api/electoral/campaign", async (req, res) => {
+server.ts:// POST /api/electoral/territory
+server.ts:app.post("/api/electoral/territory", async (req, res) => {
+server.ts:// POST /api/electoral/coordinator
+server.ts:app.post("/api/electoral/coordinator", async (req, res) => {
+server.ts:// POST /api/electoral/analysis
+server.ts:app.post("/api/electoral/analysis", async (req, res) => {
+server.ts:// POST /api/electoral/invite
+server.ts:app.post("/api/electoral/invite", async (req, res) => {
+server.ts:// POST /api/electoral/invite/accept
+server.ts:app.post("/api/electoral/invite/accept", async (req, res) => {
+server.ts:// GET /api/electoral/coordinators/hierarchy - returns tree hierarchy of coordinators
+server.ts:app.get("/api/electoral/coordinators/hierarchy", async (req, res) => {
+server.ts:// GET /api/electoral/coordinators/:id/subordinates - returns descendant tree list of a coordinator
+server.ts:app.get("/api/electoral/coordinators/:id/subordinates", async (req, res) => {
+server.ts:// GET /api/electoral/coordinators/:id/supervisors - returns ascending lines of command for a coordinator
+server.ts:app.get("/api/electoral/coordinators/:id/supervisors", async (req, res) => {
+server.ts:// POST /api/electoral/coordinators/validate-hierarchy - validates parent/child assignment compatibility
+server.ts:app.post("/api/electoral/coordinators/validate-hierarchy", async (req, res) => {
+server.ts:// PUT /api/electoral/coordinators/:id - update a coordinator's parentCoordinatorId or level or status
+server.ts:app.put("/api/electoral/coordinators/:id", async (req, res) => {
+server.ts:// POST /api/electoral/coordinators/:id/assign-territory - assign territory
+server.ts:  "/api/electoral/coordinators/:id/assign-territory",
+server.ts:// POST /api/electoral/coordinators/:id/remove-territory - remove territory
+server.ts:  "/api/electoral/coordinators/:id/remove-territory",
+server.ts:// GET /api/electoral/coordinators/territory-coverage - coverage overview
+server.ts:app.get("/api/electoral/coordinators/territory-coverage", async (req, res) => {
+server.ts:// GET /api/electoral/coordinators/territory-conflicts - conflict overview
+server.ts:app.get("/api/electoral/coordinators/territory-conflicts", async (req, res) => {
+server.ts:// GET /api/electoral/coordinators/:id/responsibilities - aggregated responsibilities
+server.ts:  "/api/electoral/coordinators/:id/responsibilities",
+server.ts:// GET /api/electoral/coordinators/:id/health - health appraisal score
+server.ts:app.get("/api/electoral/coordinators/:id/health", async (req, res) => {
+server.ts:// POST /api/electoral/invite/:id/decline - decline invite
+server.ts:app.post("/api/electoral/invite/:id/decline", async (req, res) => {
+server.ts:// POST /api/electoral/invite/:id/revoke - revoke invite
+server.ts:app.post("/api/electoral/invite/:id/revoke", async (req, res) => {
+server.ts:// GET /api/electoral/invite/:id/audit-trail - audit logs
+server.ts:app.get("/api/electoral/invite/:id/audit-trail", async (req, res) => {
+server.ts:// GET /api/electoral/territories/hierarchy
+server.ts:app.get("/api/electoral/territories/hierarchy", async (req, res) => {
+server.ts:// GET /api/electoral/territories/coverage
+server.ts:app.get("/api/electoral/territories/coverage", async (req, res) => {
+server.ts:// GET /api/electoral/territories/priorities
+server.ts:app.get("/api/electoral/territories/priorities", async (req, res) => {
+server.ts:// GET /api/electoral/territories/conflicts
+server.ts:app.get("/api/electoral/territories/conflicts", async (req, res) => {
+server.ts:// GET /api/electoral/territories/:id/responsibilities
+server.ts:app.get("/api/electoral/territories/:id/responsibilities", async (req, res) => {
+server.ts:// GET /api/electoral/territories/:id/health
+server.ts:app.get("/api/electoral/territories/:id/health", async (req, res) => {
+server.ts:// GET /api/electoral/territories/:id/intelligence
+server.ts:app.get("/api/electoral/territories/:id/intelligence", async (req, res) => {
+server.ts:// GET /api/electoral/opponents
+server.ts:app.get("/api/electoral/opponents", async (req, res) => {
+server.ts:// GET /api/electoral/opponents/:id
+server.ts:app.get("/api/electoral/opponents/:id", async (req, res) => {
+server.ts:// POST /api/electoral/opponents
+server.ts:app.post("/api/electoral/opponents", async (req, res) => {
+server.ts:// PUT /api/electoral/opponents/:id
+server.ts:app.put("/api/electoral/opponents/:id", async (req, res) => {
+server.ts:// DELETE /api/electoral/opponents/:id
+server.ts:app.get("/api/electoral/opponents/:id/delete", async (req, res) => {
+server.ts:app.delete("/api/electoral/opponents/:id", async (req, res) => {
+server.ts:// GET /api/electoral/groups
+server.ts:app.get("/api/electoral/groups", async (req, res) => {
+server.ts:// GET /api/electoral/groups/:id
+server.ts:app.get("/api/electoral/groups/:id", async (req, res) => {
+server.ts:// POST /api/electoral/groups
+server.ts:app.post("/api/electoral/groups", async (req, res) => {
+server.ts:// PUT /api/electoral/groups/:id
+server.ts:app.put("/api/electoral/groups/:id", async (req, res) => {
+server.ts:// DELETE /api/electoral/groups/:id
+server.ts:app.delete("/api/electoral/groups/:id", async (req, res) => {
+server.ts:// GET /api/electoral/leaderships
+server.ts:app.get("/api/electoral/leaderships", async (req, res) => {
+server.ts:// GET /api/electoral/leaderships/:id
+server.ts:app.get("/api/electoral/leaderships/:id", async (req, res) => {
+server.ts:// POST /api/electoral/leaderships
+server.ts:app.post("/api/electoral/leaderships", async (req, res) => {
+server.ts:// PUT /api/electoral/leaderships/:id
+server.ts:app.put("/api/electoral/leaderships/:id", async (req, res) => {
+server.ts:// DELETE /api/electoral/leaderships/:id
+server.ts:app.delete("/api/electoral/leaderships/:id", async (req, res) => {
+server.ts:// GET /api/electoral/relationships
+server.ts:app.get("/api/electoral/relationships", async (req, res) => {
+server.ts:// POST /api/electoral/relationships
+server.ts:app.post("/api/electoral/relationships", async (req, res) => {
+server.ts:// PUT /api/electoral/relationships/:id
+server.ts:app.put("/api/electoral/relationships/:id", async (req, res) => {
+server.ts:// DELETE /api/electoral/relationships/:id
+server.ts:app.delete("/api/electoral/relationships/:id", async (req, res) => {
+server.ts:// GET /api/electoral/opponents/:id/intelligence
+server.ts:app.get("/api/electoral/opponents/:id/intelligence", async (req, res) => {
+server.ts:// GET /api/electoral/opponents/:id/health
+server.ts:app.get("/api/electoral/opponents/:id/health", async (req, res) => {
+server.ts:// GET /api/electoral/opponents-brief
+server.ts:app.get("/api/electoral/opponents-brief", async (req, res) => {
+server.ts:// GET /api/electoral/history/candidate/:id
+server.ts:app.get("/api/electoral/history/candidate/:id", async (req, res) => {
+server.ts:// GET /api/electoral/history/party/:id
+server.ts:app.get("/api/electoral/history/party/:id", async (req, res) => {
+server.ts:// GET /api/electoral/history/territory/:id
+server.ts:app.get("/api/electoral/history/territory/:id", async (req, res) => {
+server.ts:// GET /api/electoral/history/comparison
+server.ts:    "/api/electoral/history/comparison",
+server.ts:    "/api/electoral/history/opponent-comparison",
+server.ts:// GET /api/electoral/history/ranking
+server.ts:app.get("/api/electoral/history/ranking", async (req, res) => {
+server.ts:// GET /api/electoral/history/trends
+server.ts:app.get("/api/electoral/history/trends", async (req, res) => {
+server.ts:// POST /api/electoral/history/import
+server.ts:app.post("/api/electoral/history/import", async (req, res) => {
+server.ts:// GET /api/electoral/history/import/:id
+server.ts:app.get("/api/electoral/history/import/:id", async (req, res) => {
+server.ts:// GET /api/electoral/history/imports
+server.ts:app.get("/api/electoral/history/imports", async (req, res) => {
+server.ts:// GET /api/electoral/history/filters
+server.ts:app.get("/api/electoral/history/filters", async (req, res) => {
+server.ts:app.get("/api/electoral/history/candidate-summary", async (req, res) => {
+server.ts:app.get("/api/electoral/history/municipality-summary", async (req, res) => {
+server.ts:app.get("/api/electoral/history/party-summary", async (req, res) => {
+server.ts:app.get("/api/electoral/history/location-summary", async (req, res) => {
+server.ts:app.get("/api/electoral/history/zone-summary", async (req, res) => {
+server.ts:app.post("/api/admin/electoral/refresh-aggregates", async (req, res) => {
+server.ts:  "/api/admin/electoral/import-validation/:importRunId",
+server.ts:// Since the ranking API was already defined at /api/electoral/history/ranking, and so was opponent comparison, we will leave those existing routes intact or they will route to the ranking engine which now leverages DB queries correctly.
+server.ts:// GET /api/electoral/analytics/historical
+server.ts:app.get("/api/electoral/analytics/historical", async (req, res) => {
+server.ts:// GET /api/electoral/analytics/ranking
+server.ts:app.get("/api/electoral/analytics/ranking", async (req, res) => {
+server.ts:// GET /api/electoral/analytics/opponents
+server.ts:app.get("/api/electoral/analytics/opponents", async (req, res) => {
+server.ts:// GET /api/electoral/analytics/strategic
+server.ts:app.get("/api/electoral/analytics/strategic", async (req, res) => {
+server.ts:// GET /api/electoral/analytics/projection
+server.ts:app.get("/api/electoral/analytics/projection", async (req, res) => {
+server.ts:app.get("/api/core/contacts", async (req, res) => {
+server.ts:app.post("/api/core/contacts", async (req, res) => {
+server.ts:app.get("/api/core/crm/interactions", async (req, res) => {
+server.ts:app.post("/api/core/crm/interactions", async (req, res) => {
+server.ts:app.get("/api/core/calendar/events", async (req, res) => {
+server.ts:app.post("/api/core/calendar/events", async (req, res) => {
+server.ts:app.get("/api/core/activities", async (req, res) => {
+server.ts:app.post("/api/core/activities", async (req, res) => {
+server.ts:app.get("/api/core/tasks", async (req, res) => {
+server.ts:app.post("/api/core/tasks", async (req, res) => {
+server.ts:app.get("/api/core/evidences", async (req, res) => {
+server.ts:app.post("/api/core/evidences", async (req, res) => {
+server.ts:app.get("/api/core/attachments", async (req, res) => {
+server.ts:app.post("/api/core/attachments", async (req, res) => {
+server.ts:app.get("/api/core/workflows", async (req, res) => {
+server.ts:app.post("/api/core/workflows", async (req, res) => {
+server.ts:app.get("/api/core/notifications", async (req, res) => {
+server.ts:app.post("/api/core/notifications", async (req, res) => {
+server.ts:app.get("/api/core/modules", async (req, res) => {
+server.ts:app.get("/api/core/modules/active", async (req, res) => {
+server.ts:app.post("/api/core/modules/enable", async (req, res) => {
+server.ts:app.post("/api/core/modules/disable", async (req, res) => {
+server.ts:app.get("/api/core/features", async (req, res) => {
+server.ts:app.get("/api/core/features/active", async (req, res) => {
+server.ts:app.get("/api/core/workspaces", async (req, res) => {
+server.ts:app.post("/api/core/workspaces", async (req, res) => {
+server.ts:app.put("/api/core/workspaces/:id", async (req, res) => {
+server.ts:app.get("/api/core/settings", async (req, res) => {
+server.ts:app.put("/api/core/settings", async (req, res) => {
+server.ts:app.get("/api/admin/organizations", async (req, res) => {
+server.ts:app.get("/api/admin/organizations/:id", async (req, res) => {
+server.ts:app.get("/api/admin/audit-logs", async (req, res) => {
+server.ts:app.post("/api/core/imports", async (req, res) => {
+server.ts:app.get("/api/core/imports", async (req, res) => {
+server.ts:app.get("/api/core/imports/:id", async (req, res) => {
+server.ts:app.get("/api/core/imports/:id/errors", async (req, res) => {
+server.ts:app.post("/api/core/imports/:id/start", async (req, res) => {
+server.ts:app.post("/api/core/imports/:id/complete", async (req, res) => {
+server.ts:app.post("/api/core/imports/:id/fail", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id", async (req, res) => {
+server.ts:app.put("/api/electoral/campaigns/:id", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/members", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/members", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/goals", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/goals", async (req, res) => {
+server.ts:app.put("/api/electoral/campaigns/:id/goals/:goalId", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/actions", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/actions", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/evidences", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/evidences", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/health", async (req, res) => {
+server.ts:  "/api/electoral/workspaces/:workspaceId/diagnostics",
+server.ts:app.post("/api/electoral/campaigns/:id/territories", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/territories/:territoryId",
+server.ts:app.get("/api/electoral/campaigns/:id/territories", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/coordinators", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/coordinators/:coordinatorId",
+server.ts:app.get("/api/electoral/campaigns/:id/coordinators", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/assignments", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/assignments", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/assignments/:assignmentId",
+server.ts:  "/api/electoral/campaigns/:id/coverage/:territoryId/compute",
+server.ts:app.get("/api/electoral/campaigns/:id/coverage", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/conflicts/:territoryId/detect",
+server.ts:app.get("/api/electoral/campaigns/:id/conflicts", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/coordinators/:coordinatorId/health/compute",
+server.ts:app.get("/api/electoral/campaigns/:id/coordinator-health", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/contacts", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/contacts", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/contacts/:contactId",
+server.ts:  "/api/electoral/campaigns/:id/contacts/:contactId",
+server.ts:app.get("/api/electoral/campaigns/:id/relationships", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/relationships", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/segments", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/segments", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/engagement", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/engagement/compute",
+server.ts:app.get("/api/electoral/campaigns/:id/network-summary", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/events", async (req, res) => {
+server.ts:app.post("/api/electoral/campaigns/:id/events", async (req, res) => {
+server.ts:app.put("/api/electoral/campaigns/:id/events/:eventId", async (req, res) => {
+server.ts:app.get("/api/electoral/campaigns/:id/events/:eventId", async (req, res) => {
+server.ts:  "/api/electoral/campaigns/:id/events/:eventId/participants",
+server.ts:  "/api/electoral/campaigns/:id/events/:eventId/participants",
+server.ts:  "/api/electoral/campaigns/:id/events/:eventId/attendance",
+server.ts:  "/api/electoral/campaigns/:id/events/:eventId/attendance",
+server.ts:  "/api/electoral/campaigns/:id/events/:eventId/territories",
+server.ts:  "/api/electoral/campaigns/:id/events/:eventId/evidences",
+server.ts:app.get("/api/electoral/campaigns/:id/agenda-summary", async (req, res) => {
+server.ts:app.get("/api/core/communication/threads", async (req, res) => {
+server.ts:app.post("/api/core/communication/threads", async (req, res) => {
+server.ts:app.get("/api/core/communication/threads/:id/messages", async (req, res) => {
+server.ts:app.post("/api/core/communication/threads/:id/messages", async (req, res) => {
+server.ts:  "/api/core/communication/threads/:id/participants",
+server.ts:  "/api/core/communication/threads/:id/participants",
+server.ts:app.get("/api/core/communication/requests", async (req, res) => {
+server.ts:app.post("/api/core/communication/requests", async (req, res) => {
+server.ts:app.get("/api/core/communication/dispatches", async (req, res) => {
+server.ts:app.post("/api/core/communication/dispatches", async (req, res) => {
+server.ts:app.get("/api/core/communication/logs", async (req, res) => {
+server.ts:app.get("/api/core/communication/intelligence", async (req, res) => {
+server.ts:app.get("/api/core/presence", async (req, res) => {
+server.ts:app.get("/api/core/presence/:userId", async (req, res) => {
+server.ts:app.put("/api/core/presence/:userId", async (req, res) => {
+server.ts:app.get("/api/core/sessions", async (req, res) => {
+server.ts:app.post("/api/core/sessions", async (req, res) => {
+server.ts:app.post("/api/core/sessions/:id/close", async (req, res) => {
+server.ts:app.get("/api/core/activity-log", async (req, res) => {
+server.ts:app.post("/api/core/activity-log", async (req, res) => {
+server.ts:app.get("/api/core/presence-summary", async (req, res) => {
+server.ts:app.get("/api/core/command-center/summary", async (req, res) => {
+server.ts:app.get("/api/core/command-center/campaigns", async (req, res) => {
+server.ts:app.get("/api/core/command-center/territories", async (req, res) => {
+server.ts:app.get("/api/core/command-center/coordinators", async (req, res) => {
+server.ts:app.get("/api/core/command-center/communications", async (req, res) => {
+server.ts:app.get("/api/core/command-center/presence", async (req, res) => {
+server.ts:app.get("/api/core/command-center/activity", async (req, res) => {
+server.ts:app.get("/api/core/command-center/pending", async (req, res) => {
+server.ts:app.get("/api/core/command-center/alerts", async (req, res) => {
+server.ts:app.get("/api/core/workspace-intelligence/context", async (req, res) => {
+server.ts:app.get("/api/core/workspace-intelligence/status", async (req, res) => {
+server.ts:app.get("/api/core/workspace-intelligence/health", async (req, res) => {
+server.ts:app.get("/api/core/workspace-intelligence/timeline", async (req, res) => {
+server.ts:app.get("/api/core/workspace-intelligence/snapshot", async (req, res) => {
+server.ts:app.get("/api/core/assistant/context", async (req, res) => {
+server.ts:app.get("/api/core/assistant/status", async (req, res) => {
+server.ts:app.get("/api/core/assistant/snapshot", async (req, res) => {
+server.ts:app.get("/api/core/assistant/timeline", async (req, res) => {
+server.ts:app.get("/api/core/ai-router/providers", async (req, res) => {
+server.ts:app.post("/api/core/ai-router/providers", async (req, res) => {
+server.ts:app.get("/api/core/ai-router/policies", async (req, res) => {
+server.ts:app.post("/api/core/ai-router/policies", async (req, res) => {
+server.ts:app.get("/api/core/ai-router/status", async (req, res) => {
+server.ts:app.get("/api/core/ai-router/health", async (req, res) => {
+server.ts:app.get("/api/core/ai-router/audits", async (req, res) => {
+server.ts:app.get("/api/core/actions", async (req, res) => {
+server.ts:app.post("/api/core/actions", async (req, res) => {
+server.ts:app.get("/api/core/actions/logs", async (req, res) => {
+server.ts:app.get("/api/core/actions/dispatches", async (req, res) => {
+server.ts:app.get("/api/core/actions/:id", async (req, res) => {
+server.ts:app.post("/api/core/actions/:id/dispatch", async (req, res) => {
+server.ts:app.get("/api/core/skills", async (req, res) => {
+server.ts:app.post("/api/core/skills", async (req, res) => {
+server.ts:app.post("/api/core/skills/:id/enable", async (req, res) => {
+server.ts:app.post("/api/core/skills/:id/disable", async (req, res) => {
+server.ts:app.get("/api/core/skills/:id", async (req, res) => {
+server.ts:app.get("/api/core/capabilities", async (req, res) => {
+server.ts:app.get("/api/core/skill-registry", async (req, res) => {
+server.ts:app.get("/api/core/orchestrator/intents", async (req, res) => {
+server.ts:app.post("/api/core/orchestrator/intents", async (req, res) => {
+server.ts:app.get("/api/core/orchestrator/dispatches", async (req, res) => {
+server.ts:app.get("/api/core/orchestrator/results", async (req, res) => {
+server.ts:app.get("/api/core/orchestrator/status", async (req, res) => {
+server.ts:app.post("/api/chat", async (req, res) => {
+server.ts:      console.warn("Error fetching workspace state inside api/chat:", e);
+server.ts:    console.error("Critical error in /api/chat handler:", error);

@@ -1,0 +1,6 @@
+{
+  "name": "Beta Core",
+  "description": "MVP do Beta Core v0.1 - Inteligência artificial feminina (Beta) com memória persistente de projetos, decisões, tarefas e memórias.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
