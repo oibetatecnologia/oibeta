@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Building2, User, Mail, Lock, LogIn, ArrowRight, RefreshCcw } from 'lucide-react';
+import { Sparkles, Building2, User, Mail, Lock, LogIn, ArrowRight, RefreshCcw, Eye, EyeOff } from 'lucide-react';
 
 interface AuthOverlayProps {
   onSuccess: (user: any, accessToken?: string) => void;
@@ -23,6 +23,7 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
   // Form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [organizationName, setOrganizationName] = useState('');
   const [organizationType, setOrganizationType] = useState('empresa');
@@ -193,7 +194,7 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#8b949e] uppercase tracking-wider font-mono">E-mail Corporativo</label>
+            <label className="text-xs font-bold text-[#8b949e] uppercase tracking-wider font-mono">E-mail de Acesso</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b949e]" />
               <input
@@ -201,7 +202,7 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="douglas.ujs@gmail.com"
+                placeholder="Digite seu e-mail"
                 className="w-full pl-10 pr-4 py-2.5 bg-[#0d1117] border border-[#30363d] focus:border-blue-500 rounded-xl text-sm text-[#f0f6fc] placeholder-[#57606a] focus:outline-none transition"
               />
             </div>
@@ -224,13 +225,22 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b949e]" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="123456"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#0d1117] border border-[#30363d] focus:border-blue-500 rounded-xl text-sm text-[#f0f6fc] placeholder-[#57606a] focus:outline-none transition"
+                  placeholder="Digite sua senha"
+                  className="w-full pl-10 pr-11 py-2.5 bg-[#0d1117] border border-[#30363d] focus:border-blue-500 rounded-xl text-sm text-[#f0f6fc] placeholder-[#57606a] focus:outline-none transition"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  title={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-blue-400 focus:text-blue-400 focus:outline-none transition cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           )}
