@@ -10,6 +10,7 @@ export interface RadarConnectorExecutionOptions {
 
 export interface RadarConnectorExecutionContext {
   options: RadarConnectorExecutionOptions;
+  credential?: { value: string; scope: 'global' | 'tenant' };
   onRecord: (record: unknown) => Promise<'created' | 'updated' | 'duplicate' | 'ignored' | 'rejected'>;
 }
 

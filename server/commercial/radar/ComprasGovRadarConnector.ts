@@ -1,43 +1,50 @@
 import type { RadarConnector, RadarConnectorExecutionContext, RadarConnectorExecutionResult } from './RadarConnector';
-import type { RadarConnectorDescriptor } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
-import type { RadarSyncRunMetrics } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
+import type { RadarConnectorDescriptor, RadarSyncRunMetrics } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
 
-const PNCP_BASE_URL = 'https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao';
+const COMPRAS_GOV_BASE_URL = 'https://dadosabertos.compras.gov.br/modulo-contratacoes/1_consultarContratacoes_PNCP_14133';
 const DEFAULT_MODALITY_CODES = [4, 5, 6, 7, 8, 9, 12];
-const MAX_DATE_RANGE_DAYS = 7;
-const DEFAULT_LOOKBACK_DAYS = 2;
+const DEFAULT_LOOKBACK_DAYS = 7;
+const MAX_DATE_RANGE_DAYS = 15;
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 100;
+const MAX_PAGE_SIZE = 250;
 const DEFAULT_MAX_PAGES_PER_MODALITY = 2;
-const REQUEST_TIMEOUT_MS = 20_000;
-const MAX_RETRIES = 3;
-const MIN_REQUEST_INTERVAL_MS = 850;
-let nextAllowedRequestAt = 0;
+const REQUEST_TIMEOUT_MS = 25_000;
+const MAX_RETRIES = 2;
 
-interface PncpPageResponse {
+interface ComprasGovPageResponse {
+  resultado?: unknown[];
   data?: unknown[];
+  content?: unknown[];
   totalRegistros?: number;
   totalPaginas?: number;
-  numeroPagina?: number;
   paginasRestantes?: number;
-  empty?: boolean;
+  numeroPagina?: number;
 }
 
-const emptyMetrics = (): RadarSyncRunMetrics => ({ received: 0, normalized: 0, created: 0, updated: 0, duplicates: 0, ignored: 0, rejected: 0, failures: 0 });
+const emptyMetrics = (): RadarSyncRunMetrics => ({
+  received: 0,
+  normalized: 0,
+  created: 0,
+  updated: 0,
+  duplicates: 0,
+  ignored: 0,
+  rejected: 0,
+  failures: 0,
+});
 
-export class PncpRadarConnector implements RadarConnector {
+export class ComprasGovRadarConnector implements RadarConnector {
   readonly descriptor: RadarConnectorDescriptor = {
-    id: 'pncp',
-    sourceId: 'pncp',
-    label: 'PNCP',
-    description: 'Consulta pública oficial de contratações publicadas no Portal Nacional de Contratações Públicas.',
-    status: 'available' as const,
+    id: 'compras_gov',
+    sourceId: 'compras_gov',
+    label: 'Compras.gov.br',
+    description: 'API pública oficial de dados abertos do Compras.gov.br para contratações regidas pela Lei nº 14.133/2021.',
+    status: 'available',
     supportsIncremental: true,
     supportsPagination: true,
     available: true,
     authPolicy: 'PUBLIC_NO_AUTH',
     defaultLookbackDays: DEFAULT_LOOKBACK_DAYS,
-    documentationUrl: 'https://pncp.gov.br/api/consulta/swagger-ui/index.html',
+    documentationUrl: 'https://dadosabertos.compras.gov.br/swagger-ui/index.html',
   };
 
   async execute(context: RadarConnectorExecutionContext): Promise<RadarConnectorExecutionResult> {
@@ -52,16 +59,16 @@ export class PncpRadarConnector implements RadarConnector {
 
     for (const modalityCode of modalityCodes) {
       for (let page = 1; page <= maxPages; page += 1) {
-        let response: PncpPageResponse;
+        let response: ComprasGovPageResponse;
         try {
           response = await this.fetchPage({ dateFrom, dateTo, modalityCode, page, pageSize });
         } catch (error: any) {
           metrics.failures += 1;
-          warnings.push(`Modalidade ${modalityCode}, página ${page}: ${error?.message || 'falha na consulta ao PNCP'}`);
+          warnings.push(`Modalidade ${modalityCode}, página ${page}: ${error?.message || 'falha na consulta ao Compras.gov.br'}`);
           break;
         }
 
-        const records = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : [];
+        const records = extractRecords(response);
         metrics.received += records.length;
 
         for (const record of records) {
@@ -86,27 +93,34 @@ export class PncpRadarConnector implements RadarConnector {
       }
     }
 
+    if (metrics.received === 0) {
+      warnings.push('Compras.gov.br não retornou registros para a janela consultada. A fonte pública pode operar com defasagem ou instabilidade; o PNCP permanece como fonte nacional principal.');
+    }
+
     return {
       metrics,
       warnings: unique(warnings).slice(0, 50),
-      cursorAfter: JSON.stringify({ dateFrom: formatDate(dateFrom), dateTo: formatDate(dateTo), synchronizedAt: new Date().toISOString() }),
+      cursorAfter: JSON.stringify({
+        dateFrom: formatIsoDate(dateFrom),
+        dateTo: formatIsoDate(dateTo),
+        synchronizedAt: new Date().toISOString(),
+      }),
     };
   }
 
-  private async fetchPage(input: { dateFrom: Date; dateTo: Date; modalityCode: number; page: number; pageSize: number }): Promise<PncpPageResponse> {
-    const url = new URL(PNCP_BASE_URL);
-    url.searchParams.set('dataInicial', formatDate(input.dateFrom));
-    url.searchParams.set('dataFinal', formatDate(input.dateTo));
-    url.searchParams.set('codigoModalidadeContratacao', String(input.modalityCode));
+  private async fetchPage(input: { dateFrom: Date; dateTo: Date; modalityCode: number; page: number; pageSize: number }): Promise<ComprasGovPageResponse> {
+    const url = new URL(COMPRAS_GOV_BASE_URL);
     url.searchParams.set('pagina', String(input.page));
     url.searchParams.set('tamanhoPagina', String(input.pageSize));
+    url.searchParams.set('dataPublicacaoPncpInicial', formatIsoDate(input.dateFrom));
+    url.searchParams.set('dataPublicacaoPncpFinal', formatIsoDate(input.dateTo));
+    url.searchParams.set('codigoModalidade', String(input.modalityCode));
 
     let lastError: Error | undefined;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
       try {
-        await respectRequestInterval();
         const response = await fetch(url, {
           method: 'GET',
           headers: { Accept: 'application/json', 'User-Agent': 'Beta-Platform-Radar/1.0' },
@@ -114,28 +128,41 @@ export class PncpRadarConnector implements RadarConnector {
         });
         if (!response.ok) {
           const body = (await response.text()).slice(0, 300);
-          if (response.status === 429) {
-            const retryAfterSeconds = Number(response.headers.get('retry-after') || 0);
-            const rateLimitError = new Error('PNCP atingiu o limite temporário de requisições. Os dados já importados continuam disponíveis e uma nova tentativa poderá ser feita após o intervalo de espera.');
-            (rateLimitError as any).retryAfterMs = retryAfterSeconds > 0 ? retryAfterSeconds * 1_000 : undefined;
-            throw rateLimitError;
-          }
-          throw new Error(`PNCP respondeu HTTP ${response.status}${body ? `: ${stripHtml(body)}` : ''}`);
+          throw new Error(`Compras.gov.br respondeu HTTP ${response.status}${body ? `: ${body}` : ''}`);
         }
-        return await response.json() as PncpPageResponse;
+        return await response.json() as ComprasGovPageResponse;
       } catch (error: any) {
-        lastError = new Error(error?.name === 'AbortError' ? 'tempo limite excedido na consulta ao PNCP' : error?.message || 'falha de rede');
-        if (attempt < MAX_RETRIES) await delay(resolveRetryDelay(error, attempt));
+        lastError = new Error(error?.name === 'AbortError'
+          ? 'tempo limite excedido na consulta ao Compras.gov.br'
+          : error?.message || 'falha de rede');
+        if (attempt < MAX_RETRIES) await delay(750 * (attempt + 1));
       } finally {
         clearTimeout(timeout);
       }
     }
-    throw lastError || new Error('falha na consulta ao PNCP');
+    throw lastError || new Error('falha na consulta ao Compras.gov.br');
   }
 }
 
+function extractRecords(response: ComprasGovPageResponse | unknown[]): unknown[] {
+  if (Array.isArray(response)) return response;
+  const candidate = response as Record<string, unknown>;
+  const directKeys = ['resultado', 'resultados', 'data', 'content', 'items', 'registros'];
+  for (const key of directKeys) {
+    if (Array.isArray(candidate[key])) return candidate[key] as unknown[];
+  }
+  const embedded = candidate._embedded as Record<string, unknown> | undefined;
+  if (embedded) {
+    for (const value of Object.values(embedded)) if (Array.isArray(value)) return value;
+  }
+  return [];
+}
+
 function resolveModalityCodes(): number[] {
-  const configured = String(process.env.PNCP_MODALITY_CODES || '').split(',').map((item) => Number(item.trim())).filter((item) => Number.isInteger(item) && item > 0);
+  const configured = String(process.env.COMPRAS_GOV_MODALITY_CODES || '')
+    .split(',')
+    .map((item) => Number(item.trim()))
+    .filter((item) => Number.isInteger(item) && item > 0);
   return configured.length ? Array.from(new Set(configured)) : DEFAULT_MODALITY_CODES;
 }
 
@@ -162,11 +189,11 @@ function clampDateRange(dateFrom: Date, dateTo: Date, maxDays: number): Date {
   return dateFrom < earliest ? earliest : dateFrom > dateTo ? dateTo : dateFrom;
 }
 
-function formatDate(date: Date): string {
+function formatIsoDate(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`;
+  return `${year}-${month}-${day}`;
 }
 
 function clampInteger(value: number | undefined, min: number, max: number, fallback: number): number {
@@ -176,14 +203,3 @@ function clampInteger(value: number | undefined, min: number, max: number, fallb
 
 function unique(values: string[]): string[] { return Array.from(new Set(values)); }
 function delay(ms: number): Promise<void> { return new Promise((resolve) => setTimeout(resolve, ms)); }
-
-function stripHtml(value: string): string { return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); }
-function resolveRetryDelay(error: any, attempt: number): number {
-  if (Number.isFinite(error?.retryAfterMs)) return Math.max(1_000, Number(error.retryAfterMs));
-  return Math.min(30_000, 1_500 * (2 ** attempt));
-}
-async function respectRequestInterval(): Promise<void> {
-  const waitMs = Math.max(0, nextAllowedRequestAt - Date.now());
-  if (waitMs > 0) await delay(waitMs);
-  nextAllowedRequestAt = Date.now() + MIN_REQUEST_INTERVAL_MS;
-}

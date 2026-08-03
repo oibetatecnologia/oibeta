@@ -82,7 +82,11 @@ export class BetaCapabilityRegistry {
   }
 
   static resolveForUser(user: CurrentUser): BetaCapabilityAvailability[] {
-    const productIds = unique([...(user.licensedProductIds || []), ...(user.productIds || [])]);
+    const tenantProductIds = unique(user.licensedProductIds || []);
+    const assignedProductIds = unique(user.productIds || []);
+    const effectiveProductIds = assignedProductIds.length > 0
+      ? assignedProductIds.filter((productId) => tenantProductIds.includes(productId))
+      : tenantProductIds;
     const isOiBetaMaster = user.role === "master_admin" && user.organizationId === "org-oi-beta";
 
     return CAPABILITIES.map((capability) => {
@@ -90,7 +94,7 @@ export class BetaCapabilityRegistry {
         return { ...capability, available: false, reason: "O perfil do usuário não possui permissão operacional." };
       }
 
-      if (!isOiBetaMaster && !productIds.includes(capability.productId)) {
+      if (!isOiBetaMaster && !effectiveProductIds.includes(capability.productId)) {
         return { ...capability, available: false, reason: "O produto Radar Comercial não está disponível para este usuário." };
       }
 

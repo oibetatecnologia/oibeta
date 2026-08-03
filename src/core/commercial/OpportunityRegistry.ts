@@ -6,7 +6,7 @@ export const EMPTY_COMMERCIAL_OPPORTUNITIES: CommercialOpportunity[] = [];
 export function createOpportunityDraft(rawInput: CommercialOpportunityInput): CommercialOpportunity {
   const input = normalizeOpportunityInput(rawInput);
   const now = new Date().toISOString();
-  const base: CommercialOpportunity = { id: createOpportunityId(), ...input, status: 'new', priority: resolveOpportunityPriority(input.estimatedValue), qualificationStatus: 'unqualified', duplicateKey: buildOpportunityDuplicateKey(input), createdAt: now, updatedAt: now };
+  const base: CommercialOpportunity = { id: createOpportunityId(), ...input, status: 'new', priority: resolveOpportunityPriority(input.estimatedValue), qualificationStatus: 'unqualified', engagementStatus: 'new', duplicateKey: buildOpportunityDuplicateKey(input), createdAt: now, updatedAt: now };
   return { ...base, analysis: OpportunityAnalyzer.analyze(base) };
 }
 export function getOpportunityStatusLabel(status: CommercialOpportunityStatus): string {

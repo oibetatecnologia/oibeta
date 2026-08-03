@@ -43,6 +43,8 @@ import { IncidentDetectionService } from "./server/observability/IncidentDetecti
 dotenv.config();
 
 import { RadarSyncService } from './server/commercial/radar/RadarSyncService';
+import { RadarConnectorCredentialService } from './server/commercial/radar/RadarConnectorCredentialService';
+import { RadarTenantCatalogService } from './server/commercial/radar/RadarTenantCatalogService';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -159,10 +161,14 @@ import { SupabaseDatabaseAdapter } from "./server/database/SupabaseDatabaseAdapt
 import { PERSISTENCE_TABLE_REQUIREMENTS } from "./server/persistence/PersistenceSchemaRegistry";
 import { applyAuthorizationPolicy } from "./server/security/AuthorizationMiddleware";
 import { enforceTenantIsolation, getTenantIsolationSummary } from "./server/security/TenantIsolationMiddleware";
+import { createProductEntitlementMiddleware } from "./server/security/ProductEntitlementMiddleware";
 import { AssistantScopeError, getAssistantContextIsolationSummary, resolveAssistantContextScope } from "./server/security/AssistantContextScope";
 import { AdminDirectoryService } from "./server/admin/AdminDirectoryService";
 import { AdminAccessReviewService } from "./server/admin/AdminAccessReviewService";
 import { TenantCommercialContractService } from "./server/commercial/TenantCommercialContractService";
+import { RadarCrmHandoffService } from "./server/commercial/radar/RadarCrmHandoffService";
+import { ClientOnboardingOrchestrator } from "./server/onboarding/ClientOnboardingOrchestrator";
+import { TenantProductInstallationService } from "./server/products/TenantProductInstallationService";
 import { CustomerOperationsService } from "./server/customerOperations/CustomerOperationsService";
 import { AdminAuditService } from "./server/admin/AdminAuditService";
 import { DeploymentEnvironmentService } from "./server/deployment/DeploymentEnvironmentService";
@@ -289,7 +295,15 @@ const dbAdapter: DatabaseAdapter =
     ? new SupabaseDatabaseAdapter()
     : new JsonDatabaseAdapter();
 
-const radarSyncService = new RadarSyncService(dbAdapter);
+const radarConnectorCredentialService = new RadarConnectorCredentialService(
+  dbMode === 'supabase' ? 'supabase' : 'json',
+  dbAdapter as SupabaseDatabaseAdapter,
+);
+const radarSyncService = new RadarSyncService(dbAdapter, radarConnectorCredentialService);
+const radarTenantCatalogService = new RadarTenantCatalogService(
+  dbMode === 'supabase' ? 'supabase' : 'json',
+  dbAdapter as SupabaseDatabaseAdapter,
+);
 
 const adminDirectoryService = new AdminDirectoryService(
   dbMode === "supabase" ? "supabase" : "json",
@@ -306,6 +320,17 @@ const tenantCommercialContractService = new TenantCommercialContractService(
   dbMode === "supabase" ? "supabase" : "json",
   dbAdapter as SupabaseDatabaseAdapter,
   adminDirectoryService,
+);
+
+const tenantProductInstallationService = new TenantProductInstallationService(
+  dbMode === "supabase" ? "supabase" : "json",
+  dbAdapter as SupabaseDatabaseAdapter,
+);
+
+const clientOnboardingOrchestrator = new ClientOnboardingOrchestrator(
+  adminDirectoryService,
+  tenantCommercialContractService,
+  tenantProductInstallationService,
 );
 
 const customerOperationsService = new CustomerOperationsService(
@@ -480,6 +505,7 @@ const workspaceIntelligenceEngine = new WorkspaceIntelligenceEngine(
 const memoryOS = new MemoryOS(dbAdapter, workspaceIntelligenceEngine);
 const betaCommercialContextEngine = new BetaCommercialContextEngine(dbAdapter);
 const betaCommercialCapabilityEngine = new BetaCommercialCapabilityEngine(dbAdapter);
+const radarCrmHandoffService = new RadarCrmHandoffService(dbAdapter);
 const memoryRebuilder = new MemoryRebuilder(
   dbAdapter,
   workspaceIntelligenceEngine,
@@ -1156,12 +1182,35 @@ const requireAuth = async (req: any, res: any, next: any) => {
       });
     }
 
+    const organizationId = dbUser.organization_id;
+    const [{ data: organization }, { data: workspaces }] = await Promise.all([
+      supabase
+        .from("organizations")
+        .select("id,licensed_product_ids")
+        .eq("id", organizationId)
+        .single(),
+      supabase
+        .from("workspaces")
+        .select("id,organization_id,status")
+        .eq("organization_id", organizationId),
+    ]);
+
+    const activeWorkspace = Array.isArray(workspaces)
+      ? workspaces.find((workspace: any) => workspace.status !== "INACTIVE")
+      : undefined;
+
     req.currentUser = {
       id: dbUser.id,
       name: dbUser.name,
       email: dbUser.email,
-      organizationId: dbUser.organization_id,
-      role: dbUser.role || "admin",
+      organizationId,
+      tenantId: dbUser.tenant_id || organizationId,
+      workspaceId: activeWorkspace?.id,
+      role: dbUser.profile || dbUser.role || "operator",
+      productIds: Array.isArray(dbUser.product_ids) ? dbUser.product_ids : [],
+      licensedProductIds: Array.isArray(organization?.licensed_product_ids)
+        ? organization.licensed_product_ids
+        : [],
     };
 
     next();
@@ -1172,6 +1221,9 @@ const requireAuth = async (req: any, res: any, next: any) => {
 };
 
 app.use(requireAuth);
+
+// Product APIs require an authenticated user, a valid license and an active installation.
+app.use(createProductEntitlementMiddleware(tenantProductInstallationService));
 
 // Sprint 10 - Document & Data Intelligence Endpoints
 app.post("/api/documents/upload", async (req, res) => {
@@ -2912,6 +2964,16 @@ app.post("/api/admin/commercial-contracts", async (req, res) => {
       responsible: String(req.body?.responsible || ""),
       notes: req.body?.notes,
     });
+    const tenants = await adminDirectoryService.listTenants();
+    const tenant = tenants.find((item) => item.id === contract.tenantId || item.organizationId === contract.organizationId);
+    if (tenant) {
+      await tenantProductInstallationService.sync({
+        tenantId: tenant.id,
+        organizationId: tenant.organizationId,
+        workspaceId: tenant.workspaceId,
+        productIds: contract.productIds,
+      });
+    }
     const actor = getCurrentUser(req);
     await adminAuditService.record({ actorUserId: actor.id, actorName: actor.name, organizationId: contract.organizationId, actionType: "commercial_contract_updated", entityType: "tenant", entityId: contract.tenantId, description: `Contrato comercial ${contract.planName} atualizado.`, metadata: { status: contract.status, productIds: contract.productIds, monthlyValue: contract.monthlyValue, billingDay: contract.billingDay } });
     res.status(201).json(contract);
@@ -2947,6 +3009,12 @@ app.put("/api/admin/tenants/:id/licenses", async (req, res) => {
         },
       );
 
+    const tenants = await adminDirectoryService.listTenants();
+    const tenant = tenants.find((item) => item.id === snapshot.tenantId || item.organizationId === snapshot.organizationId);
+    if (tenant) {
+      await tenantProductInstallationService.sync({ tenantId: tenant.id, organizationId: tenant.organizationId, workspaceId: tenant.workspaceId, productIds: snapshot.licensedProductIds });
+    }
+
     const actor = getCurrentUser(req);
     await adminAuditService.record({
       actorUserId: actor.id,
@@ -2971,6 +3039,63 @@ app.put("/api/admin/tenants/:id/licenses", async (req, res) => {
       error: error?.message || "Failed to update tenant licenses",
     });
   }
+});
+
+
+app.get("/api/admin/tenants/:id/product-installations", async (req, res) => {
+  try {
+    const tenants = await adminDirectoryService.listTenants();
+    const tenant = tenants.find((item) => item.id === req.params.id || item.organizationId === req.params.id);
+    if (!tenant) return res.status(404).json({ error: "Tenant não encontrado." });
+    res.json(await tenantProductInstallationService.list(tenant.organizationId));
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || "Failed to list tenant product installations" });
+  }
+});
+
+app.get("/api/product-installations/current", async (req, res) => {
+  try {
+    const { organizationId } = extractTenant(req);
+    if (!organizationId) return res.status(400).json({ error: "organizationId is required" });
+    res.json(await tenantProductInstallationService.list(organizationId));
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || "Failed to list current product installations" });
+  }
+});
+
+app.post("/api/admin/client-onboarding", async (req, res) => {
+  try {
+    const result = await clientOnboardingOrchestrator.create(req.body || {});
+    const actor = getCurrentUser(req);
+    await adminAuditService.record({
+      actorUserId: actor.id, actorName: actor.name, organizationId: result.tenant.organizationId,
+      actionType: "tenant_created", entityType: "tenant", entityId: result.tenant.id,
+      description: `Onboarding operacional de ${result.tenant.name} concluído.`,
+      metadata: { workspaceId: result.tenant.workspaceId, contractId: result.contract.id, readinessScore: result.readiness.score, licensedProducts: result.tenant.licensedProductIds.length },
+    });
+    res.status(201).json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || "Failed to complete client onboarding" });
+  }
+});
+
+app.get("/api/admin/client-onboarding/:id/readiness", async (req, res) => {
+  try { res.json(await clientOnboardingOrchestrator.evaluate(req.params.id)); }
+  catch (error: any) { res.status(400).json({ error: error?.message || "Failed to evaluate client readiness" }); }
+});
+
+app.post("/api/admin/client-onboarding/:id/activate", async (req, res) => {
+  try {
+    const result = await clientOnboardingOrchestrator.activate(req.params.id);
+    const actor = getCurrentUser(req);
+    await adminAuditService.record({
+      actorUserId: actor.id, actorName: actor.name, organizationId: result.tenant.organizationId,
+      actionType: "tenant_recovered", entityType: "tenant", entityId: result.tenant.id,
+      description: `Tenant ${result.tenant.name} liberado para o primeiro acesso do cliente.`,
+      metadata: { status: result.tenant.status, readinessScore: result.readiness.score },
+    });
+    res.json(result);
+  } catch (error: any) { res.status(400).json({ error: error?.message || "Failed to activate client" }); }
 });
 
 app.get("/api/admin/tenants", async (_req, res) => {
@@ -3059,10 +3184,78 @@ app.get("/api/beta/capabilities", async (req, res) => {
 // Commercial Radar connector infrastructure
 app.get('/api/commercial/radar-connectors', async (req, res) => {
   try {
-    getCurrentUser(req);
-    res.json(radarSyncService.listConnectors());
+    const user = getCurrentUser(req);
+    const { organizationId } = extractTenant(req);
+    if (!organizationId) return res.status(400).json({ error: 'organizationId is required' });
+    const role = String(user.role || '').toLowerCase();
+    const canConfigureCredential = role === 'master_admin' || role === 'tenant_admin' || role === 'admin';
+    const credentials = await radarConnectorCredentialService.listMetadata(organizationId);
+    const connectors = radarSyncService.listConnectors().map((connector) => {
+      const tenantCredential = credentials.find((item) => item.connectorId === connector.id && item.scope === 'tenant');
+      const globalCredential = credentials.find((item) => item.connectorId === connector.id && item.scope === 'global');
+      const selected = tenantCredential || globalCredential;
+      return {
+        ...connector,
+        credentialConfigured: connector.authPolicy === 'PUBLIC_NO_AUTH' ? true : Boolean(selected),
+        credentialScope: selected?.scope,
+        credentialMaskedValue: selected?.maskedValue,
+        canConfigureCredential,
+      };
+    });
+    res.json(connectors);
   } catch (error: any) {
     res.status(401).json({ error: error?.message || 'Unable to list radar connectors' });
+  }
+});
+
+app.put('/api/commercial/radar-connectors/:connectorId/credential', async (req, res) => {
+  try {
+    const user = getCurrentUser(req);
+    const { organizationId } = extractTenant(req);
+    if (!organizationId) return res.status(400).json({ error: 'organizationId is required' });
+    const role = String(user.role || '').toLowerCase();
+    const isMaster = role === 'master_admin' && user.organizationId === 'org-oi-beta';
+    const isTenantAdmin = role === 'tenant_admin' || role === 'admin';
+    if (!isMaster && !isTenantAdmin) return res.status(403).json({ error: 'Only administrators can configure connector credentials' });
+
+    const requestedScope = req.body?.scope === 'global' ? 'global' : 'tenant';
+    if (requestedScope === 'global' && !isMaster) return res.status(403).json({ error: 'Only the Oi Beta master administrator can configure global credentials' });
+    const targetOrganizationId = isMaster && req.body?.organizationId
+      ? String(req.body.organizationId)
+      : organizationId;
+    const metadata = await radarConnectorCredentialService.upsert({
+      connectorId: req.params.connectorId,
+      scope: requestedScope,
+      organizationId: requestedScope === 'tenant' ? targetOrganizationId : undefined,
+      secret: String(req.body?.secret || ''),
+      label: req.body?.label ? String(req.body.label) : undefined,
+      updatedBy: user.id,
+    });
+    res.json(metadata);
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || 'Unable to save connector credential' });
+  }
+});
+
+app.delete('/api/commercial/radar-connectors/:connectorId/credential', async (req, res) => {
+  try {
+    const user = getCurrentUser(req);
+    const { organizationId } = extractTenant(req);
+    if (!organizationId) return res.status(400).json({ error: 'organizationId is required' });
+    const role = String(user.role || '').toLowerCase();
+    const isMaster = role === 'master_admin' && user.organizationId === 'org-oi-beta';
+    const isTenantAdmin = role === 'tenant_admin' || role === 'admin';
+    if (!isMaster && !isTenantAdmin) return res.status(403).json({ error: 'Only administrators can revoke connector credentials' });
+    const scope = req.query.scope === 'global' ? 'global' : 'tenant';
+    if (scope === 'global' && !isMaster) return res.status(403).json({ error: 'Only the Oi Beta master administrator can revoke global credentials' });
+    await radarConnectorCredentialService.revoke({
+      connectorId: req.params.connectorId,
+      scope,
+      organizationId: scope === 'tenant' ? organizationId : undefined,
+    });
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || 'Unable to revoke connector credential' });
   }
 });
 
@@ -3087,6 +3280,39 @@ app.post('/api/commercial/radar-connectors/:connectorId/runs', async (req, res) 
     const message = error?.message || 'Unable to start radar synchronization';
     res.status(message.includes('already running') ? 409 : 500).json({ error: message });
   }
+});
+
+// Radar tenant catalog and independent keyword monitoring
+app.get('/api/commercial/radar-catalog/products', async (req, res) => {
+  try {
+    const { organizationId, workspaceId } = extractTenant(req);
+    if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' });
+    res.json(await radarTenantCatalogService.listProducts(organizationId, workspaceId));
+  } catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to list radar products' }); }
+});
+app.post('/api/commercial/radar-catalog/products', async (req, res) => {
+  try {
+    const { organizationId, workspaceId } = extractTenant(req);
+    if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' });
+    const product = await radarTenantCatalogService.saveProduct({ ...req.body, organizationId, workspaceId });
+    res.status(req.body?.id ? 200 : 201).json(product);
+  } catch (error: any) { res.status(400).json({ error: error?.message || 'Unable to save radar product' }); }
+});
+app.delete('/api/commercial/radar-catalog/products/:id', async (req, res) => {
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); await radarTenantCatalogService.deleteProduct(req.params.id, organizationId, workspaceId); res.status(204).end(); }
+  catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to delete radar product' }); }
+});
+app.get('/api/commercial/radar-catalog/searches', async (req, res) => {
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); res.json(await radarTenantCatalogService.listSearches(organizationId, workspaceId)); }
+  catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to list radar searches' }); }
+});
+app.post('/api/commercial/radar-catalog/searches', async (req, res) => {
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); const item = await radarTenantCatalogService.saveSearch({ ...req.body, organizationId, workspaceId }); res.status(req.body?.id ? 200 : 201).json(item); }
+  catch (error: any) { res.status(400).json({ error: error?.message || 'Unable to save radar search' }); }
+});
+app.delete('/api/commercial/radar-catalog/searches/:id', async (req, res) => {
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); await radarTenantCatalogService.deleteSearch(req.params.id, organizationId, workspaceId); res.status(204).end(); }
+  catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to delete radar search' }); }
 });
 
 // Sprint 20.1 - Commercial Radar Persistence API
@@ -3135,6 +3361,36 @@ app.patch("/api/commercial/opportunities/:id", async (req, res) => {
   } catch (error: any) {
     console.error("[CommercialRadar] Failed to update opportunity:", error);
     res.status(500).json({ error: error?.message || "Failed to update commercial opportunity" });
+  }
+});
+
+
+app.post("/api/commercial/opportunities/:id/send-to-crm", async (req, res) => {
+  try {
+    const user = getCurrentUser(req);
+    const { organizationId, workspaceId } = extractTenant(req);
+    if (!organizationId || !workspaceId) {
+      return res.status(400).json({ error: "organizationId and workspaceId are required" });
+    }
+
+    const result = await radarCrmHandoffService.send({
+      opportunityId: req.params.id,
+      organizationId,
+      workspaceId,
+      requestedBy: user,
+      responsible: req.body?.responsible,
+      priority: req.body?.priority,
+      nextAction: req.body?.nextAction,
+      notes: req.body?.notes,
+      createTask: req.body?.createTask !== false,
+    });
+
+    res.status(result.alreadyLinked ? 200 : 201).json(result);
+  } catch (error: any) {
+    const message = error?.message || "Failed to send opportunity to CRM";
+    const status = message.includes("não encontrada") ? 404 : message.includes("qualificada") ? 409 : 500;
+    console.error("[CommercialRadar] Failed to send opportunity to CRM:", error);
+    res.status(status).json({ error: message });
   }
 });
 

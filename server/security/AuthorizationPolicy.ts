@@ -176,6 +176,16 @@ export const ROUTE_AUTHORIZATION_RULES: RouteAuthorizationRule[] = [
     action: "platform_admin",
   },
   {
+    id: "commercial-radar-catalog",
+    pathPrefix: "/api/commercial/radar-catalog",
+    action: "commercial_operate",
+  },
+  {
+    id: "commercial-radar-connectors",
+    pathPrefix: "/api/commercial/radar-connectors",
+    action: "commercial_operate",
+  },
+  {
     id: "commercial-opportunities",
     pathPrefix: "/api/commercial/opportunities",
     action: "commercial_operate",

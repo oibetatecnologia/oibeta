@@ -12,6 +12,11 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  ArrowRight,
+  AlertTriangle,
+  Clock3,
+  Send,
+  TrendingUp,
 } from 'lucide-react';
 import { CommercialRadarService } from '../../core/commercial/CommercialRadarService';
 import { getOpportunityTypeLabel } from '../../core/commercial/CommercialRadarRegistry';
@@ -21,7 +26,7 @@ import { IntegrationReadinessService } from '../../core/integrations/Integration
 import { ProductCommercializationService } from '../../core/commercial/ProductCommercializationService';
 import useCommercialExecutiveSummary from '../../hooks/useCommercialExecutiveSummary';
 import type { StoredCommercialTask } from '../../core/commercial/CommercialTaskStorage';
-import type { CommercialOpportunity, CommercialOpportunityInput } from '../../core/commercial/OpportunityTypes';
+import { isOpportunityExpired, type CommercialOpportunity, type CommercialOpportunityEngagement, type CommercialOpportunityInput } from '../../core/commercial/OpportunityTypes';
 import { RadarConnectorRepository } from '../../core/commercial/connectors/RadarConnectorRepository';
 import type { RadarConnectorDescriptor, RadarSyncRun } from '../../core/commercial/connectors/RadarConnectorTypes';
 import {
@@ -35,6 +40,11 @@ import OpportunityAnalysisPanel from './OpportunityAnalysisPanel';
 import CommercialBacklogPanel from './CommercialBacklogPanel';
 import RadarConnectorPanel from './RadarConnectorPanel';
 import CommercialExecutiveDashboard from './CommercialExecutiveDashboard';
+import RadarTenantCatalogPanel from './RadarTenantCatalogPanel';
+import { RadarTenantCatalogRepository, type RadarSavedSearch, type RadarTenantProduct, type RadarTenantProductInput } from '../../core/commercial/RadarTenantCatalogRepository';
+import { OpportunityAnalyzer } from '../../core/commercial/OpportunityAnalyzer';
+import type { CompatibilityProfile } from '../../core/commercial/CompatibilityEngine';
+import { CommercialRadarActionSummaryService, type CommercialRadarActionItem } from '../../core/commercial/CommercialRadarActionSummaryService';
 
 export default function CommercialRadarWorkspace() {
   const [opportunities, setOpportunities] = useState<CommercialOpportunity[]>([]);
@@ -48,27 +58,43 @@ export default function CommercialRadarWorkspace() {
   const [runningConnectorId, setRunningConnectorId] = useState<string>();
   const [priorityFilter, setPriorityFilter] = useState<'all' | CommercialOpportunity['priority']>('all');
   const [productFilter, setProductFilter] = useState('all');
-  const [relevanceFilter, setRelevanceFilter] = useState<'matched' | 'all' | 'unmatched'>('matched');
+  const [relevanceFilter, setRelevanceFilter] = useState<'matched' | 'all' | 'unmatched'>('all');
   const [minimumCompatibility, setMinimumCompatibility] = useState<'all' | '60' | '75' | '90'>('all');
   const [sortOrder, setSortOrder] = useState<'compatibility_desc' | 'priority' | 'deadline'>('compatibility_desc');
+  const [engagementFilter, setEngagementFilter] = useState<'all' | CommercialOpportunityEngagement>('all');
+  const [deadlineFilter, setDeadlineFilter] = useState<'active' | 'all' | 'expired'>('active');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
+  const [tenantProducts, setTenantProducts] = useState<RadarTenantProduct[]>([]);
+  const [savedSearches, setSavedSearches] = useState<RadarSavedSearch[]>([]);
   const pageSize = 50;
 
-  const snapshot = useMemo(() => CommercialRadarService.buildSnapshot(opportunities), [opportunities]);
+  const compatibilityProfiles = useMemo<CompatibilityProfile[]>(() => tenantProducts.filter((product) => product.active).map((product) => ({
+    id: `tenant-product-${product.id}`,
+    productId: product.id,
+    name: product.name,
+    anchorKeywords: [...product.keywords, ...product.classificationCodes],
+    supportingKeywords: [...product.synonyms, product.category || '', product.brand || '', product.manufacturer || ''].filter(Boolean),
+    category: product.category,
+    regions: product.regions,
+    minimumScore: 40,
+    origin: 'tenant_catalog' as const,
+  })), [tenantProducts]);
+  const analyzedOpportunities = useMemo(() => opportunities.map((opportunity) => ({ ...opportunity, analysis: OpportunityAnalyzer.analyze(opportunity, compatibilityProfiles) })), [opportunities, compatibilityProfiles]);
+  const snapshot = useMemo(() => CommercialRadarService.buildSnapshot(analyzedOpportunities), [analyzedOpportunities]);
   const integrationReadinessSummary = IntegrationReadinessService.buildSummary();
-  const productCommercializationSummary = ProductCommercializationService.buildSummary([], opportunities);
-  const executiveSummary = useCommercialExecutiveSummary(opportunities);
+  const productCommercializationSummary = ProductCommercializationService.buildSummary([], analyzedOpportunities);
+  const executiveSummary = useCommercialExecutiveSummary(analyzedOpportunities);
   const opportunityTypes = CommercialRadarService.getOpportunityTypes();
   const availableProducts = useMemo(() => {
     const products = new Map<string, string>();
-    for (const opportunity of opportunities) {
+    for (const opportunity of analyzedOpportunities) {
       for (const match of opportunity.analysis?.bestMatches || []) {
         products.set(match.productId, match.serviceName);
       }
     }
     return [...products.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
-  }, [opportunities]);
+  }, [analyzedOpportunities]);
   const filteredOpportunities = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLocaleLowerCase('pt-BR');
     const minimumScore = minimumCompatibility === 'all' ? 0 : Number(minimumCompatibility);
@@ -81,11 +107,14 @@ export default function CommercialRadarWorkspace() {
     const bestScore = (opportunity: CommercialOpportunity) =>
       opportunity.analysis?.bestMatches?.[0]?.score || 0;
 
-    const filtered = opportunities.filter((opportunity) => {
+    const filtered = analyzedOpportunities.filter((opportunity) => {
       const score = bestScore(opportunity);
       if (relevanceFilter === 'matched' && score <= 0) return false;
       if (relevanceFilter === 'unmatched' && score > 0) return false;
       if (priorityFilter !== 'all' && opportunity.priority !== priorityFilter) return false;
+      if (engagementFilter !== 'all' && (opportunity.engagementStatus || 'new') !== engagementFilter) return false;
+      if (deadlineFilter === 'active' && isOpportunityExpired(opportunity)) return false;
+      if (deadlineFilter === 'expired' && !isOpportunityExpired(opportunity)) return false;
       if (productFilter !== 'all' && !(opportunity.analysis?.bestMatches || []).some((match) => match.productId === productFilter)) return false;
       if (bestScore(opportunity) < minimumScore) return false;
       if (normalizedSearch && ![opportunity.title, opportunity.object, opportunity.buyerName, opportunity.city, opportunity.state, opportunity.processNumber].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR').includes(normalizedSearch)) return false;
@@ -103,7 +132,18 @@ export default function CommercialRadarWorkspace() {
       }
       return bestScore(right) - bestScore(left) || priorityWeight[right.priority] - priorityWeight[left.priority];
     });
-  }, [opportunities, relevanceFilter, priorityFilter, productFilter, minimumCompatibility, sortOrder, searchTerm]);
+  }, [analyzedOpportunities, relevanceFilter, priorityFilter, productFilter, minimumCompatibility, sortOrder, engagementFilter, deadlineFilter, searchTerm]);
+  const actionSummary = useMemo(() => CommercialRadarActionSummaryService.build(analyzedOpportunities), [analyzedOpportunities]);
+  const opportunityCounters = useMemo(() => {
+    const active = analyzedOpportunities.filter((item) => !isOpportunityExpired(item)).length;
+    const expired = analyzedOpportunities.length - active;
+    const matched = analyzedOpportunities.filter((item) => (item.analysis?.bestMatches?.[0]?.score || 0) > 0).length;
+    const qualified = analyzedOpportunities.filter((item) => item.qualificationStatus === 'qualified').length;
+    return { total: analyzedOpportunities.length, active, expired, matched, qualified };
+  }, [analyzedOpportunities]);
+  const firstVisibleItem = filteredOpportunities.length === 0 ? 0 : ((page - 1) * pageSize) + 1;
+  const lastVisibleItem = Math.min(page * pageSize, filteredOpportunities.length);
+
   const totalPages = Math.max(1, Math.ceil(filteredOpportunities.length / pageSize));
   const pagedOpportunities = useMemo(() => filteredOpportunities.slice((page - 1) * pageSize, page * pageSize), [filteredOpportunities, page]);
 
@@ -151,9 +191,17 @@ export default function CommercialRadarWorkspace() {
       }
     };
 
+    const loadCatalog = async () => {
+      try {
+        const [products, searches] = await Promise.all([RadarTenantCatalogRepository.listProducts(), RadarTenantCatalogRepository.listSearches()]);
+        if (isMounted) { setTenantProducts(products); setSavedSearches(searches); }
+      } catch (error) { console.warn('[CommercialRadar] Não foi possível carregar o catálogo do tenant.', error); }
+    };
+
     loadOpportunities();
     loadCommercialTasks();
     loadConnectors();
+    loadCatalog();
 
     return () => {
       isMounted = false;
@@ -162,7 +210,7 @@ export default function CommercialRadarWorkspace() {
 
   useEffect(() => {
     setPage(1);
-  }, [relevanceFilter, priorityFilter, productFilter, minimumCompatibility, sortOrder, searchTerm]);
+  }, [relevanceFilter, priorityFilter, productFilter, minimumCompatibility, sortOrder, engagementFilter, deadlineFilter, searchTerm]);
 
   const handleCreateOpportunity = async (input: CommercialOpportunityInput) => {
     const created = await OpportunityRepository.create(input);
@@ -176,6 +224,89 @@ export default function CommercialRadarWorkspace() {
     setSelectedOpportunity(updated);
   };
 
+  const handleEngagementChange = async (opportunity: CommercialOpportunity, status: CommercialOpportunityEngagement) => {
+    const updated = await OpportunityRepository.update(opportunity.id, {
+      engagementStatus: status,
+      engagementUpdatedAt: new Date().toISOString(),
+    });
+    setOpportunities((current) => current.map((item) => item.id === updated.id ? updated : item));
+    if (selectedOpportunity?.id === updated.id) setSelectedOpportunity(updated);
+  };
+
+  const handleSendToCrm = async (input: import('../../core/commercial/OpportunityRepository').OpportunityCrmHandoffInput) => {
+    if (!selectedOpportunity) throw new Error('Nenhuma oportunidade selecionada.');
+    const result = await OpportunityRepository.sendToCrm(selectedOpportunity.id, input);
+    setOpportunities((current) => current.map((item) => item.id === result.opportunity.id ? result.opportunity : item));
+    setSelectedOpportunity(result.opportunity);
+    const refreshedTasks = await CommercialTaskRepository.list();
+    setCommercialTasks(refreshedTasks);
+    return result;
+  };
+
+
+  const handleSaveTenantProduct = async (input: RadarTenantProductInput) => {
+    const saved = await RadarTenantCatalogRepository.saveProduct(input);
+    setTenantProducts((current) => [saved, ...current.filter((item) => item.id !== saved.id)]);
+  };
+  const handleDeleteTenantProduct = async (id: string) => {
+    await RadarTenantCatalogRepository.deleteProduct(id);
+    setTenantProducts((current) => current.filter((item) => item.id !== id));
+  };
+  const handleSaveSearch = async (input: { name: string; keywords: string[]; active: boolean }) => {
+    const saved = await RadarTenantCatalogRepository.saveSearch(input);
+    setSavedSearches((current) => [saved, ...current.filter((item) => item.id !== saved.id)]);
+  };
+  const handleDeleteSearch = async (id: string) => {
+    await RadarTenantCatalogRepository.deleteSearch(id);
+    setSavedSearches((current) => current.filter((item) => item.id !== id));
+  };
+  const handleUseSearch = (search: RadarSavedSearch) => {
+    setSearchTerm(search.keywords.join(' '));
+    setRelevanceFilter('all');
+  };
+
+  const handleCommercialAction = (item: CommercialRadarActionItem) => {
+    setSearchTerm('');
+    setEngagementFilter('all');
+    setDeadlineFilter('active');
+
+    if (item.id === 'critical') {
+      setRelevanceFilter('matched');
+      setMinimumCompatibility('75');
+      setSortOrder('compatibility_desc');
+      return;
+    }
+
+    if (item.id === 'ready_for_crm') {
+      setRelevanceFilter('all');
+      setMinimumCompatibility('all');
+      setSortOrder('compatibility_desc');
+      return;
+    }
+
+    if (item.id === 'expiring') {
+      setRelevanceFilter('all');
+      setMinimumCompatibility('all');
+      setSortOrder('deadline');
+      return;
+    }
+
+    setRelevanceFilter('all');
+    setMinimumCompatibility('all');
+    setSortOrder('compatibility_desc');
+  };
+
+  const handleSaveConnectorCredential = async (connectorId: string, input: { scope: 'global' | 'tenant'; secret: string; label?: string }) => {
+    await RadarConnectorRepository.saveCredential(connectorId, input);
+    const availableConnectors = await RadarConnectorRepository.listConnectors();
+    setConnectors(availableConnectors);
+  };
+
+  const handleRevokeConnectorCredential = async (connectorId: string, scope: 'global' | 'tenant') => {
+    await RadarConnectorRepository.revokeCredential(connectorId, scope);
+    const availableConnectors = await RadarConnectorRepository.listConnectors();
+    setConnectors(availableConnectors);
+  };
 
   const handleRunConnector = async (connectorId: string) => {
     setRunningConnectorId(connectorId);
@@ -281,24 +412,51 @@ export default function CommercialRadarWorkspace() {
             </div>
           </div>
 
-          <div className="relative rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5 flex flex-col justify-between gap-5">
-            <div>
-              <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 flex items-center justify-center mb-4">
+          <div className="relative rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5 space-y-5">
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0">
                 <Bot className="w-5 h-5" />
               </div>
-              <h2 className="text-lg font-black text-indigo-200">Beta no Radar</h2>
-              <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
-                O Radar já organiza oportunidades, análises e ações comerciais. A próxima etapa conecta fontes públicas reais sem misturar regras específicas de cada portal ao domínio central.
-              </p>
+              <div>
+                <h2 className="text-lg font-black text-indigo-200">Beta Comercial</h2>
+                <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
+                  {actionSummary.actionable} oportunidade(s) ativas estão disponíveis para decisão.
+                  {actionSummary.topProduct
+                    ? ` O produto com maior demanda atual é ${actionSummary.topProduct.name}, com ${actionSummary.topProduct.count} correspondência(s).`
+                    : ' Cadastre produtos ou palavras-chave para ampliar a análise de aderência.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <CommercialActionMetric icon={<TrendingUp className="w-3.5 h-3.5" />} label="Alta aderência" value={actionSummary.highCompatibility} />
+              <CommercialActionMetric icon={<Send className="w-3.5 h-3.5" />} label="Prontas para CRM" value={actionSummary.readyForCrm} />
+              <CommercialActionMetric icon={<Clock3 className="w-3.5 h-3.5" />} label="Vencem em 7 dias" value={actionSummary.expiringSoon} />
+              <CommercialActionMetric icon={<AlertTriangle className="w-3.5 h-3.5" />} label="Sem triagem" value={actionSummary.unreviewed} />
             </div>
 
             <div className="space-y-2">
-              <RadarChecklistItem label="Cadastro manual de oportunidades" done />
-              <RadarChecklistItem label="API de persistência do Radar" done />
-              <RadarChecklistItem label="Tabela profissional" done />
-              <RadarChecklistItem label="Análise visual da Beta" done={productCommercializationSummary.averageReadiness >= 60} />
-              <RadarChecklistItem label="Criar tarefa a partir do edital" />
-              <RadarChecklistItem label="Integração PNCP" done={integrationReadinessSummary.readinessScore >= 70} />
+              {actionSummary.items.filter((item) => item.count > 0).slice(0, 3).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleCommercialAction(item)}
+                  className="w-full p-3 rounded-xl border border-indigo-500/15 bg-[var(--bg-card)]/50 text-left hover:bg-indigo-500/10 transition"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-black text-[var(--text-main)]">{item.title}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-indigo-300" />
+                  </div>
+                  <p className="text-[10px] text-[var(--text-secondary)] mt-1 leading-relaxed">{item.description}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              <RadarChecklistItem label="PNCP e Compras.gov nativos" done={connectors.filter((item) => item.available).length >= 2} />
+              <RadarChecklistItem label="Catálogo da empresa e buscas salvas" done={tenantProducts.length > 0 || savedSearches.length > 0} />
+              <RadarChecklistItem label="Qualificação e envio manual ao CRM" done />
+              <RadarChecklistItem label="Acompanhamento e decisões persistentes" done />
             </div>
           </div>
         </div>
@@ -309,6 +467,18 @@ export default function CommercialRadarWorkspace() {
         runs={connectorRuns}
         runningConnectorId={runningConnectorId}
         onRun={handleRunConnector}
+        onSaveCredential={handleSaveConnectorCredential}
+        onRevokeCredential={handleRevokeConnectorCredential}
+      />
+
+      <RadarTenantCatalogPanel
+        products={tenantProducts}
+        searches={savedSearches}
+        onSaveProduct={handleSaveTenantProduct}
+        onDeleteProduct={handleDeleteTenantProduct}
+        onSaveSearch={handleSaveSearch}
+        onDeleteSearch={handleDeleteSearch}
+        onUseSearch={handleUseSearch}
       />
 
       <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 space-y-4">
@@ -360,7 +530,24 @@ export default function CommercialRadarWorkspace() {
           </select>
         </div>
 
-        <div className="text-[10px] text-[var(--text-secondary)] font-mono">{filteredOpportunities.length} oportunidade(s) exibida(s) de {opportunities.length} contratação(ões) importada(s)</div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          {[
+            ['Coletadas', opportunityCounters.total],
+            ['Prazo ativo', opportunityCounters.active],
+            ['Prazo encerrado', opportunityCounters.expired],
+            ['Aderentes', opportunityCounters.matched],
+            ['Qualificadas', opportunityCounters.qualified],
+          ].map(([label, value]) => (
+            <div key={String(label)} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)]/30 px-3 py-2">
+              <span className="block text-[9px] uppercase tracking-widest font-mono text-[var(--text-secondary)]">{label}</span>
+              <strong className="text-sm text-[var(--text-main)]">{value}</strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-[10px] text-[var(--text-secondary)] font-mono">
+          Mostrando {firstVisibleItem}-{lastVisibleItem} de {filteredOpportunities.length} oportunidade(s) conforme os filtros atuais. Base total analisada: {opportunityCounters.total}.
+        </div>
 
         {isLoadingOpportunities ? (
           <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)]/35 text-xs text-[var(--text-secondary)]">
@@ -369,16 +556,16 @@ export default function CommercialRadarWorkspace() {
         ) : (
           <>
             {pagedOpportunities.length > 0 ? (
-              <OpportunitiesTable opportunities={pagedOpportunities} onDelete={handleDeleteOpportunity} onAnalyze={setSelectedOpportunity} />
+              <OpportunitiesTable opportunities={pagedOpportunities} onDelete={handleDeleteOpportunity} onAnalyze={setSelectedOpportunity} onEngagementChange={handleEngagementChange} />
             ) : (
               <div className="p-8 rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--bg-main)]/25 text-center space-y-3">
                 <h3 className="text-sm font-black text-[var(--text-main)]">Nenhuma oportunidade atende aos filtros atuais</h3>
                 <p className="text-xs text-[var(--text-secondary)] max-w-2xl mx-auto">
-                  {opportunities.length > 0
-                    ? `Existem ${opportunities.length} contratações importadas. A análise radar-v2.2.0 recalcula a aderência usando evidência funcional e contexto tecnológico, sem considerar modalidade ou órgão como prova isolada.`
+                  {analyzedOpportunities.length > 0
+                    ? `Existem ${analyzedOpportunities.length} contratações importadas. A análise radar-v2.2.0 recalcula a aderência usando evidência funcional e contexto tecnológico, sem considerar modalidade ou órgão como prova isolada.`
                     : 'Ainda não existem contratações importadas para análise.'}
                 </p>
-                {opportunities.length > 0 && relevanceFilter !== 'all' && (
+                {analyzedOpportunities.length > 0 && relevanceFilter !== 'all' && (
                   <button type="button" onClick={() => setRelevanceFilter('all')} className="px-3 py-2 rounded-lg border border-[var(--border-color)] text-xs font-black text-[var(--text-main)]">
                     Ver todas as contratações importadas
                   </button>
@@ -519,7 +706,18 @@ export default function CommercialRadarWorkspace() {
         onClose={() => setSelectedOpportunity(null)}
         onTasksCreated={async () => setCommercialTasks(await CommercialTaskRepository.list())}
         onQualificationChange={handleQualificationChange}
+        onSendToCrm={handleSendToCrm}
       />
+    </div>
+  );
+}
+
+
+function CommercialActionMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-indigo-500/15 bg-[var(--bg-card)]/45 p-3">
+      <div className="flex items-center gap-2 text-indigo-300">{icon}<span className="text-[9px] uppercase font-mono font-black">{label}</span></div>
+      <strong className="text-lg font-black text-[var(--text-main)] block mt-2">{value}</strong>
     </div>
   );
 }

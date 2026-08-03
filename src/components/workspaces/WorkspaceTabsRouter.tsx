@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import WorkspaceRouter from '../WorkspaceRouter';
 import ModuleAccessGuard from '../shell/ModuleAccessGuard';
 
@@ -102,11 +102,18 @@ export default function WorkspaceTabsRouter(_props: WorkspaceTabsRouterProps) {
 
 
   const accessSnapshot = ProductAccessService.buildSnapshot(user);
-  const clientBaseTabs = new Set(['dashboard', 'client_onboarding', 'client_products', 'client_settings', 'client_audit', 'beta_brain', 'memories', 'knowledge', 'decisions']);
-  if (operationalContext.role === 'tenant_admin') clientBaseTabs.add('client_users');
   const isContextTabAllowed = operationalContext.isOiBetaMasterAdmin
-    ? true
-    : clientBaseTabs.has(activeTab) || ProductAccessService.canAccessTab(activeTab, accessSnapshot);
+    || ProductAccessService.canAccessClientTab(
+      activeTab,
+      operationalContext.role,
+      accessSnapshot,
+    );
+
+  useEffect(() => {
+    if (!isContextTabAllowed && activeTab !== 'dashboard') {
+      setActiveTab('dashboard');
+    }
+  }, [activeTab, isContextTabAllowed, setActiveTab]);
 
   if (!isContextTabAllowed) {
     return <ModuleAccessGuard allowed={false} requiredModule="permissão do tenant" />;

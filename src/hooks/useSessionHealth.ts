@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usePlatformContext } from '../contexts/platform/usePlatformContext';
 import { SessionHealthService } from '../core/auth/SessionHealthService';
+import { normalizeAuthenticatedUser } from '../core/auth/AuthenticatedUserContext';
 import type { SessionHealthSummary } from '../core/auth/SessionHealthTypes';
 
 const INITIAL_SUMMARY: SessionHealthSummary = {
@@ -22,11 +23,24 @@ export default function useSessionHealth() {
   const refresh = useCallback(async () => {
     setIsLoading(true);
     try {
+      const currentUser = normalizeAuthenticatedUser(platform.currentUser);
+
+      if (!currentUser) {
+        setSummary(SessionHealthService.buildSummary({
+          authenticated: false,
+          source: 'none',
+          tokenRequired: false,
+          tokenPresent: false,
+          checkedAt: new Date().toISOString(),
+        }, new Error('Sessão sem identidade operacional completa. Faça login novamente.')));
+        return;
+      }
+
       setSummary(await SessionHealthService.loadSummary({
-        organizationId: platform.currentTenant.organizationId,
-        workspaceId: platform.currentTenant.workspaceId,
-        userId: platform.currentUser?.id || 'dev-user-douglas',
-        role: platform.currentUser?.role || 'master_admin',
+        organizationId: String(currentUser.organizationId),
+        workspaceId: String(currentUser.workspaceId),
+        userId: String(currentUser.id),
+        role: String(currentUser.role),
       }));
     } finally {
       setIsLoading(false);

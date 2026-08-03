@@ -1,5 +1,6 @@
 import { validateCommercialCatalog } from './CommercialProductCatalogValidator';
 import { normalizeCommercialText } from './OpportunityNormalizer';
+import { CompatibilityEngine, type CompatibilityProfile } from './CompatibilityEngine';
 import type { CommercialFinding, CommercialOpportunity, OpportunityMatchResult } from './OpportunityTypes';
 
 const GENERIC_TECH_TERMS = new Set([
@@ -29,7 +30,7 @@ const TECHNOLOGY_CONTEXT_TERMS = [
 ];
 
 export class OpportunityMatcher {
-  static match(opportunity: CommercialOpportunity): OpportunityMatchResult[] {
+  static match(opportunity: CommercialOpportunity, additionalProfiles: CompatibilityProfile[] = []): OpportunityMatchResult[] {
     const contentText = normalizeCommercialText([
       opportunity.title,
       opportunity.object,
@@ -41,7 +42,7 @@ export class OpportunityMatcher {
       opportunity.state,
     ].filter(Boolean).join(' '));
 
-    return validateCommercialCatalog().validServices
+    const officialMatches = validateCommercialCatalog().validServices
       .map((service): OpportunityMatchResult | undefined => {
         const anchors = matchTerms(contentText, service.anchorKeywords);
         const supports = matchTerms(contentText, service.supportingKeywords)
@@ -73,6 +74,7 @@ export class OpportunityMatcher {
         const matchedKeywords = [...anchors, ...supports];
         const findings = buildFindings({ anchors, supports, exclusions, technologySignals, typeMatch, buyerMatch });
         return {
+          origin: 'beta_catalog',
           serviceId: service.id,
           productId: service.productId,
           serviceName: service.shortName,
@@ -84,7 +86,9 @@ export class OpportunityMatcher {
             .map((item) => item.label),
         };
       })
-      .filter((match): match is OpportunityMatchResult => Boolean(match))
+      .filter((match): match is OpportunityMatchResult => Boolean(match));
+
+    return [...officialMatches, ...CompatibilityEngine.match(opportunity, additionalProfiles)]
       .sort((a, b) => b.score - a.score);
   }
 }

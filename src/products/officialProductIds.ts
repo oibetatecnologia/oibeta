@@ -1,4 +1,5 @@
 export const OFFICIAL_PRODUCT_IDS = [
+  'radar-comercial',
   'beta-gov',
   'portal-transparencia-inteligente',
   'prefeitura-zero-papel',

@@ -34,6 +34,7 @@ import useAIConnectionsState from '../hooks/useAIConnectionsState';
 import useDebugLogsState from '../hooks/useDebugLogsState';
 import useActionLogsState from '../hooks/useActionLogsState';
 import { OperationalContextResolver } from '../core/tenants/OperationalContextResolver';
+import { buildAuthenticatedHeaders } from '../core/auth/AuthenticatedUserContext';
 
 interface ManagerPanelProps {
   projects: Project[];
@@ -135,6 +136,10 @@ export default function ManagerPanel({
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const productAccessSnapshot = ProductAccessService.buildSnapshot(user);
   const operationalContext = OperationalContextResolver.resolve(user);
+
+  useEffect(() => {
+    setActiveTab('dashboard');
+  }, [operationalContext.organizationId, operationalContext.userId]);
   
   // SPRINT 27.1 Module Access & Dynamic Navigation States
   const [allModules, setAllModules] = useState<AppModule[]>([]);
@@ -151,25 +156,13 @@ export default function ManagerPanel({
 
   const tenantOnlyHeaders = useCallback((): Record<string, string> => ({
     ...ClientSessionStorage.buildAuthorizationHeader(),
-    'x-organization-id': user?.organizationId || 'org-oi-beta',
-    'x-workspace-id': user?.workspaceId || 'default-workspace',
-    'x-user-id': user?.id || 'dev-user-douglas',
-    'x-user-role': user?.role || 'master_admin',
-    'x-user-name': user?.name || 'Douglas',
-    'x-user-email': user?.email || 'douglas.ujs@gmail.com'
-  }), [
-    user?.email,
-    user?.id,
-    user?.name,
-    user?.organizationId,
-    user?.role,
-    user?.workspaceId
-  ]);
+    ...buildAuthenticatedHeaders(user),
+  }), [user]);
 
   const tenantJsonHeaders = useCallback((): Record<string, string> => ({
-    'Content-Type': 'application/json',
-    ...tenantOnlyHeaders()
-  }), [tenantOnlyHeaders]);
+    ...ClientSessionStorage.buildAuthorizationHeader(),
+    ...buildAuthenticatedHeaders(user, true),
+  }), [user]);
 
   const fetchModulesAndFeatures = useCallback(async () => {
     try {
@@ -701,7 +694,7 @@ export default function ManagerPanel({
 
         <SidebarWorkspaceBadge
           collapsed={isLeftSidebarCollapsed}
-          organizationName="Oi Beta Tecnologia"
+          organizationName={operationalContext.isOiBetaMasterAdmin ? 'Oi Beta Tecnologia' : String(user?.organizationName || user?.organizationId || 'Organização cliente')}
         />
 
         <SidebarProjectsList
@@ -828,15 +821,27 @@ export default function ManagerPanel({
                 const visibleItems = group.items
                   .map((item) => {
                     const licensedSubItems = item.subItems?.filter((subItem) =>
-                      ProductAccessService.canAccessTab(
-                        subItem.id,
-                        productAccessSnapshot,
-                      ),
+                      operationalContext.isOiBetaMasterAdmin
+                        ? ProductAccessService.canAccessTab(
+                            subItem.id,
+                            productAccessSnapshot,
+                          )
+                        : ProductAccessService.canAccessClientTab(
+                            subItem.id,
+                            operationalContext.role,
+                            productAccessSnapshot,
+                          ),
                     );
-                    const itemLicensed = ProductAccessService.canAccessTab(
-                      item.id,
-                      productAccessSnapshot,
-                    );
+                    const itemLicensed = operationalContext.isOiBetaMasterAdmin
+                      ? ProductAccessService.canAccessTab(
+                          item.id,
+                          productAccessSnapshot,
+                        )
+                      : ProductAccessService.canAccessClientTab(
+                          item.id,
+                          operationalContext.role,
+                          productAccessSnapshot,
+                        );
                     const moduleActive = item.module
                       ? isModuleActive(item.module)
                       : true;

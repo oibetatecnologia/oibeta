@@ -1,3 +1,5 @@
+import { buildAuthenticatedHeaders, type AuthenticatedUserContext } from '../../core/auth/AuthenticatedUserContext';
+
 export interface ElectoralCampaignPayload {
   id?: string;
   name?: string;
@@ -58,34 +60,27 @@ export interface ElectoralAnalysisQueryParams {
 }
 
 export class ElectoralService {
-  private static getOrganizationId(user?: any): string {
-    return user?.organizationId || 'org-oi-beta';
+  private static getContext(user?: AuthenticatedUserContext): AuthenticatedUserContext {
+    if (!user) {
+      throw new Error('Sessão eleitoral sem contexto operacional. Faça login novamente.');
+    }
+
+    return user;
   }
 
-  private static getWorkspaceId(user?: any): string {
-    return user?.workspaceId || 'default-workspace';
+  private static getWorkspaceId(user?: AuthenticatedUserContext): string {
+    return String(this.getContext(user).workspaceId || '').trim();
   }
 
-  private static getUserId(user?: any): string {
-    return user?.id || 'dev-user-douglas';
+  private static tenantHeaders(user?: AuthenticatedUserContext): Record<string, string> {
+    return buildAuthenticatedHeaders(this.getContext(user));
   }
 
-  private static tenantHeaders(user?: any): Record<string, string> {
-    return {
-      'x-organization-id': this.getOrganizationId(user),
-      'x-workspace-id': this.getWorkspaceId(user),
-      'x-user-id': this.getUserId(user),
-    };
+  private static jsonHeaders(user?: AuthenticatedUserContext): Record<string, string> {
+    return buildAuthenticatedHeaders(this.getContext(user), true);
   }
 
-  private static jsonHeaders(user?: any): Record<string, string> {
-    return {
-      'Content-Type': 'application/json',
-      ...this.tenantHeaders(user),
-    };
-  }
-
-  private static withProjectId<T extends Record<string, unknown>>(payload: T, user?: any): T & { projectId: string } {
+  private static withProjectId<T extends Record<string, unknown>>(payload: T, user?: AuthenticatedUserContext): T & { projectId: string } {
     return {
       ...payload,
       projectId: this.getWorkspaceId(user),
@@ -108,7 +103,7 @@ export class ElectoralService {
     return data;
   }
 
-  public static async getSummary(user?: any): Promise<any> {
+  public static async getSummary(user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/summary', {
       headers: this.tenantHeaders(user),
     });
@@ -116,7 +111,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, `Falha ao obter resumo eleitoral: ${response.statusText}`);
   }
 
-  public static async createCampaign(campaignForm: Partial<ElectoralCampaignPayload>, user?: any): Promise<any> {
+  public static async createCampaign(campaignForm: Partial<ElectoralCampaignPayload>, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/campaign', {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -126,7 +121,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Falha ao criar campanha eleitoral.');
   }
 
-  public static async updateCampaign(campaignId: string, campaignForm: Partial<ElectoralCampaignPayload>, user?: any): Promise<any> {
+  public static async updateCampaign(campaignId: string, campaignForm: Partial<ElectoralCampaignPayload>, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch(`/api/electoral/campaigns/${campaignId}`, {
       method: 'PUT',
       headers: this.jsonHeaders(user),
@@ -136,7 +131,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Falha ao editar campanha.');
   }
 
-  public static async createCoordinator(coordinatorForm: Partial<ElectoralCoordinatorPayload>, user?: any): Promise<any> {
+  public static async createCoordinator(coordinatorForm: Partial<ElectoralCoordinatorPayload>, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/coordinator', {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -146,7 +141,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Falha ao registrar coordenador.');
   }
 
-  public static async updateCoordinator(coordinatorId: string, coordinatorForm: Partial<ElectoralCoordinatorPayload>, user?: any): Promise<any> {
+  public static async updateCoordinator(coordinatorId: string, coordinatorForm: Partial<ElectoralCoordinatorPayload>, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch(`/api/electoral/coordinators/${coordinatorId}`, {
       method: 'PUT',
       headers: this.jsonHeaders(user),
@@ -156,7 +151,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Falha ao editar coordenador.');
   }
 
-  public static async createTerritory(territoryForm: Partial<ElectoralTerritoryPayload>, user?: any): Promise<any> {
+  public static async createTerritory(territoryForm: Partial<ElectoralTerritoryPayload>, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/territory', {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -166,7 +161,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Falha ao registrar território.');
   }
 
-  public static async createInvite(inviteForm: Partial<ElectoralInvitePayload>, user?: any): Promise<any> {
+  public static async createInvite(inviteForm: Partial<ElectoralInvitePayload>, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/invite', {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -189,7 +184,7 @@ export class ElectoralService {
     };
   }
 
-  public static async acceptInvite(inviteId: string, user?: any): Promise<any> {
+  public static async acceptInvite(inviteId: string, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/invite/accept', {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -203,7 +198,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Erro ao aceitar convite no backend');
   }
 
-  public static async declineInvite(inviteId: string, user?: any): Promise<any> {
+  public static async declineInvite(inviteId: string, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch(`/api/electoral/invite/${inviteId}/decline`, {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -212,7 +207,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Erro ao recusar convite');
   }
 
-  public static async revokeInvite(inviteId: string, user?: any): Promise<any> {
+  public static async revokeInvite(inviteId: string, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch(`/api/electoral/invite/${inviteId}/revoke`, {
       method: 'POST',
       headers: this.jsonHeaders(user),
@@ -221,7 +216,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Erro ao revogar convite');
   }
 
-  public static async executeAnalysis(analysisType: string, params: ElectoralAnalysisQueryParams, user?: any): Promise<any> {
+  public static async executeAnalysis(analysisType: string, params: ElectoralAnalysisQueryParams, user?: AuthenticatedUserContext): Promise<any> {
     const queryParams = new URLSearchParams();
 
     if (params.campaignId) queryParams.set('campaignId', params.campaignId);
@@ -235,7 +230,7 @@ export class ElectoralService {
     return this.parseJsonResponse(response, 'Falha ao computar análise eleitoral.');
   }
 
-  public static async saveAnalysis(payload: ElectoralAnalysisPayload, user?: any): Promise<any> {
+  public static async saveAnalysis(payload: ElectoralAnalysisPayload, user?: AuthenticatedUserContext): Promise<any> {
     const response = await fetch('/api/electoral/analysis', {
       method: 'POST',
       headers: this.jsonHeaders(user),

@@ -16,12 +16,12 @@ export interface ResolvedOperationalContext {
 
 export class OperationalContextResolver {
   static resolve(user: PlatformUserContext | null | undefined): ResolvedOperationalContext {
-    const organizationId = String(user?.organizationId || 'org-oi-beta');
-    const tenantId = String(user?.tenantId || organizationId);
-    const workspaceId = String(user?.workspaceId || 'default-workspace');
     const role = String(user?.role || 'unknown').trim().toLowerCase();
-    const isOiBetaOrganization = OI_BETA_ORGANIZATION_IDS.has(organizationId);
     const isMasterAdmin = MASTER_ROLES.has(role);
+    const organizationId = String(user?.organizationId || (isMasterAdmin ? 'org-oi-beta' : 'unprovisioned-organization'));
+    const tenantId = String(user?.tenantId || organizationId);
+    const workspaceId = String(user?.workspaceId || (isMasterAdmin ? 'default-workspace' : 'unprovisioned-workspace'));
+    const isOiBetaOrganization = OI_BETA_ORGANIZATION_IDS.has(organizationId);
 
     return {
       userId: String(user?.id || 'anonymous'),

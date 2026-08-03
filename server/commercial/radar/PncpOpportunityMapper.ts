@@ -78,6 +78,7 @@ export function buildImportedOpportunity(input: CommercialOpportunityInput, orga
     status: 'new',
     priority: resolvePriority(input.submissionDeadline),
     qualificationStatus: 'review_required',
+    engagementStatus: 'new',
     duplicateKey: buildOpportunityDuplicateKey(input),
     probableDuplicateOf: duplicate?.id,
     createdAt: now,

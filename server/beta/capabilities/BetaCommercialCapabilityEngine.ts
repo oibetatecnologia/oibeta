@@ -1,7 +1,7 @@
-import crypto from "crypto";
 import type { DatabaseAdapter } from "../../database/DatabaseAdapter";
 import type { CurrentUser } from "../../auth/currentUser";
 import { BetaCapabilityRegistry, type BetaCapabilityId } from "./BetaCapabilityRegistry";
+import { RadarCrmHandoffService } from "../../commercial/radar/RadarCrmHandoffService";
 
 interface PendingCommercialAction {
   type: "BETA_COMMERCIAL_CAPABILITY";
@@ -31,7 +31,11 @@ function isNegative(message: string): boolean {
 }
 
 export class BetaCommercialCapabilityEngine {
-  constructor(private readonly db: DatabaseAdapter) {}
+  private readonly crmHandoff: RadarCrmHandoffService;
+
+  constructor(private readonly db: DatabaseAdapter) {
+    this.crmHandoff = new RadarCrmHandoffService(db);
+  }
 
   private async listOpportunities(user: CurrentUser, workspaceId: string): Promise<any[]> {
     return this.db.getCommercialOpportunities(user.organizationId, workspaceId);
@@ -174,67 +178,25 @@ export class BetaCommercialCapabilityEngine {
   }
 
   private async sendToCrm(opportunity: any, user: CurrentUser, workspaceId: string): Promise<CommercialCapabilityResponse> {
-    if (opportunity.qualificationStatus !== "qualified") throw new Error("A oportunidade precisa estar qualificada antes de seguir ao CRM");
+    const result = await this.crmHandoff.send({
+      opportunityId: opportunity.id,
+      organizationId: user.organizationId,
+      workspaceId,
+      requestedBy: user,
+      createTask: true,
+    });
 
-    const clients = await this.db.getCrmGovClients(user.organizationId, workspaceId);
-    const buyerKey = normalize(opportunity.buyerName || opportunity.title);
-    let client = clients.find((item: any) => normalize(item.name || item.entity || "") === buyerKey);
-    const now = new Date().toISOString();
-    const productLinks = (opportunity.analysis?.bestMatches || []).slice(0, 3).map((match: any) => ({
-      serviceId: match.serviceId,
-      productId: match.productId,
-      shortName: match.serviceName,
-      commercialName: match.serviceName,
-      status: "interested",
-      linkedAt: now,
-    }));
-
-    if (!client) {
-      client = {
-        id: `client-${crypto.randomUUID()}`,
-        provisioningStatus: "not_provisioned",
-        name: opportunity.buyerName || opportunity.title,
-        city: opportunity.city || "",
-        state: opportunity.state || "",
-        entity: opportunity.buyerName || "Órgão comprador",
-        entityType: "other",
-        manager: user.name,
-        status: "prospect",
-        contact: "A identificar",
-        notes: `Prospect criado pela Beta a partir do Radar Comercial. Origem: ${opportunity.sourceLabel || opportunity.sourceId || "Radar"}.`,
-        contacts: [],
-        timeline: [],
-        opportunities: [],
-        products: [],
-        proposals: [],
-        contracts: [],
-        implementations: [],
-        financialRecords: [],
-        supportTickets: [],
-        createdAt: now,
-        updatedAt: now,
+    if (result.alreadyLinked) {
+      return {
+        message: `A oportunidade **${opportunity.title}** já está vinculada ao CRM no prospect **${result.client.name}**.`,
+        actionExecuted: "radar.send_to_crm",
       };
-      clients.push(client);
     }
 
-    client.opportunities = Array.isArray(client.opportunities) ? client.opportunities : [];
-    if (!client.opportunities.some((item: any) => item.opportunityId === opportunity.id)) {
-      client.opportunities.push({ opportunityId: opportunity.id, title: opportunity.title, source: "commercial_radar", linkedAt: now });
-    }
-    client.products = Array.isArray(client.products) ? client.products : [];
-    for (const product of productLinks) {
-      if (!client.products.some((item: any) => item.productId === product.productId)) client.products.push(product);
-    }
-    client.timeline = Array.isArray(client.timeline) ? client.timeline : [];
-    client.timeline.push({ id: `timeline-${crypto.randomUUID()}`, type: "opportunity", title: "Oportunidade vinculada pelo Radar", description: opportunity.title, date: now, createdAt: now });
-    client.nextAction = { title: `Analisar abordagem comercial para ${opportunity.title}`, dueDate: opportunity.submissionDeadline, notes: "Ação criada pela Beta após confirmação.", updatedAt: now };
-    client.updatedAt = now;
-
-    await this.db.replaceCrmGovClients(user.organizationId, workspaceId, clients);
-    await this.db.updateCommercialOpportunity(opportunity.id, user.organizationId, workspaceId, { crmOpportunityId: client.id, status: "proposal", updatedAt: now });
-    await this.createCommercialTask(opportunity, user, workspaceId);
-
-    return { message: `A oportunidade **${opportunity.title}** foi vinculada ao CRM no prospect **${client.name}**. Também criei a próxima tarefa comercial.`, actionExecuted: "radar.send_to_crm" };
+    return {
+      message: `A oportunidade **${opportunity.title}** foi vinculada manualmente ao CRM no prospect **${result.client.name}**.${result.createdTask ? " Também criei a próxima tarefa comercial." : ""}`,
+      actionExecuted: "radar.send_to_crm",
+    };
   }
 
   private async audit(user: CurrentUser, workspaceId: string, capabilityId: BetaCapabilityId, status: string, details: Record<string, unknown>): Promise<void> {

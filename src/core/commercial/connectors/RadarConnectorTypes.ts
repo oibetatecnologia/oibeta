@@ -1,4 +1,16 @@
 export type RadarConnectorStatus = 'planned' | 'available' | 'disabled' | 'error';
+export type RadarConnectorAuthPolicy = 'PUBLIC_NO_AUTH' | 'GLOBAL_PLATFORM' | 'TENANT_PROVIDED' | 'GLOBAL_OR_TENANT';
+export type RadarConnectorCredentialScope = 'global' | 'tenant';
+
+export interface RadarConnectorCredentialMetadata {
+  connectorId: string;
+  scope: RadarConnectorCredentialScope;
+  organizationId?: string;
+  configured: boolean;
+  maskedValue?: string;
+  label?: string;
+  updatedAt?: string;
+}
 export type RadarSyncRunStatus = 'idle' | 'running' | 'completed' | 'completed_with_warnings' | 'failed';
 
 export interface RadarConnectorDescriptor {
@@ -13,6 +25,11 @@ export interface RadarConnectorDescriptor {
   unavailableReason?: string;
   defaultLookbackDays?: number;
   documentationUrl?: string;
+  authPolicy: RadarConnectorAuthPolicy;
+  credentialConfigured?: boolean;
+  credentialScope?: RadarConnectorCredentialScope;
+  credentialMaskedValue?: string;
+  canConfigureCredential?: boolean;
 }
 
 export interface RadarSyncRunMetrics {

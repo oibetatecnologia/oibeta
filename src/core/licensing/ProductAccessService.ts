@@ -19,6 +19,22 @@ const ALWAYS_AVAILABLE_STATUSES = new Set<ProductStatus>([
   'embedded',
 ]);
 
+const CLIENT_UNIVERSAL_TABS = new Set([
+  'dashboard',
+  'client_onboarding',
+  'client_products',
+  'client_settings',
+  'beta_brain',
+  'memories',
+  'knowledge',
+  'decisions',
+]);
+
+const CLIENT_ADMIN_TABS = new Set([
+  'client_users',
+  'client_audit',
+]);
+
 export interface ProductAccessSnapshot {
   licensedProductIds: string[];
   availableProducts: ProductDefinition[];
@@ -74,6 +90,20 @@ export class ProductAccessService {
     return snapshot.availableProducts.some(
       (availableProduct) => availableProduct.id === product.id,
     );
+  }
+
+  static canAccessClientTab(
+    tabId: string,
+    role: string | null | undefined,
+    snapshot: ProductAccessSnapshot,
+  ): boolean {
+    const normalizedRole = String(role || '').trim().toLowerCase();
+
+    if (snapshot.isPrivileged) return true;
+    if (CLIENT_UNIVERSAL_TABS.has(tabId)) return true;
+    if (CLIENT_ADMIN_TABS.has(tabId)) return normalizedRole === 'tenant_admin';
+
+    return this.canAccessTab(tabId, snapshot);
   }
 
   static canAccessProductId(

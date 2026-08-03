@@ -191,7 +191,9 @@ export async function generateProjectContext(
   let nextRecommendedAction = h.heuristicsNextAction;
   let risks = h.heuristicsRisks;
 
-  if (aiRouter) {
+  const normalizedOrganizationId = String(organizationId || '').trim();
+
+  if (aiRouter && normalizedOrganizationId) {
     try {
       const activeTasksText = tasks.filter(t => t.status !== 'completed' && t.projectId === project.id)
         .map(t => `- [Prioridade: ${t.priority || 'média'}] ${t.title}`)
@@ -235,7 +237,7 @@ Escreva em Português do Brasil com excelente redação executiva. Retorne no fo
 }`;
 
       const response = await aiRouter.generate(
-        organizationId || "org-oi-beta",
+        normalizedOrganizationId,
         prompt,
         "Você é o kernel BetaContextEngine."
       );

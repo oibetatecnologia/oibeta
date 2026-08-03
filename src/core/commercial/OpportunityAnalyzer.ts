@@ -1,12 +1,13 @@
 import { calculateCommercialScore } from './CommercialScore';
 import { OpportunityMatcher } from './OpportunityMatcher';
 import type { CommercialOpportunity, CommercialScoreFactor, OpportunityAnalysisResult } from './OpportunityTypes';
+import type { CompatibilityProfile } from './CompatibilityEngine';
 
 export const COMMERCIAL_ANALYSIS_VERSION = 'radar-v2.2.0';
 
 export class OpportunityAnalyzer {
-  static analyze(opportunity: CommercialOpportunity): OpportunityAnalysisResult {
-    const matches = OpportunityMatcher.match(opportunity);
+  static analyze(opportunity: CommercialOpportunity, profiles: CompatibilityProfile[] = []): OpportunityAnalysisResult {
+    const matches = OpportunityMatcher.match(opportunity, profiles);
     const score = calculateCommercialScore({ estimatedValue: opportunity.estimatedValue, matches });
     const deadlineFactor = resolveDeadlineFactor(opportunity.submissionDeadline);
     const evidenceCount = matches.flatMap((match) => match.findings).filter((finding) => finding.kind === 'evidence').length;
@@ -59,7 +60,7 @@ function resolveRecommendedAction(iac: number, matchesCount: number, deadline?: 
   if (iac >= 60) return 'Aderência relevante. Revise hipóteses e informações ausentes antes da qualificação.';
   return 'Aderência inicial limitada. Avalie esforço, prazo e capacidade de entrega antes de prosseguir.';
 }
-export function analyzeOpportunity(opportunity: CommercialOpportunity): OpportunityAnalysisResult { return OpportunityAnalyzer.analyze(opportunity); }
+export function analyzeOpportunity(opportunity: CommercialOpportunity, profiles: CompatibilityProfile[] = []): OpportunityAnalysisResult { return OpportunityAnalyzer.analyze(opportunity, profiles); }
 
 export function ensureCurrentOpportunityAnalysis(opportunity: CommercialOpportunity): OpportunityAnalysisResult {
   if (opportunity.analysis?.analysisVersion === COMMERCIAL_ANALYSIS_VERSION) return opportunity.analysis;

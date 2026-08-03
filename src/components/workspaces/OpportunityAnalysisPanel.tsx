@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { Bot, CheckCircle2, ClipboardList, Sparkles, Target } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Bot, CheckCircle2, ClipboardList, Send, Sparkles, Target } from 'lucide-react';
 import { CommercialTaskRepository } from '../../core/commercial/CommercialTaskRepository';
 import { OpportunityAnalyzer } from '../../core/commercial/OpportunityAnalyzer';
 import { OpportunityTaskGenerator } from '../../core/commercial/OpportunityTaskGenerator';
+import type { OpportunityCrmHandoffInput, OpportunityCrmHandoffResult } from '../../core/commercial/OpportunityRepository';
 import { getQualificationLabel, type CommercialOpportunity, type CommercialOpportunityQualification } from '../../core/commercial/OpportunityTypes';
 
 interface OpportunityAnalysisPanelProps {
@@ -10,6 +11,7 @@ interface OpportunityAnalysisPanelProps {
   onClose: () => void;
   onTasksCreated?: () => void;
   onQualificationChange?: (status: CommercialOpportunityQualification) => Promise<void> | void;
+  onSendToCrm?: (input: OpportunityCrmHandoffInput) => Promise<OpportunityCrmHandoffResult>;
 }
 
 export default function OpportunityAnalysisPanel({
@@ -17,8 +19,18 @@ export default function OpportunityAnalysisPanel({
   onClose,
   onTasksCreated,
   onQualificationChange,
+  onSendToCrm,
 }: OpportunityAnalysisPanelProps) {
   const [createdCount, setCreatedCount] = useState<number | null>(null);
+  const [isSendingToCrm, setIsSendingToCrm] = useState(false);
+  const [crmResult, setCrmResult] = useState<OpportunityCrmHandoffResult | null>(null);
+  const [crmError, setCrmError] = useState('');
+  const [crmForm, setCrmForm] = useState<OpportunityCrmHandoffInput>({
+    priority: opportunity?.priority || 'high',
+    nextAction: opportunity ? `Analisar abordagem comercial para ${opportunity.title}` : '',
+    notes: '',
+    createTask: true,
+  });
 
   const analysis = useMemo(
     () => (opportunity ? OpportunityAnalyzer.analyze(opportunity) : null),
@@ -30,6 +42,18 @@ export default function OpportunityAnalysisPanel({
     [analysis],
   );
 
+  useEffect(() => {
+    setCreatedCount(null);
+    setCrmResult(null);
+    setCrmError('');
+    setCrmForm({
+      priority: opportunity?.priority || 'high',
+      nextAction: opportunity ? `Analisar abordagem comercial para ${opportunity.title}` : '',
+      notes: '',
+      createTask: true,
+    });
+  }, [opportunity?.id, opportunity?.priority, opportunity?.title]);
+
   if (!opportunity || !analysis) {
     return null;
   }
@@ -38,6 +62,21 @@ export default function OpportunityAnalysisPanel({
     const created = await CommercialTaskRepository.createMany(generatedTasks);
     setCreatedCount(created.length);
     onTasksCreated?.();
+  };
+
+  const handleSendToCrm = async () => {
+    if (!onSendToCrm || opportunity.crmOpportunityId) return;
+    setIsSendingToCrm(true);
+    setCrmError('');
+    try {
+      const result = await onSendToCrm(crmForm);
+      setCrmResult(result);
+      onTasksCreated?.();
+    } catch (error) {
+      setCrmError(error instanceof Error ? error.message : 'Não foi possível enviar a oportunidade para o CRM.');
+    } finally {
+      setIsSendingToCrm(false);
+    }
   };
 
   return (
@@ -72,9 +111,9 @@ export default function OpportunityAnalysisPanel({
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-indigo-200">Oi, Douglas.</h3>
+                <h3 className="text-sm font-black text-indigo-200">Resumo da decisão comercial</h3>
                 <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
-                  Analisei o objeto da oportunidade, comparei com o catálogo comercial da Beta e calculei uma aderência inicial. Também preparei tarefas que podem virar melhorias no desenvolvimento.
+                  A oportunidade foi comparada com o catálogo disponível neste tenant. Revise a aderência, o prazo e os requisitos antes de qualificar e decidir manualmente pelo envio ao CRM.
                 </p>
               </div>
             </div>
@@ -99,6 +138,104 @@ export default function OpportunityAnalysisPanel({
               <button type="button" onClick={() => onQualificationChange?.('qualified')} className="p-2.5 rounded-xl border border-emerald-500/20 text-emerald-400 text-xs font-black">Qualificar</button>
               <button type="button" onClick={() => onQualificationChange?.('disqualified')} className="p-2.5 rounded-xl border border-rose-500/20 text-rose-400 text-xs font-black">Desqualificar</button>
             </div>
+          </section>
+
+          <section className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
+                <Send className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-blue-200">Envio manual para o CRM</h3>
+                <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
+                  O Radar nunca envia oportunidades automaticamente. Revise o interesse comercial e confirme somente as oportunidades que devem entrar no funil.
+                </p>
+              </div>
+            </div>
+
+            {opportunity.crmOpportunityId || crmResult ? (
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-bold">
+                {crmResult?.alreadyLinked
+                  ? `Esta oportunidade já estava vinculada ao CRM no prospect ${crmResult.client.name}.`
+                  : `Oportunidade vinculada ao CRM${crmResult?.client?.name ? ` no prospect ${crmResult.client.name}` : ''}.`}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="space-y-1.5">
+                    <span className="text-[10px] uppercase font-mono font-black text-[var(--text-secondary)]">Responsável</span>
+                    <input
+                      value={crmForm.responsible || ''}
+                      onChange={(event) => setCrmForm((current) => ({ ...current, responsible: event.target.value }))}
+                      placeholder="Responsável comercial"
+                      className="w-full px-3 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs text-[var(--text-main)]"
+                    />
+                  </label>
+                  <label className="space-y-1.5">
+                    <span className="text-[10px] uppercase font-mono font-black text-[var(--text-secondary)]">Prioridade no CRM</span>
+                    <select
+                      value={crmForm.priority || opportunity.priority}
+                      onChange={(event) => setCrmForm((current) => ({ ...current, priority: event.target.value as CommercialOpportunity['priority'] }))}
+                      className="w-full px-3 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs text-[var(--text-main)]"
+                    >
+                      <option value="low">Baixa</option>
+                      <option value="medium">Média</option>
+                      <option value="high">Alta</option>
+                      <option value="critical">Crítica</option>
+                    </select>
+                  </label>
+                </div>
+
+                <label className="space-y-1.5 block">
+                  <span className="text-[10px] uppercase font-mono font-black text-[var(--text-secondary)]">Próxima ação</span>
+                  <input
+                    value={crmForm.nextAction || ''}
+                    onChange={(event) => setCrmForm((current) => ({ ...current, nextAction: event.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs text-[var(--text-main)]"
+                  />
+                </label>
+
+                <label className="space-y-1.5 block">
+                  <span className="text-[10px] uppercase font-mono font-black text-[var(--text-secondary)]">Observações</span>
+                  <textarea
+                    value={crmForm.notes || ''}
+                    onChange={(event) => setCrmForm((current) => ({ ...current, notes: event.target.value }))}
+                    placeholder="Motivo do interesse, estratégia ou condição relevante"
+                    rows={3}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs text-[var(--text-main)] resize-none"
+                  />
+                </label>
+
+                <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                  <input
+                    type="checkbox"
+                    checked={crmForm.createTask !== false}
+                    onChange={(event) => setCrmForm((current) => ({ ...current, createTask: event.target.checked }))}
+                  />
+                  Criar tarefa de acompanhamento no backlog comercial
+                </label>
+
+                {opportunity.qualificationStatus !== 'qualified' && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+                    Qualifique a oportunidade antes de enviá-la ao CRM. A decisão continua manual.
+                  </div>
+                )}
+
+                {crmError && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">{crmError}</div>
+                )}
+
+                <button
+                  type="button"
+                  disabled={!onSendToCrm || isSendingToCrm || opportunity.qualificationStatus !== 'qualified'}
+                  onClick={handleSendToCrm}
+                  className="w-full p-3 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-widest font-mono disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  {isSendingToCrm ? 'Enviando...' : 'Confirmar envio manual para o CRM'}
+                </button>
+              </>
+            )}
           </section>
 
           <section className="rounded-2xl bg-[var(--bg-main)]/35 border border-[var(--border-color)] p-5">

@@ -1,20 +1,21 @@
 import React from 'react';
-import { Bot, ExternalLink, FileSearch, Trash2 } from 'lucide-react';
+import { BellRing, Bot, ExternalLink, FileSearch, Heart, Send, Trash2, XCircle } from 'lucide-react';
 import { getOpportunityTypeLabel } from '../../core/commercial/CommercialRadarRegistry';
 import {
   getOpportunityPriorityLabel,
   getOpportunityStatusLabel,
 } from '../../core/commercial/OpportunityRegistry';
-import { getOpportunitySphereLabel, type CommercialOpportunity } from '../../core/commercial/OpportunityTypes';
+import { getEngagementLabel, getOpportunitySphereLabel, isOpportunityExpired, type CommercialOpportunity, type CommercialOpportunityEngagement } from '../../core/commercial/OpportunityTypes';
 import { PRODUCT_REGISTRY } from '../../products/productRegistry';
 
 interface OpportunitiesTableProps {
   opportunities: CommercialOpportunity[];
   onDelete: (opportunityId: string) => void;
   onAnalyze: (opportunity: CommercialOpportunity) => void;
+  onEngagementChange: (opportunity: CommercialOpportunity, status: CommercialOpportunityEngagement) => void;
 }
 
-export default function OpportunitiesTable({ opportunities, onDelete, onAnalyze }: OpportunitiesTableProps) {
+export default function OpportunitiesTable({ opportunities, onDelete, onAnalyze, onEngagementChange }: OpportunitiesTableProps) {
   if (opportunities.length === 0) {
     return (
       <div className="border border-dashed border-[var(--border-color)] rounded-2xl p-8 text-center bg-[var(--bg-main)]/20">
@@ -41,6 +42,7 @@ export default function OpportunitiesTable({ opportunities, onDelete, onAnalyze 
             <th className="px-4 py-3 text-[10px] uppercase font-mono tracking-widest text-[var(--text-secondary)]">Status</th>
             <th className="px-4 py-3 text-[10px] uppercase font-mono tracking-widest text-[var(--text-secondary)]">Prioridade</th>
             <th className="px-4 py-3 text-[10px] uppercase font-mono tracking-widest text-[var(--text-secondary)]">Produto mais compatível</th>
+            <th className="px-4 py-3 text-[10px] uppercase font-mono tracking-widest text-[var(--text-secondary)]">Acompanhamento</th>
             <th className="px-4 py-3 text-[10px] uppercase font-mono tracking-widest text-[var(--text-secondary)] text-right">Ações</th>
           </tr>
         </thead>
@@ -76,14 +78,47 @@ export default function OpportunitiesTable({ opportunities, onDelete, onAnalyze 
                 {renderBestProduct(opportunity)}
               </td>
               <td className="px-4 py-4 align-top">
+                <div className="space-y-1">
+                  <span className="text-[9px] uppercase font-black font-mono px-2 py-0.5 rounded-full border bg-slate-500/10 text-slate-300 border-slate-500/20 inline-block">
+                    {getEngagementLabel(opportunity.engagementStatus || 'new')}
+                  </span>
+                  {isOpportunityExpired(opportunity) && <span className="block text-[9px] font-black uppercase text-rose-400">Prazo encerrado</span>}
+                </div>
+              </td>
+              <td className="px-4 py-4 align-top">
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => onAnalyze(opportunity)}
-                    className="p-2 rounded-lg border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10"
-                    title="Analisar com Beta"
+                    onClick={() => onEngagementChange(opportunity, opportunity.engagementStatus === 'favorite' ? 'new' : 'favorite')}
+                    className={`p-2 rounded-lg border ${opportunity.engagementStatus === 'favorite' ? 'border-rose-500/30 bg-rose-500/10 text-rose-400' : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:text-rose-400'}`}
+                    title={opportunity.engagementStatus === 'favorite' ? 'Remover dos favoritos' : 'Favoritar'}
                   >
-                    <Bot className="w-3.5 h-3.5" />
+                    <Heart className={`w-3.5 h-3.5 ${opportunity.engagementStatus === 'favorite' ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onEngagementChange(opportunity, opportunity.engagementStatus === 'monitoring' ? 'new' : 'monitoring')}
+                    className={`p-2 rounded-lg border ${opportunity.engagementStatus === 'monitoring' ? 'border-amber-500/30 bg-amber-500/10 text-amber-400' : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:text-amber-400'}`}
+                    title={opportunity.engagementStatus === 'monitoring' ? 'Parar acompanhamento' : 'Acompanhar'}
+                  >
+                    <BellRing className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onEngagementChange(opportunity, opportunity.engagementStatus === 'ignored' ? 'new' : 'ignored')}
+                    className={`p-2 rounded-lg border ${opportunity.engagementStatus === 'ignored' ? 'border-slate-500/30 bg-slate-500/10 text-slate-300' : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:text-slate-300'}`}
+                    title={opportunity.engagementStatus === 'ignored' ? 'Restaurar oportunidade' : 'Ignorar'}
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onAnalyze(opportunity)}
+                    className="px-2.5 py-2 rounded-lg border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 text-[10px] font-black flex items-center gap-1.5 whitespace-nowrap"
+                    title="Abrir análise, qualificar e enviar manualmente ao CRM"
+                  >
+                    {opportunity.qualificationStatus === 'qualified' ? <Send className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                    {opportunity.crmOpportunityId ? 'Abrir no CRM' : opportunity.qualificationStatus === 'qualified' ? 'Enviar ao CRM' : 'Analisar'}
                   </button>
                   {opportunity.sourceUrl && (
                     <a
@@ -130,10 +165,12 @@ function renderBestProduct(opportunity: CommercialOpportunity): React.ReactNode 
     return <span className="text-[10px] text-[var(--text-secondary)]">Não identificado</span>;
   }
   const product = PRODUCT_REGISTRY.find((item) => item.id === match.productId);
+  const originLabel = match.origin === 'tenant_catalog' ? 'Produto da empresa' : 'Produto Oi Beta';
   return (
     <div className="min-w-[150px]">
       <span className="text-xs font-black text-[var(--text-main)] block">{product?.commercialName || match.serviceName}</span>
-      <span className="text-[10px] text-[var(--blue-accent)] font-mono">{match.score}% compatível</span>
+      <span className="text-[10px] text-[var(--blue-accent)] font-mono block">{match.score}% compatível</span>
+      <span className="text-[9px] text-[var(--text-secondary)]">{originLabel}</span>
     </div>
   );
 }

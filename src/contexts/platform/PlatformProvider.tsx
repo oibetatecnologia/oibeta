@@ -14,6 +14,7 @@ import type { PlatformContextValue, PlatformUserContext } from '../../contexts/p
 import { setRuntimeTenantPersistenceContext } from '../../core/persistence/TenantPersistence';
 import { ProductAccessService } from '../../core/licensing/ProductAccessService';
 import { OperationalContextResolver } from '../../core/tenants/OperationalContextResolver';
+import { isMasterUserContext } from '../../core/auth/AuthenticatedUserContext';
 
 interface PlatformProviderProps {
   user: PlatformUserContext | null;
@@ -42,11 +43,12 @@ export default function PlatformProvider({
   children,
 }: PlatformProviderProps) {
   useEffect(() => {
+    const isMaster = isMasterUserContext(user);
     setRuntimeTenantPersistenceContext({
-      organizationId: user?.organizationId || DEFAULT_PLATFORM_ORGANIZATION_ID,
-      workspaceId: user?.workspaceId || DEFAULT_PLATFORM_WORKSPACE_ID,
-      userId: user?.id || 'dev-user-douglas',
-      role: user?.role || 'master_admin',
+      organizationId: user?.organizationId || (isMaster ? DEFAULT_PLATFORM_ORGANIZATION_ID : 'unprovisioned-organization'),
+      workspaceId: user?.workspaceId || (isMaster ? DEFAULT_PLATFORM_WORKSPACE_ID : 'unprovisioned-workspace'),
+      userId: user?.id || 'anonymous',
+      role: user?.role || 'unknown',
     });
   }, [user?.id, user?.organizationId, user?.role, user?.workspaceId]);
 
@@ -56,8 +58,8 @@ export default function PlatformProvider({
     const productAccess = ProductAccessService.buildSnapshot(user);
 
     const operationalContext = OperationalContextResolver.resolve(user);
-    const organizationId = operationalContext.organizationId || DEFAULT_PLATFORM_ORGANIZATION_ID;
-    const workspaceId = operationalContext.workspaceId || DEFAULT_PLATFORM_WORKSPACE_ID;
+    const organizationId = operationalContext.organizationId;
+    const workspaceId = operationalContext.workspaceId;
 
     return {
       currentUser: user,

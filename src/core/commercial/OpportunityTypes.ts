@@ -6,6 +6,7 @@ export type CommercialOpportunityStatus =
 export type CommercialOpportunityPriority = 'low' | 'medium' | 'high' | 'critical';
 export type CommercialOpportunitySphere = 'federal' | 'state' | 'municipal' | 'other';
 export type CommercialOpportunityQualification = 'unqualified' | 'review_required' | 'qualified' | 'disqualified';
+export type CommercialOpportunityEngagement = 'new' | 'favorite' | 'monitoring' | 'ignored';
 export type CommercialFindingKind = 'evidence' | 'inference' | 'hypothesis' | 'missing_information';
 export type CommercialSourceType = 'manual' | 'api' | 'import' | 'portal';
 
@@ -52,6 +53,7 @@ export interface CommercialScoreFactor {
 }
 
 export interface OpportunityMatchResult {
+  origin: 'beta_catalog' | 'tenant_catalog';
   serviceId: string;
   productId: string;
   serviceName: string;
@@ -80,6 +82,8 @@ export interface CommercialOpportunity extends CommercialOpportunityInput {
   status: CommercialOpportunityStatus;
   priority: CommercialOpportunityPriority;
   qualificationStatus: CommercialOpportunityQualification;
+  engagementStatus: CommercialOpportunityEngagement;
+  engagementUpdatedAt?: string;
   duplicateKey?: string;
   probableDuplicateOf?: string;
   analysis?: OpportunityAnalysisResult;
@@ -104,4 +108,14 @@ export function getOpportunitySphereLabel(sphere?: CommercialOpportunitySphere):
 
 export function getQualificationLabel(status: CommercialOpportunityQualification): string {
   return ({ unqualified: 'Não qualificada', review_required: 'Revisão necessária', qualified: 'Qualificada', disqualified: 'Desqualificada' })[status];
+}
+
+export function getEngagementLabel(status: CommercialOpportunityEngagement): string {
+  return ({ new: 'Nova', favorite: 'Favorita', monitoring: 'Acompanhando', ignored: 'Ignorada' })[status];
+}
+
+export function isOpportunityExpired(opportunity: Pick<CommercialOpportunity, 'submissionDeadline'>, now = Date.now()): boolean {
+  if (!opportunity.submissionDeadline) return false;
+  const deadline = new Date(opportunity.submissionDeadline).getTime();
+  return Number.isFinite(deadline) && deadline < now;
 }

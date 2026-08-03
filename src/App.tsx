@@ -5,40 +5,20 @@ import ManagerPanel from './components/ManagerPanel';
 import AuthOverlay from './components/AuthOverlay';
 import { Layers, FileText, CheckSquare, Building2, PanelRight, MessageSquare } from 'lucide-react';
 import { ClientSessionStorage } from './core/auth/ClientSessionStorage';
+import {
+  MASTER_ADMIN_CONTEXT,
+  buildAuthenticatedHeaders,
+  normalizeAuthenticatedUser,
+  type AuthenticatedUserContext,
+} from './core/auth/AuthenticatedUserContext';
 
-type AuthUser = {
-  id?: string;
-  name?: string;
-  email?: string;
-  role?: string;
-  organizationId?: string;
-  tenantId?: string;
-  workspaceId?: string;
-  productIds?: string[];
-  licensedProductIds?: string[];
-  [key: string]: unknown;
-};
+type AuthUser = AuthenticatedUserContext;
 
-const DEFAULT_AUTH_USER: AuthUser = {
-  id: 'dev-user-douglas',
-  name: 'Douglas',
-  email: 'douglas.ujs@gmail.com',
-  role: 'master_admin',
-  organizationId: 'org-oi-beta',
-  workspaceId: 'default-workspace'
-};
+const DEFAULT_AUTH_USER: AuthUser = MASTER_ADMIN_CONTEXT;
 
 const resolveStoredUser = (): AuthUser | null => {
   const session = ClientSessionStorage.read<AuthUser>();
-  if (!session?.user) return null;
-
-  return {
-    ...DEFAULT_AUTH_USER,
-    ...session.user,
-    id: session.user.id || DEFAULT_AUTH_USER.id,
-    organizationId: session.user.organizationId || DEFAULT_AUTH_USER.organizationId,
-    workspaceId: session.user.workspaceId || DEFAULT_AUTH_USER.workspaceId,
-  };
+  return normalizeAuthenticatedUser(session?.user);
 };
 
 const persistUser = (nextUser: AuthUser | null, accessToken?: string) => {
@@ -51,19 +31,12 @@ const persistUser = (nextUser: AuthUser | null, accessToken?: string) => {
 
 const getTenantHeaders = (user: AuthUser | null): Record<string, string> => ({
   ...ClientSessionStorage.buildAuthorizationHeader(),
-  'Content-Type': 'application/json',
-  'x-organization-id': user?.organizationId || 'org-oi-beta',
-  'x-workspace-id': user?.workspaceId || 'default-workspace',
-  'x-user-id': user?.id || 'dev-user-douglas',
-  'x-user-role': user?.role || 'master_admin',
+  ...buildAuthenticatedHeaders(user as AuthUser, true),
 });
 
 const getTenantOnlyHeaders = (user: AuthUser | null): Record<string, string> => ({
   ...ClientSessionStorage.buildAuthorizationHeader(),
-  'x-organization-id': user?.organizationId || 'org-oi-beta',
-  'x-workspace-id': user?.workspaceId || 'default-workspace',
-  'x-user-id': user?.id || 'dev-user-douglas',
-  'x-user-role': user?.role || 'master_admin',
+  ...buildAuthenticatedHeaders(user as AuthUser),
 });
 
 
@@ -267,7 +240,7 @@ export default function App() {
         fetchJsonArray<Task>('/api/tasks', user),
         fetchJsonArray<Memory>('/api/memories', user),
         fetchJsonArray<ProjectState>('/api/project-states', user),
-        fetch('/api/workspace-state?workspaceId=default-workspace', {
+        fetch(`/api/workspace-state?workspaceId=${encodeURIComponent(String(user?.workspaceId || ''))}`, {
             headers: getTenantOnlyHeaders(user)
           })
           .then(async response => {
@@ -348,13 +321,12 @@ export default function App() {
       const data = await safeJson(res) as any;
 
       if (res.ok && data?.success && data.user) {
-        const normalizedUser: AuthUser = {
-          ...DEFAULT_AUTH_USER,
-          ...data.user,
-          id: data.user.id || DEFAULT_AUTH_USER.id,
-          organizationId: data.user.organizationId || DEFAULT_AUTH_USER.organizationId,
-          workspaceId: data.user.workspaceId || DEFAULT_AUTH_USER.workspaceId
-        };
+        const normalizedUser = normalizeAuthenticatedUser(data.user);
+        if (!normalizedUser) {
+          persistUser(null);
+          setUser(null);
+          return;
+        }
         persistUser(normalizedUser);
         setUser(normalizedUser);
         return;
@@ -396,7 +368,7 @@ export default function App() {
         headers: getTenantHeaders(user),
         body: JSON.stringify({
           activeProjectId: id,
-          workspaceId: user?.workspaceId || 'default-workspace'
+          workspaceId: String(user?.workspaceId || '')
         })
       });
     } catch (e) {
@@ -659,9 +631,9 @@ export default function App() {
           content: text,
           projectId: selectedProjectId || null,
           currentProjectId: selectedProjectId || null,
-          userId: user?.id || 'dev-user-douglas',
-          organizationId: user?.organizationId || 'org-oi-beta',
-          workspaceId: user?.workspaceId || 'default-workspace'
+          userId: user!.id,
+          organizationId: user!.organizationId,
+          workspaceId: String(user?.workspaceId || '')
         })
       });
 
@@ -726,13 +698,18 @@ export default function App() {
   // Accept a structured automation suggestion made by Beta Core AI
   const handleAcceptSuggestion = async (type: 'project' | 'decision' | 'task' | 'memory' | 'stopPoint', data: any) => {
     try {
+      const currentUserId = String(user?.id || '').trim();
+      if (!currentUserId) {
+        throw new Error('Sessão sem usuário válido para aceitar a sugestão da Beta.');
+      }
+
       if (type === 'project') {
         await handleCreateProject({
           name: data.name,
           description: data.description || '',
           status: 'active',
           lastStopPoint: data.lastStopPoint || 'Projeto iniciado.',
-          userId: user?.id || 'dev-user-douglas'
+          userId: currentUserId
         });
       } else if (type === 'decision') {
         await handleCreateDecision({
@@ -789,13 +766,12 @@ export default function App() {
     return (
       <AuthOverlay
         onSuccess={(loggedInUser, accessToken) => {
-          const normalizedUser: AuthUser = {
-            ...DEFAULT_AUTH_USER,
-            ...loggedInUser,
-            id: loggedInUser?.id || DEFAULT_AUTH_USER.id,
-            organizationId: loggedInUser?.organizationId || DEFAULT_AUTH_USER.organizationId,
-            workspaceId: loggedInUser?.workspaceId || DEFAULT_AUTH_USER.workspaceId
-          };
+          const normalizedUser = normalizeAuthenticatedUser(loggedInUser);
+          if (!normalizedUser) {
+            persistUser(null);
+            setUser(null);
+            return;
+          }
           persistUser(normalizedUser, accessToken);
           setUser(normalizedUser);
         }}

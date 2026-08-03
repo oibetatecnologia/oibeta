@@ -65,21 +65,21 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
         }
 
         if (res.status === 429) {
-          setMessage('A sessão remota atingiu o limite temporário. Mantive o acesso local para você continuar trabalhando.');
-          onSuccess({
-            ...DEFAULT_LOCAL_USER,
-            email: email || DEFAULT_LOCAL_USER.email
-          });
-          return;
+          throw new Error('Muitas tentativas de acesso. Aguarde alguns instantes e tente novamente.');
         }
 
         if (!res.ok) throw new Error(data?.error || 'Erro ao realizar login.');
+
+        const authenticatedUser = data?.user;
+        if (!authenticatedUser?.id || !authenticatedUser?.organizationId || !authenticatedUser?.workspaceId || !authenticatedUser?.role) {
+          throw new Error('O perfil autenticado ainda não está completamente provisionado para acessar a plataforma.');
+        }
+
         onSuccess({
-          ...DEFAULT_LOCAL_USER,
-          ...data.user,
-          id: data.user?.id || DEFAULT_LOCAL_USER.id,
-          organizationId: data.user?.organizationId || DEFAULT_LOCAL_USER.organizationId,
-          workspaceId: data.user?.workspaceId || DEFAULT_LOCAL_USER.workspaceId
+          ...authenticatedUser,
+          tenantId: authenticatedUser.tenantId || authenticatedUser.organizationId,
+          productIds: Array.isArray(authenticatedUser.productIds) ? authenticatedUser.productIds : [],
+          licensedProductIds: Array.isArray(authenticatedUser.licensedProductIds) ? authenticatedUser.licensedProductIds : []
         }, data.token);
       } else if (mode === 'register') {
         if (!email || !password || !name) {

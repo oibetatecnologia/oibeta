@@ -5,13 +5,18 @@ import { analyzeOpportunity } from '../../../src/core/commercial/OpportunityAnal
 import type { RadarSyncRun, RadarSyncRunMetrics, RadarSyncRunRequest } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
 import { RadarConnectorRegistry } from './RadarConnectorRegistry';
 import { buildImportedOpportunity, mapPncpRecord } from './PncpOpportunityMapper';
+import { mapComprasGovRecord } from './ComprasGovOpportunityMapper';
+import type { RadarConnectorCredentialService } from './RadarConnectorCredentialService';
 
 const activeRuns = new Set<string>();
 const STALE_RUN_AFTER_MS = 15 * 60_000;
 const emptyMetrics = (): RadarSyncRunMetrics => ({ received: 0, normalized: 0, created: 0, updated: 0, duplicates: 0, ignored: 0, rejected: 0, failures: 0 });
 
 export class RadarSyncService {
-  constructor(private readonly db: DatabaseAdapter) {}
+  constructor(
+    private readonly db: DatabaseAdapter,
+    private readonly credentialService?: RadarConnectorCredentialService,
+  ) {}
 
   listConnectors() {
     return RadarConnectorRegistry.list();
@@ -87,15 +92,44 @@ export class RadarSyncService {
 
       const current = await this.db.getCommercialOpportunities(input.organizationId, input.workspaceId) as CommercialOpportunity[];
       const bySourceExternalId = new Map(current.filter((item) => item.sourceId && item.externalId).map((item) => [`${item.sourceId}:${item.externalId}`, item]));
+      const byCanonicalPublicExternalId = new Map(
+        current
+          .filter((item) => item.externalId && (item.sourceId === 'pncp' || item.sourceId === 'compras_gov'))
+          .map((item) => [String(item.externalId), item]),
+      );
+
+      const credential = this.credentialService
+        ? await this.credentialService.resolve(connector.id, input.organizationId)
+        : undefined;
+      if (connector.authPolicy === 'GLOBAL_PLATFORM' && credential?.scope !== 'global') {
+        throw new Error('Global platform credential is not configured for this connector');
+      }
+      if (connector.authPolicy === 'TENANT_PROVIDED' && credential?.scope !== 'tenant') {
+        throw new Error('Tenant credential is not configured for this connector');
+      }
+      if (connector.authPolicy === 'GLOBAL_OR_TENANT' && !credential) {
+        throw new Error('Connector credential is not configured');
+      }
 
       const result = await adapter.execute({
         options: input.options || {},
+        credential,
         onRecord: async (record) => {
-          const normalized = connector.id === 'pncp' ? mapPncpRecord(record) : undefined;
+          const normalized = connector.id === 'pncp'
+            ? mapPncpRecord(record)
+            : connector.id === 'compras_gov'
+              ? mapComprasGovRecord(record)
+              : undefined;
           if (!normalized) return 'rejected';
 
           const sourceKey = `${normalized.sourceId}:${normalized.externalId}`;
           const existing = bySourceExternalId.get(sourceKey);
+          const canonicalPublicDuplicate = normalized.externalId
+            ? byCanonicalPublicExternalId.get(String(normalized.externalId))
+            : undefined;
+          if (!existing && canonicalPublicDuplicate && canonicalPublicDuplicate.sourceId !== normalized.sourceId) {
+            return 'duplicate';
+          }
           if (existing) {
             const unchanged = existing.sourceHash === normalized.sourceHash && existing.sourceUpdatedAt === normalized.sourceUpdatedAt;
             if (unchanged) return 'ignored';
@@ -113,6 +147,9 @@ export class RadarSyncService {
           const created = await this.db.createCommercialOpportunity(imported);
           current.unshift(created);
           bySourceExternalId.set(sourceKey, created);
+          if (created.externalId && (created.sourceId === 'pncp' || created.sourceId === 'compras_gov')) {
+            byCanonicalPublicExternalId.set(String(created.externalId), created);
+          }
           return imported.probableDuplicateOf ? 'duplicate' : 'created';
         },
       });

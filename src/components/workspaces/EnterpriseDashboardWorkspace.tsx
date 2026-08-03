@@ -220,86 +220,103 @@ export default function EnterpriseDashboardWorkspace() {
     totalMemories,
   ]);
 
-  const betaPriorities = useMemo(() => {
-    const priorities: Array<{ id: string; text: string; targetTab: string; taskTitle?: string }> = [];
+  const technicalDiagnostics = useMemo(() => {
+    const diagnostics: Array<{
+      id: string;
+      title: string;
+      description: string;
+      targetTab: string;
+      taskTitle?: string;
+      source: string;
+    }> = [];
 
-    sessionHealth.issues
-      .slice(0, 2)
-      .forEach((issue) => {
-        priorities.push({
-          id: `session-health-${issue.id}`,
-          text: `${issue.title}: ${issue.description}`,
+    const appendIssues = (
+      source: string,
+      prefix: string,
+      issues: Array<{ id: string; title: string; description: string; targetTab: string; taskTitle?: string }>,
+    ) => {
+      issues.forEach((issue) => {
+        diagnostics.push({
+          id: `${prefix}-${issue.id}`,
+          title: issue.title,
+          description: issue.description,
           targetTab: issue.targetTab,
           taskTitle: issue.taskTitle,
+          source,
         });
       });
+    };
 
-    accessControl.issues
-      .slice(0, 2)
-      .forEach((issue) => {
-        priorities.push({
-          id: `access-control-${issue.id}`,
-          text: `${issue.title}: ${issue.description}`,
-          targetTab: issue.targetTab,
-          taskTitle: issue.taskTitle,
-        });
-      });
-
-    persistenceHealth.issues
-      .slice(0, 2)
-      .forEach((issue) => {
-        priorities.push({
-          id: `persistence-health-${issue.id}`,
-          text: `${issue.title}: ${issue.description}`,
-          targetTab: issue.targetTab,
-          taskTitle: issue.taskTitle,
-        });
-      });
-
-    runtimeConfiguration.issues
-      .slice(0, 2)
-      .forEach((issue) => {
-        priorities.push({
-          id: `runtime-configuration-${issue.id}`,
-          text: `${issue.title}: ${issue.description}`,
-          targetTab: issue.targetTab,
-          taskTitle: issue.taskTitle,
-        });
-      });
-
-    clientServiceLevelSummary.items
-      .slice(0, 2)
-      .forEach((item) => {
-        priorities.push({
-          id: `service-level-${item.id}`,
-          text: `${item.title}: ${item.description}`,
-          targetTab: item.targetTab,
-          taskTitle: item.taskTitle,
-        });
-      });
-
-    observabilitySummary.issues
-      .slice(0, 2)
-      .forEach((issue) => {
-        priorities.push({
-          id: `observability-${issue.id}`,
-          text: `${issue.title}: ${issue.description}`,
-          targetTab: issue.targetTab,
-          taskTitle: issue.taskTitle,
-        });
-      });
+    appendIssues('Sessão', 'session-health', sessionHealth.issues);
+    appendIssues('Acesso', 'access-control', accessControl.issues);
+    appendIssues('Persistência', 'persistence-health', persistenceHealth.issues);
+    appendIssues('Ambiente', 'runtime-configuration', runtimeConfiguration.issues);
+    appendIssues('Observabilidade', 'observability', observabilitySummary.issues);
 
     productionReadiness.areas
       .filter((area) => area.status !== 'ready')
-      .slice(0, 2)
       .forEach((area) => {
-        priorities.push({
+        diagnostics.push({
           id: `production-${area.id}`,
-          text: `${area.title}: ${area.description}`,
+          title: area.title,
+          description: area.description,
           targetTab: area.targetTab,
           taskTitle: area.taskTitle,
+          source: 'Produção',
         });
       });
+
+    return diagnostics;
+  }, [
+    accessControl.issues,
+    observabilitySummary.issues,
+    persistenceHealth.issues,
+    productionReadiness.areas,
+    runtimeConfiguration.issues,
+    sessionHealth.issues,
+  ]);
+
+  const areaScores = useMemo(() => ({
+    radar: radarOpportunities.length > 0 ? Math.min(100, 35 + radarOpportunities.length * 5) : 0,
+    crm: leads + proposals + contractsCount > 0
+      ? Math.min(100, Math.round(((leads + proposals + contractsCount) / Math.max(1, leads + proposals + contractsCount + 5)) * 100))
+      : 0,
+    clients: totalClients > 0 ? Math.round(averageHealthScore) : 0,
+    implementations: implementationsCount > 0 ? Math.round(averageImplementationProgress) : 0,
+    finance: financialRecordsCount > 0 ? Math.round(financeIntelligence.collectionRate) : 0,
+    support: supportTicketsCount > 0 ? Math.round(supportIntelligence.healthScore) : 100,
+    products: Math.round(productPortfolioIntelligence.healthScore),
+    environments: Math.round((productionReadiness.score + persistenceHealth.score + observabilitySummary.score) / 3),
+  }), [
+    averageHealthScore,
+    averageImplementationProgress,
+    contractsCount,
+    financeIntelligence.collectionRate,
+    financialRecordsCount,
+    implementationsCount,
+    leads,
+    observabilitySummary.score,
+    persistenceHealth.score,
+    productPortfolioIntelligence.healthScore,
+    productionReadiness.score,
+    proposals,
+    radarOpportunities.length,
+    supportIntelligence.healthScore,
+    supportTicketsCount,
+    totalClients,
+  ]);
+
+  const betaPriorities = useMemo(() => {
+    const priorities: Array<{ id: string; text: string; targetTab: string; taskTitle?: string }> = [];
+
+    clientServiceLevelSummary.items.slice(0, 2).forEach((item) => {
+      priorities.push({
+        id: `service-level-${item.id}`,
+        text: `${item.title}: ${item.description}`,
+        targetTab: item.targetTab,
+        taskTitle: item.taskTitle,
+      });
+    });
 
     if (productCommercializationSummary.firstProductToSell) {
       priorities.push({
@@ -331,73 +348,68 @@ export default function EnterpriseDashboardWorkspace() {
     if (radarOpportunities.length === 0) {
       priorities.push({
         id: 'radar-feed',
-        text: 'Alimentar o Radar Comercial com oportunidades reais ou importadas.',
+        text: 'O Radar Comercial ainda não possui oportunidades ativas. A próxima ação operacional é executar ou revisar a sincronização de oportunidades.',
         targetTab: 'commercial_radar',
+        taskTitle: '[Radar] Sincronizar e validar oportunidades comerciais',
       });
     }
 
     if (leads > 0 || proposals > 0) {
       priorities.push({
         id: 'crm-conversion',
-        text: 'Converter leads e propostas em clientes contratados.',
+        text: `O pipeline possui ${leads + proposals} registro(s) entre leads e propostas aguardando avanço comercial.`,
         targetTab: 'crm',
+        taskTitle: '[CRM] Revisar conversões pendentes do pipeline',
       });
     }
 
     if (implementationsCount === 0 && contractsCount > 0) {
       priorities.push({
         id: 'implementation-start',
-        text: 'Criar implantações para clientes com contrato registrado.',
+        text: `${contractsCount} contrato(s) registrado(s) ainda não geraram uma implantação acompanhada.`,
         targetTab: 'implementations',
+        taskTitle: '[Implantações] Iniciar onboarding dos contratos ativos',
       });
     }
 
     if (overdueAmount > 0) {
       priorities.push({
         id: 'finance-overdue',
-        text: 'Revisar pendências financeiras vencidas.',
+        text: `Existem R$ ${overdueAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} em valores vencidos que exigem acompanhamento.`,
         targetTab: 'finance',
+        taskTitle: '[Financeiro] Tratar valores vencidos',
       });
     }
 
     if (openSupportTicketsCount > 0) {
       priorities.push({
         id: 'support-open',
-        text: 'Priorizar chamados de suporte em aberto.',
+        text: `${openSupportTicketsCount} chamado(s) de suporte permanecem em aberto.`,
         targetTab: 'support',
+        taskTitle: '[Suporte] Priorizar chamados em aberto',
       });
     }
 
     if (priorities.length === 0) {
       priorities.push({
-        id: 'supabase-persistence',
-        text: 'Consolidar persistência Supabase e preparar integrações externas.',
-        targetTab: 'platform_monitoring',
-      });
-      priorities.push({
-        id: 'beta-automation',
-        text: 'Transformar dados operacionais em recomendações automáticas da Beta.',
-        targetTab: 'beta_brain',
+        id: 'operation-start',
+        text: 'Ainda não existem dados operacionais suficientes para definir uma prioridade executiva. Inicie pelo Radar Comercial, CRM ou cadastro de clientes.',
+        targetTab: 'commercial_radar',
       });
     }
 
-    return priorities.slice(0, 4);
+    const unique = new Map(priorities.map((priority) => [priority.id, priority]));
+    return Array.from(unique.values()).slice(0, 4);
   }, [
     betaIntelligenceSummary.priorities,
-    sessionHealth.issues,
-    accessControl.issues,
-    persistenceHealth.issues,
-    runtimeConfiguration.issues,
     clientServiceLevelSummary.items,
-    observabilitySummary.issues,
-    productionReadiness.areas,
-    productCommercializationSummary.firstProductToSell,
     contractsCount,
     implementationsCount,
     leads,
     openSupportTicketsCount,
     operationalBacklog,
     overdueAmount,
+    productCommercializationSummary.firstProductToSell,
     proposals,
     radarOpportunities.length,
   ]);
@@ -521,6 +533,55 @@ export default function EnterpriseDashboardWorkspace() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 space-y-4">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+              <Code2 className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-black text-amber-300">Diagnóstico técnico</span>
+              <h2 className="text-base font-black text-[var(--text-main)] mt-1">
+                {technicalDiagnostics.length > 0
+                  ? `${technicalDiagnostics.length} verificação(ões) exigem atenção`
+                  : 'Infraestrutura sem pendências detectadas'}
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)] mt-1">
+                Área exclusiva do admin mestre. Estes sinais não fazem parte da experiência dos clientes.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveTab('platform_monitoring')}
+            className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-black text-amber-200 hover:bg-amber-500/20 transition cursor-pointer"
+          >
+            Abrir monitoramento
+          </button>
+        </div>
+
+        {technicalDiagnostics.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {technicalDiagnostics.slice(0, 6).map((diagnostic) => (
+              <button
+                key={diagnostic.id}
+                type="button"
+                onClick={() => setActiveTab(diagnostic.targetTab)}
+                className="text-left rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)]/70 p-3 hover:border-amber-500/40 transition cursor-pointer"
+              >
+                <span className="text-[9px] uppercase tracking-widest font-mono font-black text-amber-300">{diagnostic.source}</span>
+                <h3 className="text-xs font-black text-[var(--text-main)] mt-1">{diagnostic.title}</h3>
+                <p className="text-[11px] text-[var(--text-secondary)] mt-1 leading-relaxed">{diagnostic.description}</p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs text-emerald-200">
+            Sessão, acesso, persistência, ambiente, observabilidade e produção não reportaram pendências.
+          </div>
+        )}
+      </section>
+
       <ExecutiveCommandCenter
         summary={executiveCommandSummary}
         creatingId={creatingExecutiveActionId}
@@ -576,7 +637,7 @@ export default function EnterpriseDashboardWorkspace() {
           <div className="border-b border-[var(--border-color)] pb-3">
             <h3 className="text-sm font-black text-[var(--text-main)]">Mapa empresarial da Oi Beta</h3>
             <p className="text-xs text-[var(--text-secondary)]">
-              As áreas abaixo já possuem workspaces próprios e podem evoluir agora com dados reais, persistência e integrações.
+              Os índices abaixo são calculados com dados operacionais disponíveis. Quando não houver registros, o indicador permanece em zero.
             </p>
           </div>
 
@@ -585,7 +646,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<Radar className="w-4 h-4" />}
               title="Radar Comercial"
               status={`${radarOpportunities.length} oportunidades`}
-              progress={72}
+              progress={areaScores.radar}
               description="Licitações, pregões, dispensas, editais e aderência dos produtos."
               onClick={() => setActiveTab('commercial_radar')}
             />
@@ -593,7 +654,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<Users className="w-4 h-4" />}
               title="CRM"
               status={`${leads + proposals} em pipeline`}
-              progress={79}
+              progress={areaScores.crm}
               description="Leads, órgãos, contatos, propostas, contratos e follow-ups."
               onClick={() => setActiveTab('crm')}
             />
@@ -601,7 +662,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<Building2 className="w-4 h-4" />}
               title="Clientes"
               status={`${activeClients} ativos`}
-              progress={74}
+              progress={areaScores.clients}
               description="Clientes ativos, produtos contratados, licenças, health score e histórico."
               onClick={() => setActiveTab('enterprise_clients')}
             />
@@ -609,7 +670,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<Rocket className="w-4 h-4" />}
               title="Implantações"
               status={`${averageImplementationProgress}% média`}
-              progress={50}
+              progress={areaScores.implementations}
               description="Onboarding, checklist, go-live, pendências e acompanhamento operacional."
               onClick={() => setActiveTab('implementations')}
             />
@@ -617,7 +678,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<BarChart3 className="w-4 h-4" />}
               title="Financeiro"
               status={`${financialRecordsCount} lançamentos`}
-              progress={45}
+              progress={areaScores.finance}
               description="MRR, contratos, faturamento, vencidos, recebimentos e renovações."
               onClick={() => setActiveTab('finance')}
             />
@@ -625,7 +686,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<Headphones className="w-4 h-4" />}
               title="Suporte"
               status={`${openSupportTicketsCount} abertos`}
-              progress={45}
+              progress={areaScores.support}
               description="Chamados, prioridades, SLA, base de conhecimento e histórico do cliente."
               onClick={() => setActiveTab('support')}
             />
@@ -633,7 +694,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<PackageCheck className="w-4 h-4" />}
               title="Produtos"
               status="Catálogo operacional"
-              progress={50}
+              progress={areaScores.products}
               description="Produtos vendáveis, maturidade comercial e relação com oportunidades."
               onClick={() => setActiveTab('platform_products')}
             />
@@ -641,7 +702,7 @@ export default function EnterpriseDashboardWorkspace() {
               icon={<Cloud className="w-4 h-4" />}
               title="Ambientes"
               status="Dev / staging / produção"
-              progress={45}
+              progress={areaScores.environments}
               description="Ambientes por organização, deploy, storage, API e maturidade operacional."
               onClick={() => setActiveTab('client_environments')}
             />
@@ -672,7 +733,9 @@ export default function EnterpriseDashboardWorkspace() {
               <div>
                 <h4 className="text-xs font-black text-amber-200">Atenção técnica</h4>
                 <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
-                  A próxima evolução deve priorizar persistência, APIs internas e integração real entre dados operacionais.
+                  {technicalDiagnostics.length > 0
+                    ? `${technicalDiagnostics.length} verificação(ões) técnica(s) permanecem abertas. Consulte o Diagnóstico Técnico acima.`
+                    : 'Nenhuma pendência técnica crítica foi detectada nesta sessão.'}
                 </p>
               </div>
             </div>
