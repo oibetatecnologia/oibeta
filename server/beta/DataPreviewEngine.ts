@@ -4,10 +4,7 @@ import * as xlsx from 'xlsx';
 import { execFile } from 'child_process';
 import util from 'util';
 import AdmZip from 'adm-zip';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 import mammoth from 'mammoth';
 import * as cheerio from 'cheerio';
@@ -151,15 +148,25 @@ export class DataPreviewEngine {
 
   private async realPdfPreview(storagePath: string): Promise<any> {
     const dataBuffer = fs.readFileSync(storagePath);
-    const data = await pdfParse(dataBuffer);
-    return {
-      type: "pdf",
-      pages: data.numpages,
-      summary: "Documento PDF detectado. A extração de texto estruturada foi concluída.",
-      metadata: data.info,
-      sampleText: data.text.substring(0, 1000),
-      fullText: data.text
-    };
+    const parser = new PDFParse({ data: dataBuffer });
+
+    try {
+      const [textResult, infoResult] = await Promise.all([
+        parser.getText(),
+        parser.getInfo(),
+      ]);
+
+      return {
+        type: "pdf",
+        pages: textResult.total,
+        summary: "Documento PDF detectado. A extração de texto estruturada foi concluída.",
+        metadata: infoResult.info,
+        sampleText: textResult.text.substring(0, 1000),
+        fullText: textResult.text
+      };
+    } finally {
+      await parser.destroy();
+    }
   }
 
   private async realDocxPreview(storagePath: string): Promise<any> {
