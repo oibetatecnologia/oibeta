@@ -1124,10 +1124,10 @@ async function updateProjectState(
 // Authentication validation middleware
 const requireAuth = async (req: any, res: any, next: any) => {
   const bypassPaths = [
-    "/api/auth/login",
-    "/api/auth/register",
-    "/api/auth/reset",
-    "/api/auth/session",
+    "/auth/login",
+    "/auth/register",
+    "/auth/reset",
+    "/auth/session",
   ];
 
   const requestPath = req.path || req.url || "";
@@ -1220,7 +1220,7 @@ const requireAuth = async (req: any, res: any, next: any) => {
   }
 };
 
-app.use(requireAuth);
+app.use("/api", requireAuth);
 
 // Product APIs require an authenticated user, a valid license and an active installation.
 app.use(createProductEntitlementMiddleware(tenantProductInstallationService));
