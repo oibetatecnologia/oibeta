@@ -3599,9 +3599,11 @@ app.post("/api/auth/register", async (req, res) => {
     const userId = "usr_" + Math.random().toString(36).substr(2, 9);
 
     if (dbMode === "supabase") {
-      const supabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
-      // SignUp in Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
+      const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
+      const adminSupabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
+
+      // SignUp in Supabase Auth using the anonymous authentication client.
+      const { data, error } = await authSupabase.auth.signUp({
         email,
         password,
         options: {
@@ -3617,7 +3619,7 @@ app.post("/api/auth/register", async (req, res) => {
       const realUserId = data.user?.id || userId;
 
       // Insert organization
-      const { data: orgData, error: orgErr } = await supabase
+      const { data: orgData, error: orgErr } = await adminSupabase
         .from("organizations")
         .insert({
           id: orgId,
@@ -3631,7 +3633,7 @@ app.post("/api/auth/register", async (req, res) => {
       }
 
       // Insert user record in public.users
-      const { data: userData, error: userErr } = await supabase
+      const { data: userData, error: userErr } = await adminSupabase
         .from("users")
         .insert({
           id: realUserId,
@@ -3720,8 +3722,10 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (dbMode === "supabase") {
-      const supabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
+      const adminSupabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
+
+      const { data, error } = await authSupabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -3730,15 +3734,27 @@ app.post("/api/auth/login", async (req, res) => {
       }
 
       const realUserId = data.user?.id;
-      // Get user profiles from public.users table
-      const { data: dbUser, error: userErr } = await supabase
+      if (!realUserId) {
+        console.warn("Supabase Auth returned no authenticated user ID.");
+        return res.status(403).json({
+          error: "Perfil de acesso não provisionado. Solicite a ativação à administração da organização.",
+        });
+      }
+
+      const { data: dbUser, error: userErr } = await adminSupabase
         .from("users")
         .select("*")
-        .eq("email", email)
+        .eq("id", realUserId)
         .single();
 
       if (userErr || !dbUser) {
-        console.warn("Authenticated user has no valid public.users profile.");
+        console.warn("Authenticated user has no valid public.users profile.", {
+          userId: realUserId,
+          code: userErr?.code,
+          message: userErr?.message,
+          details: userErr?.details,
+          hint: userErr?.hint,
+        });
         return res.status(403).json({
           error: "Perfil de acesso não provisionado. Solicite a ativação à administração da organização.",
         });
@@ -3746,8 +3762,8 @@ app.post("/api/auth/login", async (req, res) => {
 
       const organizationId = dbUser.organization_id;
       const [{ data: organization }, { data: workspaces }] = await Promise.all([
-        supabase.from("organizations").select("id,licensed_product_ids").eq("id", organizationId).single(),
-        supabase.from("workspaces").select("id,organization_id,status").eq("organization_id", organizationId),
+        adminSupabase.from("organizations").select("id,licensed_product_ids").eq("id", organizationId).single(),
+        adminSupabase.from("workspaces").select("id,organization_id,status").eq("organization_id", organizationId),
       ]);
       const activeWorkspace = Array.isArray(workspaces)
         ? workspaces.find((workspace: any) => workspace.status !== "INACTIVE")
@@ -3806,8 +3822,8 @@ app.post("/api/auth/login", async (req, res) => {
 app.post("/api/auth/logout", async (req, res) => {
   try {
     if (dbMode === "supabase") {
-      const supabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
-      await supabase.auth.signOut().catch(() => {});
+      const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
+      await authSupabase.auth.signOut().catch(() => {});
     }
     setActiveSessionUser(null);
     res.json({ success: true });
@@ -3821,8 +3837,8 @@ app.post("/api/auth/reset", async (req, res) => {
   try {
     const { email } = req.body;
     if (dbMode === "supabase") {
-      const supabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
-      await supabase.auth.resetPasswordForEmail(email);
+      const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
+      await authSupabase.auth.resetPasswordForEmail(email);
     }
     res.json({
       success: true,
@@ -3845,12 +3861,13 @@ app.get("/api/auth/session", async (req, res) => {
     ) {
       const token = authHeader.split(" ")[1];
       if (token !== "mock-json-token-for-dev") {
-        const supabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
+        const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
+        const adminSupabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
         const {
           data: { user: authUser },
-        } = await supabase.auth.getUser(token);
+        } = await authSupabase.auth.getUser(token);
         if (authUser) {
-          const { data: dbUser } = await supabase
+          const { data: dbUser } = await adminSupabase
             .from("users")
             .select("*")
             .eq("id", authUser.id)
