@@ -89,6 +89,25 @@ function mapToCamelCase(obj: any): any {
 export class SupabaseDatabaseAdapter implements DatabaseAdapter {
   private client: SupabaseClient | null = null;
 
+  public getAuthClient(): SupabaseClient {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+
+    if (!url || !key) {
+      throw new Error(
+        "Supabase authentication configuration missing. Ensure SUPABASE_URL and SUPABASE_ANON_KEY are defined.",
+      );
+    }
+
+    return createClient(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
+  }
+
   public getClient(): SupabaseClient {
     if (!this.client) {
       const url = process.env.SUPABASE_URL;
