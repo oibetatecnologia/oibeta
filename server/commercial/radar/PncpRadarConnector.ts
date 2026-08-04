@@ -1,17 +1,16 @@
 import type { RadarConnector, RadarConnectorExecutionContext, RadarConnectorExecutionResult } from './RadarConnector';
-import type { RadarConnectorDescriptor } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
-import type { RadarSyncRunMetrics } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
+import type { RadarConnectorDescriptor, RadarSyncRunMetrics } from '../../../src/core/commercial/connectors/RadarConnectorTypes';
 
 const PNCP_BASE_URL = 'https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao';
 const DEFAULT_MODALITY_CODES = [4, 5, 6, 7, 8, 9, 12];
 const MAX_DATE_RANGE_DAYS = 7;
 const DEFAULT_LOOKBACK_DAYS = 2;
-const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 100;
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 50;
 const DEFAULT_MAX_PAGES_PER_MODALITY = 2;
-const REQUEST_TIMEOUT_MS = 20_000;
-const MAX_RETRIES = 3;
-const MIN_REQUEST_INTERVAL_MS = 850;
+const REQUEST_TIMEOUTS_MS = [30_000, 60_000] as const;
+const MIN_REQUEST_INTERVAL_MS = 1_000;
+const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503, 504]);
 let nextAllowedRequestAt = 0;
 
 interface PncpPageResponse {
@@ -23,7 +22,26 @@ interface PncpPageResponse {
   empty?: boolean;
 }
 
-const emptyMetrics = (): RadarSyncRunMetrics => ({ received: 0, normalized: 0, created: 0, updated: 0, duplicates: 0, ignored: 0, rejected: 0, failures: 0 });
+class PncpTemporaryUnavailableError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
+    super(message);
+    this.name = 'PncpTemporaryUnavailableError';
+  }
+}
+
+const emptyMetrics = (): RadarSyncRunMetrics => ({
+  received: 0,
+  normalized: 0,
+  created: 0,
+  updated: 0,
+  duplicates: 0,
+  ignored: 0,
+  rejected: 0,
+  failures: 0,
+});
 
 export class PncpRadarConnector implements RadarConnector {
   readonly descriptor: RadarConnectorDescriptor = {
@@ -47,50 +65,76 @@ export class PncpRadarConnector implements RadarConnector {
     const pageSize = clampInteger(context.options.pageSize, 1, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE);
     const maxPages = clampInteger(context.options.maxPages, 1, 10, DEFAULT_MAX_PAGES_PER_MODALITY);
     const modalityCodes = resolveModalityCodes();
+    const dateWindows = buildDailyWindows(dateFrom, dateTo);
     const metrics = emptyMetrics();
     const warnings: string[] = [];
+    let lastCompletedWindow: { date: string; modalityCode: number; page: number } | undefined;
 
-    for (const modalityCode of modalityCodes) {
-      for (let page = 1; page <= maxPages; page += 1) {
-        let response: PncpPageResponse;
-        try {
-          response = await this.fetchPage({ dateFrom, dateTo, modalityCode, page, pageSize });
-        } catch (error: any) {
-          metrics.failures += 1;
-          warnings.push(`Modalidade ${modalityCode}, página ${page}: ${error?.message || 'falha na consulta ao PNCP'}`);
-          break;
-        }
-
-        const records = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : [];
-        metrics.received += records.length;
-
-        for (const record of records) {
+    for (const window of dateWindows) {
+      for (const modalityCode of modalityCodes) {
+        for (let page = 1; page <= maxPages; page += 1) {
+          let response: PncpPageResponse;
           try {
-            const result = await context.onRecord(record);
-            metrics.normalized += result === 'rejected' ? 0 : 1;
-            if (result === 'created') metrics.created += 1;
-            else if (result === 'updated') metrics.updated += 1;
-            else if (result === 'duplicate') metrics.duplicates += 1;
-            else if (result === 'ignored') metrics.ignored += 1;
-            else metrics.rejected += 1;
+            response = await this.fetchPage({
+              dateFrom: window,
+              dateTo: window,
+              modalityCode,
+              page,
+              pageSize,
+            });
           } catch (error: any) {
             metrics.failures += 1;
-            warnings.push(`Registro rejeitado durante persistência: ${error?.message || 'erro não identificado'}`);
-          }
-        }
 
-        const totalPages = Number(response.totalPaginas || 0);
-        const pagesRemaining = Number(response.paginasRestantes || 0);
-        const hasMore = records.length === pageSize || pagesRemaining > 0 || (totalPages > 0 && page < totalPages);
-        if (!hasMore || records.length === 0) break;
+            if (error instanceof PncpTemporaryUnavailableError) {
+              const statusLabel = error.status ? `HTTP ${error.status}` : 'tempo limite';
+              const warning = `PNCP indisponível temporariamente (${statusLabel}). A sincronização foi interrompida sem apagar os dados já importados. Tente novamente mais tarde.`;
+              warnings.push(warning);
+              console.warn('[PNCP] Sincronização interrompida por indisponibilidade externa.', {
+                date: formatDate(window),
+                modalityCode,
+                page,
+                status: error.status,
+                message: error.message,
+              });
+              return buildResult(metrics, warnings, dateFrom, dateTo, lastCompletedWindow, {
+                interruptedAt: { date: formatDate(window), modalityCode, page },
+                reason: error.message,
+              });
+            }
+
+            warnings.push(`Modalidade ${modalityCode}, data ${formatDisplayDate(window)}, página ${page}: ${error?.message || 'falha na consulta ao PNCP'}`);
+            break;
+          }
+
+          const records = Array.isArray(response) ? response : Array.isArray(response.data) ? response.data : [];
+          metrics.received += records.length;
+
+          for (const record of records) {
+            try {
+              const result = await context.onRecord(record);
+              metrics.normalized += result === 'rejected' ? 0 : 1;
+              if (result === 'created') metrics.created += 1;
+              else if (result === 'updated') metrics.updated += 1;
+              else if (result === 'duplicate') metrics.duplicates += 1;
+              else if (result === 'ignored') metrics.ignored += 1;
+              else metrics.rejected += 1;
+            } catch (error: any) {
+              metrics.failures += 1;
+              warnings.push(`Registro rejeitado durante persistência: ${error?.message || 'erro não identificado'}`);
+            }
+          }
+
+          lastCompletedWindow = { date: formatDate(window), modalityCode, page };
+
+          const totalPages = Number(response.totalPaginas || 0);
+          const pagesRemaining = Number(response.paginasRestantes || 0);
+          const hasMore = records.length === pageSize || pagesRemaining > 0 || (totalPages > 0 && page < totalPages);
+          if (!hasMore || records.length === 0) break;
+        }
       }
     }
 
-    return {
-      metrics,
-      warnings: unique(warnings).slice(0, 50),
-      cursorAfter: JSON.stringify({ dateFrom: formatDate(dateFrom), dateTo: formatDate(dateTo), synchronizedAt: new Date().toISOString() }),
-    };
+    return buildResult(metrics, warnings, dateFrom, dateTo, lastCompletedWindow);
   }
 
   private async fetchPage(input: { dateFrom: Date; dateTo: Date; modalityCode: number; page: number; pageSize: number }): Promise<PncpPageResponse> {
@@ -102,9 +146,12 @@ export class PncpRadarConnector implements RadarConnector {
     url.searchParams.set('tamanhoPagina', String(input.pageSize));
 
     let lastError: Error | undefined;
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+
+    for (let attempt = 0; attempt < REQUEST_TIMEOUTS_MS.length; attempt += 1) {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      const timeoutMs = REQUEST_TIMEOUTS_MS[attempt];
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
       try {
         await respectRequestInterval();
         const response = await fetch(url, {
@@ -112,30 +159,78 @@ export class PncpRadarConnector implements RadarConnector {
           headers: { Accept: 'application/json', 'User-Agent': 'Beta-Platform-Radar/1.0' },
           signal: controller.signal,
         });
+
         if (!response.ok) {
           const body = (await response.text()).slice(0, 300);
-          if (response.status === 429) {
+          const normalizedBody = stripHtml(body);
+
+          if (TRANSIENT_HTTP_STATUSES.has(response.status)) {
             const retryAfterSeconds = Number(response.headers.get('retry-after') || 0);
-            const rateLimitError = new Error('PNCP atingiu o limite temporário de requisições. Os dados já importados continuam disponíveis e uma nova tentativa poderá ser feita após o intervalo de espera.');
-            (rateLimitError as any).retryAfterMs = retryAfterSeconds > 0 ? retryAfterSeconds * 1_000 : undefined;
-            throw rateLimitError;
+            const temporaryError = new PncpTemporaryUnavailableError(
+              `PNCP respondeu HTTP ${response.status}${normalizedBody ? `: ${normalizedBody}` : ''}`,
+              response.status,
+            );
+            (temporaryError as any).retryAfterMs = retryAfterSeconds > 0 ? retryAfterSeconds * 1_000 : undefined;
+            throw temporaryError;
           }
-          throw new Error(`PNCP respondeu HTTP ${response.status}${body ? `: ${stripHtml(body)}` : ''}`);
+
+          throw new Error(`PNCP respondeu HTTP ${response.status}${normalizedBody ? `: ${normalizedBody}` : ''}`);
         }
+
         return await response.json() as PncpPageResponse;
       } catch (error: any) {
-        lastError = new Error(error?.name === 'AbortError' ? 'tempo limite excedido na consulta ao PNCP' : error?.message || 'falha de rede');
-        if (attempt < MAX_RETRIES) await delay(resolveRetryDelay(error, attempt));
+        const normalizedError = error?.name === 'AbortError'
+          ? new PncpTemporaryUnavailableError(`tempo limite de ${Math.round(timeoutMs / 1_000)} segundos excedido na consulta ao PNCP`)
+          : error;
+
+        lastError = normalizedError instanceof Error ? normalizedError : new Error(normalizedError?.message || 'falha de rede');
+
+        if (attempt < REQUEST_TIMEOUTS_MS.length - 1) {
+          await delay(resolveRetryDelay(normalizedError, attempt));
+        }
       } finally {
         clearTimeout(timeout);
       }
     }
-    throw lastError || new Error('falha na consulta ao PNCP');
+
+    throw lastError || new PncpTemporaryUnavailableError('falha temporária na consulta ao PNCP');
   }
 }
 
+function buildResult(
+  metrics: RadarSyncRunMetrics,
+  warnings: string[],
+  dateFrom: Date,
+  dateTo: Date,
+  lastCompletedWindow?: { date: string; modalityCode: number; page: number },
+  interruption?: { interruptedAt: { date: string; modalityCode: number; page: number }; reason: string },
+): RadarConnectorExecutionResult {
+  return {
+    metrics,
+    warnings: unique(warnings).slice(0, 50),
+    cursorAfter: JSON.stringify({
+      dateFrom: formatDate(dateFrom),
+      dateTo: formatDate(dateTo),
+      lastCompletedWindow,
+      ...interruption,
+      synchronizedAt: new Date().toISOString(),
+    }),
+  };
+}
+
+function buildDailyWindows(dateFrom: Date, dateTo: Date): Date[] {
+  const windows: Date[] = [];
+  for (let current = new Date(dateTo); current >= dateFrom; current = addDays(current, -1)) {
+    windows.push(new Date(current));
+  }
+  return windows;
+}
+
 function resolveModalityCodes(): number[] {
-  const configured = String(process.env.PNCP_MODALITY_CODES || '').split(',').map((item) => Number(item.trim())).filter((item) => Number.isInteger(item) && item > 0);
+  const configured = String(process.env.PNCP_MODALITY_CODES || '')
+    .split(',')
+    .map((item) => Number(item.trim()))
+    .filter((item) => Number.isInteger(item) && item > 0);
   return configured.length ? Array.from(new Set(configured)) : DEFAULT_MODALITY_CODES;
 }
 
@@ -169,19 +264,32 @@ function formatDate(date: Date): string {
   return `${year}${month}${day}`;
 }
 
+function formatDisplayDate(date: Date): string {
+  return date.toLocaleDateString('pt-BR');
+}
+
 function clampInteger(value: number | undefined, min: number, max: number, fallback: number): number {
   if (!Number.isFinite(value)) return fallback;
   return Math.min(max, Math.max(min, Math.trunc(value as number)));
 }
 
-function unique(values: string[]): string[] { return Array.from(new Set(values)); }
-function delay(ms: number): Promise<void> { return new Promise((resolve) => setTimeout(resolve, ms)); }
+function unique(values: string[]): string[] {
+  return Array.from(new Set(values));
+}
 
-function stripHtml(value: string): string { return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); }
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function stripHtml(value: string): string {
+  return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function resolveRetryDelay(error: any, attempt: number): number {
   if (Number.isFinite(error?.retryAfterMs)) return Math.max(1_000, Number(error.retryAfterMs));
-  return Math.min(30_000, 1_500 * (2 ** attempt));
+  return Math.min(15_000, 5_000 * (attempt + 1));
 }
+
 async function respectRequestInterval(): Promise<void> {
   const waitMs = Math.max(0, nextAllowedRequestAt - Date.now());
   if (waitMs > 0) await delay(waitMs);
