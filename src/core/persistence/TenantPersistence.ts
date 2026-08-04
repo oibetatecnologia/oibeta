@@ -6,14 +6,14 @@ import { ClientSessionStorage } from '../auth/ClientSessionStorage';
 
 export interface TenantPersistenceContext {
   organizationId: string;
-  workspaceId: string;
+  workspaceId?: string;
   userId: string;
   role: string;
 }
 
 export const DEFAULT_TENANT_PERSISTENCE_CONTEXT: TenantPersistenceContext = {
   organizationId: DEFAULT_PLATFORM_ORGANIZATION_ID,
-  workspaceId: DEFAULT_PLATFORM_WORKSPACE_ID,
+  workspaceId: undefined,
   userId: 'dev-user-douglas',
   role: 'master_admin',
 };
@@ -32,10 +32,7 @@ export const setRuntimeTenantPersistenceContext = (
       context.organizationId ||
       runtimeTenantPersistenceContext.organizationId ||
       DEFAULT_TENANT_PERSISTENCE_CONTEXT.organizationId,
-    workspaceId:
-      context.workspaceId ||
-      runtimeTenantPersistenceContext.workspaceId ||
-      DEFAULT_TENANT_PERSISTENCE_CONTEXT.workspaceId,
+    workspaceId: context.workspaceId,
     userId:
       context.userId ||
       runtimeTenantPersistenceContext.userId ||
@@ -68,10 +65,7 @@ export const resolveTenantPersistenceContext = (
     context?.organizationId ||
     runtimeTenantPersistenceContext.organizationId ||
     DEFAULT_TENANT_PERSISTENCE_CONTEXT.organizationId,
-  workspaceId:
-    context?.workspaceId ||
-    runtimeTenantPersistenceContext.workspaceId ||
-    DEFAULT_TENANT_PERSISTENCE_CONTEXT.workspaceId,
+  workspaceId: context?.workspaceId ?? runtimeTenantPersistenceContext.workspaceId,
   userId:
     context?.userId ||
     runtimeTenantPersistenceContext.userId ||
@@ -91,7 +85,7 @@ export const buildTenantHeaders = (
     ...ClientSessionStorage.buildAuthorizationHeader(),
     'Content-Type': 'application/json',
     'x-organization-id': tenant.organizationId,
-    'x-workspace-id': tenant.workspaceId,
+    ...(tenant.workspaceId ? { 'x-workspace-id': tenant.workspaceId } : {}),
     'x-user-id': tenant.userId,
     'x-user-role': tenant.role,
   };
@@ -101,10 +95,8 @@ export const buildTenantQuery = (
   context?: Partial<TenantPersistenceContext>,
 ): string => {
   const tenant = resolveTenantPersistenceContext(context);
-  const params = new URLSearchParams({
-    organizationId: tenant.organizationId,
-    workspaceId: tenant.workspaceId,
-  });
+  const params = new URLSearchParams({ organizationId: tenant.organizationId });
+  if (tenant.workspaceId) params.set('workspaceId', tenant.workspaceId);
 
   return params.toString();
 };
@@ -115,5 +107,5 @@ export const buildTenantStorageKey = (
 ): string => {
   const tenant = resolveTenantPersistenceContext(context);
 
-  return `${baseKey}:${tenant.organizationId}:${tenant.workspaceId}`;
+  return `${baseKey}:${tenant.organizationId}:${tenant.workspaceId || 'platform'}`;
 };

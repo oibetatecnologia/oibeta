@@ -31,7 +31,9 @@ export const EMPTY_PLATFORM_CONTEXT: PlatformContextValue = {
   currentTenant: {
     id: DEFAULT_PLATFORM_ORGANIZATION_ID,
     organizationId: DEFAULT_PLATFORM_ORGANIZATION_ID,
-    workspaceId: DEFAULT_PLATFORM_WORKSPACE_ID,
+    workspaceId: undefined,
+    isInternalOiBetaUser: true,
+    requiresWorkspace: false,
   },
   licensedProductIds: [],
   isPrivilegedProductAccess: false,

@@ -5,18 +5,6 @@ interface AuthOverlayProps {
   onSuccess: (user: any, accessToken?: string) => void;
 }
 
-const MASTER_ADMIN_EMAIL = 'douglas.ujs@gmail.com';
-const MASTER_ADMIN_PASSWORD = '123456';
-
-const DEFAULT_LOCAL_USER = {
-  id: 'dev-user-douglas',
-  name: 'Douglas',
-  email: 'douglas.ujs@gmail.com',
-  role: 'master_admin',
-  organizationId: 'org-oi-beta',
-  workspaceId: 'default-workspace'
-};
-
 export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login');
   
@@ -41,16 +29,6 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
 
     try {
       if (mode === 'login') {
-        if (email.trim().toLowerCase() === MASTER_ADMIN_EMAIL && password === MASTER_ADMIN_PASSWORD) {
-          setMessage('Acesso local autorizado. Abrindo Painel Empresarial da Oi Beta.');
-          onSuccess({
-            ...DEFAULT_LOCAL_USER,
-            email: MASTER_ADMIN_EMAIL,
-            role: 'master_admin',
-          });
-          return;
-        }
-
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -71,7 +49,15 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
         if (!res.ok) throw new Error(data?.error || 'Erro ao realizar login.');
 
         const authenticatedUser = data?.user;
-        if (!authenticatedUser?.id || !authenticatedUser?.organizationId || !authenticatedUser?.workspaceId || !authenticatedUser?.role) {
+        const isInternalOiBetaUser = ['org-oi-beta', 'org_oi_beta'].includes(
+          String(authenticatedUser?.organizationId || '').trim().toLowerCase(),
+        );
+        const hasIdentityContext = Boolean(
+          authenticatedUser?.id && authenticatedUser?.organizationId && authenticatedUser?.role,
+        );
+        const hasRequiredWorkspace = isInternalOiBetaUser || Boolean(authenticatedUser?.workspaceId);
+
+        if (!hasIdentityContext || !hasRequiredWorkspace) {
           throw new Error('O perfil autenticado ainda não está completamente provisionado para acessar a plataforma.');
         }
 

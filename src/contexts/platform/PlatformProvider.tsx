@@ -14,7 +14,7 @@ import type { PlatformContextValue, PlatformUserContext } from '../../contexts/p
 import { setRuntimeTenantPersistenceContext } from '../../core/persistence/TenantPersistence';
 import { ProductAccessService } from '../../core/licensing/ProductAccessService';
 import { OperationalContextResolver } from '../../core/tenants/OperationalContextResolver';
-import { isMasterUserContext } from '../../core/auth/AuthenticatedUserContext';
+import { isOiBetaInternalUserContext } from '../../core/auth/AuthenticatedUserContext';
 
 interface PlatformProviderProps {
   user: PlatformUserContext | null;
@@ -43,10 +43,10 @@ export default function PlatformProvider({
   children,
 }: PlatformProviderProps) {
   useEffect(() => {
-    const isMaster = isMasterUserContext(user);
+    const isInternal = isOiBetaInternalUserContext(user);
     setRuntimeTenantPersistenceContext({
-      organizationId: user?.organizationId || (isMaster ? DEFAULT_PLATFORM_ORGANIZATION_ID : 'unprovisioned-organization'),
-      workspaceId: user?.workspaceId || (isMaster ? DEFAULT_PLATFORM_WORKSPACE_ID : 'unprovisioned-workspace'),
+      organizationId: user?.organizationId || (isInternal ? DEFAULT_PLATFORM_ORGANIZATION_ID : 'unprovisioned-organization'),
+      workspaceId: user?.workspaceId,
       userId: user?.id || 'anonymous',
       role: user?.role || 'unknown',
     });
@@ -68,6 +68,8 @@ export default function PlatformProvider({
         id: operationalContext.tenantId,
         organizationId,
         workspaceId,
+        isInternalOiBetaUser: operationalContext.isInternalOiBetaUser,
+        requiresWorkspace: operationalContext.requiresWorkspace,
       },
       selectedProjectId,
       projects,

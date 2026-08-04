@@ -18,6 +18,8 @@ export interface SessionRequest extends Request {
   sessionSource?: "supabase" | "development_headers" | "none";
 }
 
+const OI_BETA_ORGANIZATION_IDS = new Set(["org-oi-beta", "org_oi_beta"]);
+
 function readHeader(req: Request, name: string): string | undefined {
   const value = req.headers[name.toLowerCase()];
   if (Array.isArray(value)) return value[0];
@@ -41,6 +43,7 @@ function resolveDevelopmentHeaderUser(req: Request): CurrentUser | null {
   return {
     id: userId,
     organizationId,
+    workspaceId: readHeader(req, "x-workspace-id"),
     name: readHeader(req, "x-user-name") || "Douglas",
     email: readHeader(req, "x-user-email") || "douglas.ujs@gmail.com",
     role: readHeader(req, "x-user-role") || "operator",
@@ -50,7 +53,8 @@ function resolveDevelopmentHeaderUser(req: Request): CurrentUser | null {
 
 export function createSessionResolver(input: {
   dbMode: string;
-  getSupabaseClient: () => SupabaseLikeClient;
+  getAuthClient: () => SupabaseLikeClient;
+  getDatabaseClient: () => SupabaseLikeClient;
 }) {
   return async function resolveSession(
     req: SessionRequest,
@@ -62,18 +66,19 @@ export function createSessionResolver(input: {
     const token = resolveBearerToken(req);
     if (input.dbMode === "supabase" && token) {
       try {
-        const supabase = input.getSupabaseClient();
+        const authClient = input.getAuthClient();
+        const databaseClient = input.getDatabaseClient();
         const {
           data: { user: authUser },
           error: authError,
-        } = await supabase.auth.getUser(token);
+        } = await authClient.auth.getUser(token);
 
         if (!authUser || authError) {
           next();
           return;
         }
 
-        const { data: dbUser, error: profileError } = await supabase
+        const { data: dbUser, error: profileError } = await databaseClient
           .from("users")
           .select("id,name,email,organization_id,tenant_id,role,profile,product_ids")
           .eq("id", authUser.id)
@@ -84,7 +89,7 @@ export function createSessionResolver(input: {
           return;
         }
 
-        const { data: memberships } = await supabase
+        const { data: memberships } = await databaseClient
           .from("user_organization_memberships")
           .select("organization_id,role,status,is_primary")
           .eq("user_id", authUser.id)
@@ -94,15 +99,33 @@ export function createSessionResolver(input: {
           ? memberships.find((membership: any) => membership.is_primary) || memberships[0]
           : undefined;
         const organizationId = primaryMembership?.organization_id || dbUser.organization_id;
-        if (!organizationId) { next(); return; }
+        if (!organizationId) {
+          next();
+          return;
+        }
 
-        const [{ data: organization }, { data: workspaceMemberships }, { data: licenses }] = await Promise.all([
-          supabase.from("organizations").select("id,licensed_product_ids").eq("id", organizationId).single(),
-          supabase.from("user_workspace_memberships").select("workspace_id,role,status").eq("user_id", authUser.id).eq("organization_id", organizationId).eq("status", "ACTIVE"),
-          supabase.from("product_licenses").select("product_id,status").eq("organization_id", organizationId).eq("status", "ACTIVE"),
+        const role = primaryMembership?.role || dbUser.profile || dbUser.role || "operator";
+        const isInternalOiBetaUser = OI_BETA_ORGANIZATION_IDS.has(
+          String(organizationId).trim().toLowerCase(),
+        );
+
+        const [{ data: organization }, { data: licenses }] = await Promise.all([
+          databaseClient.from("organizations").select("id,licensed_product_ids").eq("id", organizationId).single(),
+          databaseClient.from("product_licenses").select("product_id,status").eq("organization_id", organizationId).eq("status", "ACTIVE"),
         ]);
 
-        const activeWorkspace = Array.isArray(workspaceMemberships) ? workspaceMemberships[0] : undefined;
+        let workspaceId: string | undefined;
+        if (!isInternalOiBetaUser) {
+          const { data: workspaceMemberships } = await databaseClient
+            .from("user_workspace_memberships")
+            .select("workspace_id,role,status")
+            .eq("user_id", authUser.id)
+            .eq("organization_id", organizationId)
+            .eq("status", "ACTIVE");
+          workspaceId = Array.isArray(workspaceMemberships)
+            ? workspaceMemberships[0]?.workspace_id
+            : undefined;
+        }
 
         req.currentUser = {
           id: dbUser.id,
@@ -110,8 +133,8 @@ export function createSessionResolver(input: {
           email: dbUser.email || authUser.email || "",
           organizationId,
           tenantId: dbUser.tenant_id || organizationId,
-          workspaceId: activeWorkspace?.workspace_id,
-          role: primaryMembership?.role || activeWorkspace?.role || dbUser.profile || dbUser.role || "operator",
+          workspaceId,
+          role,
           productIds: Array.isArray(dbUser.product_ids) ? dbUser.product_ids : [],
           licensedProductIds: Array.isArray(licenses) && licenses.length > 0
             ? licenses.map((license: any) => license.product_id)

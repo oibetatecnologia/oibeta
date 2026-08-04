@@ -9,6 +9,7 @@ import {
   MASTER_ADMIN_CONTEXT,
   buildAuthenticatedHeaders,
   normalizeAuthenticatedUser,
+  isOiBetaInternalUserContext,
   type AuthenticatedUserContext,
 } from './core/auth/AuthenticatedUserContext';
 
@@ -226,6 +227,17 @@ export default function App() {
 
   // Fetch initial collections
   const fetchData = async () => {
+    if (isOiBetaInternalUserContext(user) && !user?.workspaceId) {
+      setProjects([]);
+      setDecisions([]);
+      setTasks([]);
+      setMemories([]);
+      setProjectStates([]);
+      setSelectedProjectId('');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const [
         dataProj,

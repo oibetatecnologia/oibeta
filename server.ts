@@ -231,9 +231,10 @@ app.use((req, res, next) => {
 
   const tenant = extractTenant(req);
   
-  // 1. Tenant validation for Operational endpoints
-  if (!tenant.organizationId || !tenant.workspaceId) {
-     return res.status(401).json({ error: "Missing required organizationId or workspaceId in context or headers" });
+  // 1. Organization is the global security boundary. Workspace is required
+  // only by operational client routes that explicitly depend on one.
+  if (!tenant.organizationId) {
+     return res.status(401).json({ error: "Missing required organizationId in context or headers" });
   }
 
   // 2. Payload Validation & Upload Security
@@ -249,10 +250,12 @@ app.use((req, res, next) => {
       req.body.organizationId = tenant.organizationId;
     }
 
-    if (req.body.workspaceId && req.body.workspaceId !== tenant.workspaceId) {
-       req.body.workspaceId = tenant.workspaceId;
-    } else if (!req.body.workspaceId) {
-       req.body.workspaceId = tenant.workspaceId;
+    if (tenant.workspaceId) {
+      if (req.body.workspaceId && req.body.workspaceId !== tenant.workspaceId) {
+        req.body.workspaceId = tenant.workspaceId;
+      } else if (!req.body.workspaceId) {
+        req.body.workspaceId = tenant.workspaceId;
+      }
     }
 
     // Upload Specific Checks
@@ -461,7 +464,9 @@ if (backgroundSchedulersEnabled) {
 app.use(
   createSessionResolver({
     dbMode,
-    getSupabaseClient: () =>
+    getAuthClient: () =>
+      (dbAdapter as SupabaseDatabaseAdapter).getAuthClient(),
+    getDatabaseClient: () =>
       (dbAdapter as SupabaseDatabaseAdapter).getClient(),
   }),
 );
@@ -1131,93 +1136,17 @@ const requireAuth = async (req: any, res: any, next: any) => {
   ];
 
   const requestPath = req.path || req.url || "";
-  if (bypassPaths.some((p) => requestPath.startsWith(p))) {
+  if (bypassPaths.some((path) => requestPath.startsWith(path))) {
     return next();
   }
 
-  try {
-    if (dbMode !== "supabase") {
-      // JSON mode fallback is simple / local dev
-      const user = getCurrentUser(req);
-      req.currentUser = user;
-      return next();
-    }
-
-    // Supabase validation
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ error: "Sessão não autorizada ou token ausente." });
-    }
-
-    const token = authHeader.split(" ")[1];
-    if (token === "mock-json-token-for-dev") {
-      const user = getCurrentUser(req);
-      req.currentUser = user;
-      return next();
-    }
-
-    const supabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
-
-    // Verify token with Supabase Client auth
-    const {
-      data: { user: authUser },
-      error: authErr,
-    } = await supabase.auth.getUser(token);
-    if (authErr || !authUser) {
-      return res.status(401).json({ error: "Sessão expirada ou inválida." });
-    }
-
-    // Load profile from public.users table corresponding to the sub
-    const { data: dbUser, error: userErr } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", authUser.id)
-      .single();
-
-    if (userErr || !dbUser) {
-      return res.status(401).json({
-        error: "Usuário com perfil inexistente ou incompleto no Supabase.",
-      });
-    }
-
-    const organizationId = dbUser.organization_id;
-    const [{ data: organization }, { data: workspaces }] = await Promise.all([
-      supabase
-        .from("organizations")
-        .select("id,licensed_product_ids")
-        .eq("id", organizationId)
-        .single(),
-      supabase
-        .from("workspaces")
-        .select("id,organization_id,status")
-        .eq("organization_id", organizationId),
-    ]);
-
-    const activeWorkspace = Array.isArray(workspaces)
-      ? workspaces.find((workspace: any) => workspace.status !== "INACTIVE")
-      : undefined;
-
-    req.currentUser = {
-      id: dbUser.id,
-      name: dbUser.name,
-      email: dbUser.email,
-      organizationId,
-      tenantId: dbUser.tenant_id || organizationId,
-      workspaceId: activeWorkspace?.id,
-      role: dbUser.profile || dbUser.role || "operator",
-      productIds: Array.isArray(dbUser.product_ids) ? dbUser.product_ids : [],
-      licensedProductIds: Array.isArray(organization?.licensed_product_ids)
-        ? organization.licensed_product_ids
-        : [],
-    };
-
-    next();
-  } catch (err: any) {
-    console.error("Authentication middleware failure:", err);
-    res.status(401).json({ error: "Não autorizado." });
+  if (req.currentUser) {
+    return next();
   }
+
+  return res.status(401).json({
+    error: "Sessão não autorizada, expirada ou token ausente.",
+  });
 };
 
 app.use("/api", requireAuth);
@@ -3718,6 +3647,13 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+const OI_BETA_INTERNAL_ORGANIZATION_IDS = new Set(["org-oi-beta", "org_oi_beta"]);
+
+const isOiBetaInternalOrganization = (organizationId: unknown): boolean =>
+  OI_BETA_INTERNAL_ORGANIZATION_IDS.has(
+    String(organizationId || "").trim().toLowerCase(),
+  );
+
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -3761,13 +3697,26 @@ app.post("/api/auth/login", async (req, res) => {
       }
 
       const organizationId = dbUser.organization_id;
-      const [{ data: organization }, { data: workspaces }] = await Promise.all([
-        adminSupabase.from("organizations").select("id,licensed_product_ids").eq("id", organizationId).single(),
-        adminSupabase.from("workspaces").select("id,organization_id,status").eq("organization_id", organizationId),
-      ]);
-      const activeWorkspace = Array.isArray(workspaces)
-        ? workspaces.find((workspace: any) => workspace.status !== "INACTIVE")
-        : undefined;
+      const role = dbUser.profile || dbUser.role || "operator";
+      const isInternalOiBetaUser = isOiBetaInternalOrganization(organizationId);
+      const { data: organization } = await adminSupabase
+        .from("organizations")
+        .select("id,licensed_product_ids")
+        .eq("id", organizationId)
+        .single();
+
+      let workspaceId: string | undefined;
+      if (!isInternalOiBetaUser) {
+        const { data: workspaceMemberships } = await adminSupabase
+          .from("user_workspace_memberships")
+          .select("workspace_id,status")
+          .eq("user_id", realUserId)
+          .eq("organization_id", organizationId)
+          .eq("status", "ACTIVE");
+        workspaceId = Array.isArray(workspaceMemberships)
+          ? workspaceMemberships[0]?.workspace_id
+          : undefined;
+      }
 
       const freshUser = {
         id: dbUser.id,
@@ -3775,8 +3724,8 @@ app.post("/api/auth/login", async (req, res) => {
         email: dbUser.email,
         organizationId,
         tenantId: dbUser.tenant_id || organizationId,
-        workspaceId: activeWorkspace?.id,
-        role: dbUser.profile || dbUser.role,
+        workspaceId,
+        role,
         productIds: Array.isArray(dbUser.product_ids) ? dbUser.product_ids : [],
         licensedProductIds: Array.isArray(organization?.licensed_product_ids)
           ? organization.licensed_product_ids
@@ -3850,49 +3799,16 @@ app.post("/api/auth/reset", async (req, res) => {
   }
 });
 
-app.get("/api/auth/session", async (req, res) => {
+app.get("/api/auth/session", async (req: any, res) => {
   try {
-    // If authHeader is present, try to extract and validate it dynamically
-    const authHeader = req.headers.authorization;
-    if (
-      authHeader &&
-      authHeader.startsWith("Bearer ") &&
-      dbMode === "supabase"
-    ) {
-      const token = authHeader.split(" ")[1];
-      if (token !== "mock-json-token-for-dev") {
-        const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
-        const adminSupabase = (dbAdapter as SupabaseDatabaseAdapter).getClient();
-        const {
-          data: { user: authUser },
-        } = await authSupabase.auth.getUser(token);
-        if (authUser) {
-          const { data: dbUser } = await adminSupabase
-            .from("users")
-            .select("*")
-            .eq("id", authUser.id)
-            .single();
-          if (dbUser) {
-            const freshUser = {
-              id: dbUser.id,
-              name: dbUser.name,
-              email: dbUser.email,
-              organizationId: dbUser.organization_id,
-              role: dbUser.profile || dbUser.role || "admin",
-              productIds: Array.isArray(dbUser.product_ids)
-                ? dbUser.product_ids
-                : [],
-            };
-            return res.json({ success: true, user: freshUser });
-          }
-        }
-      }
+    if (!req.currentUser) {
+      return res.json({ success: true, user: null });
     }
 
-    const user = getCurrentUser(req);
-    res.json({ success: true, user });
-  } catch (e) {
-    res.json({ success: true, user: null });
+    return res.json({ success: true, user: req.currentUser });
+  } catch (error) {
+    console.error("Failed to resolve authenticated session:", error);
+    return res.json({ success: true, user: null });
   }
 });
 

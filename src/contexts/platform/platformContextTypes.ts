@@ -24,7 +24,9 @@ export interface PlatformUserContext {
 export interface PlatformTenantContext {
   id: string;
   organizationId: string;
-  workspaceId: string;
+  workspaceId?: string;
+  isInternalOiBetaUser: boolean;
+  requiresWorkspace: boolean;
 }
 
 export interface PlatformBetaContext {
