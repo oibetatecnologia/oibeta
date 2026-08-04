@@ -48,6 +48,7 @@ export interface RadarSyncRunRequest {
   dateTo?: string;
   maxPages?: number;
   pageSize?: number;
+  cursorBefore?: string;
 }
 
 export interface RadarSyncRun {

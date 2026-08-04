@@ -8,10 +8,12 @@ const DEFAULT_LOOKBACK_DAYS = 2;
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 50;
 const DEFAULT_MAX_PAGES_PER_MODALITY = 2;
-const REQUEST_TIMEOUTS_MS = [30_000, 60_000] as const;
-const MIN_REQUEST_INTERVAL_MS = 1_000;
+const REQUEST_TIMEOUTS_MS = [30_000, 60_000, 90_000] as const;
+const MIN_REQUEST_INTERVAL_MS = 2_000;
+const MAX_REQUEST_INTERVAL_MS = 30_000;
 const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503, 504]);
 let nextAllowedRequestAt = 0;
+let adaptiveRequestIntervalMs = MIN_REQUEST_INTERVAL_MS;
 
 interface PncpPageResponse {
   data?: unknown[];
@@ -26,6 +28,7 @@ class PncpTemporaryUnavailableError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    readonly retryAfterMs?: number,
   ) {
     super(message);
     this.name = 'PncpTemporaryUnavailableError';
@@ -59,20 +62,28 @@ export class PncpRadarConnector implements RadarConnector {
   };
 
   async execute(context: RadarConnectorExecutionContext): Promise<RadarConnectorExecutionResult> {
-    const dateTo = parseDate(context.options.dateTo) || startOfToday();
-    const requestedFrom = parseDate(context.options.dateFrom) || addDays(dateTo, -DEFAULT_LOOKBACK_DAYS);
+    const cursorRange = parseCursorRange(context.options.cursorBefore);
+    const dateTo = parseDate(context.options.dateTo) || parseDate(cursorRange?.dateTo) || startOfToday();
+    const requestedFrom = parseDate(context.options.dateFrom) || parseDate(cursorRange?.dateFrom) || addDays(dateTo, -DEFAULT_LOOKBACK_DAYS);
     const dateFrom = clampDateRange(requestedFrom, dateTo, MAX_DATE_RANGE_DAYS);
     const pageSize = clampInteger(context.options.pageSize, 1, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE);
     const maxPages = clampInteger(context.options.maxPages, 1, 10, DEFAULT_MAX_PAGES_PER_MODALITY);
     const modalityCodes = resolveModalityCodes();
     const dateWindows = buildDailyWindows(dateFrom, dateTo);
+    const resumePoint = parseResumePoint(context.options.cursorBefore, dateFrom, dateTo, modalityCodes, maxPages);
     const metrics = emptyMetrics();
     const warnings: string[] = [];
     let lastCompletedWindow: { date: string; modalityCode: number; page: number } | undefined;
 
+    if (resumePoint) {
+      warnings.push(`Execução retomada de ${formatDisplayDate(parseCursorDate(resumePoint.date))}, modalidade ${resumePoint.modalityCode}, página ${resumePoint.page}.`);
+    }
+
     for (const window of dateWindows) {
       for (const modalityCode of modalityCodes) {
-        for (let page = 1; page <= maxPages; page += 1) {
+        const firstPage = resolveFirstPage(window, modalityCode, resumePoint);
+        if (firstPage === undefined) continue;
+        for (let page = firstPage; page <= maxPages; page += 1) {
           let response: PncpPageResponse;
           try {
             response = await this.fetchPage({
@@ -165,18 +176,19 @@ export class PncpRadarConnector implements RadarConnector {
           const normalizedBody = stripHtml(body);
 
           if (TRANSIENT_HTTP_STATUSES.has(response.status)) {
-            const retryAfterSeconds = Number(response.headers.get('retry-after') || 0);
-            const temporaryError = new PncpTemporaryUnavailableError(
+            const retryAfterMs = parseRetryAfterMs(response.headers.get('retry-after'));
+            registerTransientFailure(response.status, retryAfterMs);
+            throw new PncpTemporaryUnavailableError(
               `PNCP respondeu HTTP ${response.status}${normalizedBody ? `: ${normalizedBody}` : ''}`,
               response.status,
+              retryAfterMs,
             );
-            (temporaryError as any).retryAfterMs = retryAfterSeconds > 0 ? retryAfterSeconds * 1_000 : undefined;
-            throw temporaryError;
           }
 
           throw new Error(`PNCP respondeu HTTP ${response.status}${normalizedBody ? `: ${normalizedBody}` : ''}`);
         }
 
+        registerSuccessfulRequest();
         return await response.json() as PncpPageResponse;
       } catch (error: any) {
         const normalizedError = error?.name === 'AbortError'
@@ -286,12 +298,105 @@ function stripHtml(value: string): string {
 }
 
 function resolveRetryDelay(error: any, attempt: number): number {
-  if (Number.isFinite(error?.retryAfterMs)) return Math.max(1_000, Number(error.retryAfterMs));
-  return Math.min(15_000, 5_000 * (attempt + 1));
+  if (Number.isFinite(error?.retryAfterMs)) return clampRetryDelay(Number(error.retryAfterMs));
+  if (error?.status === 429) return [15_000, 30_000, 60_000][attempt] || 60_000;
+  return [10_000, 20_000, 45_000][attempt] || 45_000;
 }
 
 async function respectRequestInterval(): Promise<void> {
   const waitMs = Math.max(0, nextAllowedRequestAt - Date.now());
   if (waitMs > 0) await delay(waitMs);
-  nextAllowedRequestAt = Date.now() + MIN_REQUEST_INTERVAL_MS;
+  nextAllowedRequestAt = Date.now() + adaptiveRequestIntervalMs;
+}
+
+function registerTransientFailure(status?: number, retryAfterMs?: number): void {
+  const requestedDelay = Number.isFinite(retryAfterMs) ? clampRetryDelay(Number(retryAfterMs)) : 0;
+  const multiplier = status === 429 ? 2.5 : 1.5;
+  adaptiveRequestIntervalMs = Math.min(
+    MAX_REQUEST_INTERVAL_MS,
+    Math.max(MIN_REQUEST_INTERVAL_MS, requestedDelay, Math.ceil(adaptiveRequestIntervalMs * multiplier)),
+  );
+  nextAllowedRequestAt = Math.max(nextAllowedRequestAt, Date.now() + Math.max(adaptiveRequestIntervalMs, requestedDelay));
+}
+
+function registerSuccessfulRequest(): void {
+  adaptiveRequestIntervalMs = Math.max(MIN_REQUEST_INTERVAL_MS, adaptiveRequestIntervalMs - 500);
+}
+
+function parseRetryAfterMs(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return clampRetryDelay(seconds * 1_000);
+  const dateMs = Date.parse(value);
+  if (!Number.isNaN(dateMs)) return clampRetryDelay(Math.max(0, dateMs - Date.now()));
+  return undefined;
+}
+
+function clampRetryDelay(value: number): number {
+  return Math.min(120_000, Math.max(1_000, Math.trunc(value)));
+}
+
+interface PncpCursorRange {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+function parseCursorRange(cursorBefore?: string): PncpCursorRange | undefined {
+  if (!cursorBefore) return undefined;
+  try {
+    const cursor = JSON.parse(cursorBefore);
+    return {
+      dateFrom: typeof cursor?.dateFrom === 'string' ? cursor.dateFrom : undefined,
+      dateTo: typeof cursor?.dateTo === 'string' ? cursor.dateTo : undefined,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+interface PncpResumePoint {
+  date: string;
+  modalityCode: number;
+  page: number;
+}
+
+function parseResumePoint(
+  cursorBefore: string | undefined,
+  dateFrom: Date,
+  dateTo: Date,
+  modalityCodes: number[],
+  maxPages: number,
+): PncpResumePoint | undefined {
+  if (!cursorBefore) return undefined;
+  try {
+    const cursor = JSON.parse(cursorBefore);
+    const interrupted = cursor?.interruptedAt;
+    if (!interrupted) return undefined;
+    if (cursor.dateFrom !== formatDate(dateFrom) || cursor.dateTo !== formatDate(dateTo)) return undefined;
+    const point = {
+      date: String(interrupted.date || ''),
+      modalityCode: Number(interrupted.modalityCode),
+      page: Number(interrupted.page),
+    };
+    if (!/^\d{8}$/.test(point.date)) return undefined;
+    if (!modalityCodes.includes(point.modalityCode)) return undefined;
+    if (!Number.isInteger(point.page) || point.page < 1 || point.page > maxPages) return undefined;
+    return point;
+  } catch {
+    return undefined;
+  }
+}
+
+function resolveFirstPage(window: Date, modalityCode: number, resumePoint?: PncpResumePoint): number | undefined {
+  if (!resumePoint) return 1;
+  const windowKey = formatDate(window);
+  if (windowKey > resumePoint.date) return undefined;
+  if (windowKey < resumePoint.date) return 1;
+  if (modalityCode < resumePoint.modalityCode) return undefined;
+  if (modalityCode > resumePoint.modalityCode) return 1;
+  return resumePoint.page;
+}
+
+function parseCursorDate(value: string): Date {
+  return new Date(`${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}T00:00:00`);
 }

@@ -6,6 +6,7 @@ export interface RadarConnectorExecutionOptions {
   maxPages?: number;
   pageSize?: number;
   cursor?: string;
+  cursorBefore?: string;
 }
 
 export interface RadarConnectorExecutionContext {

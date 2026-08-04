@@ -65,8 +65,9 @@ export default function RadarConnectorPanel({ connectors, runs, runningConnector
         {connectors.map((connector) => {
           const latest = latestByConnector.get(connector.id);
           const latestDataRun = latestDataRunByConnector.get(connector.id);
-          const latestWarning = latest?.warnings[0];
-          const isTemporarilyUnavailable = Boolean(latestWarning && /indisponível temporariamente|HTTP 50[234]|tempo limite/i.test(latestWarning));
+          const instabilityWarning = latest?.warnings.find((warning) => /indisponível temporariamente|HTTP 429|HTTP 50[234]|tempo limite/i.test(warning));
+          const displayedWarning = instabilityWarning || latest?.warnings[0];
+          const isTemporarilyUnavailable = Boolean(instabilityWarning);
           const displayedMetricsRun = latest && (latest.metrics.received > 0 || latest.metrics.created > 0 || latest.metrics.updated > 0 || latest.metrics.ignored > 0)
             ? latest
             : latestDataRun;
@@ -112,7 +113,7 @@ export default function RadarConnectorPanel({ connectors, runs, runningConnector
                 </div>
               )}
 
-              {latest && <div className="space-y-2"><div className="text-[10px] text-[var(--text-secondary)] flex items-center gap-2"><History className="w-3.5 h-3.5" />Última tentativa: {statusLabel[latest.status]} em {new Date(latest.startedAt).toLocaleString('pt-BR')}</div>{displayedMetricsRun && <><div className="grid grid-cols-4 gap-1 text-center"><Metric label="Recebidos" value={displayedMetricsRun.metrics.received} /><Metric label="Criados" value={displayedMetricsRun.metrics.created} /><Metric label="Atualizados" value={displayedMetricsRun.metrics.updated} /><Metric label="Ignorados" value={displayedMetricsRun.metrics.ignored} /></div>{displayedMetricsRun.id !== latest.id && <p className="text-[9px] text-[var(--text-secondary)]">Último resultado com dados: {new Date(displayedMetricsRun.startedAt).toLocaleString('pt-BR')}. Os dados anteriores permanecem disponíveis.</p>}</>}{latest.warnings.length > 0 && <p className="text-[9px] text-amber-300/90">{latest.warnings[0]}</p>}{latest.errors.length > 0 && <p className="text-[9px] text-red-300/90">{latest.errors[0]}</p>}</div>}
+              {latest && <div className="space-y-2"><div className="text-[10px] text-[var(--text-secondary)] flex items-center gap-2"><History className="w-3.5 h-3.5" />Última tentativa: {statusLabel[latest.status]} em {new Date(latest.startedAt).toLocaleString('pt-BR')}</div>{displayedMetricsRun && <><div className="grid grid-cols-4 gap-1 text-center"><Metric label="Recebidos" value={displayedMetricsRun.metrics.received} /><Metric label="Criados" value={displayedMetricsRun.metrics.created} /><Metric label="Atualizados" value={displayedMetricsRun.metrics.updated} /><Metric label="Ignorados" value={displayedMetricsRun.metrics.ignored} /></div>{displayedMetricsRun.id !== latest.id && <p className="text-[9px] text-[var(--text-secondary)]">Último resultado com dados: {new Date(displayedMetricsRun.startedAt).toLocaleString('pt-BR')}. Os dados anteriores permanecem disponíveis.</p>}</>}{latest.cursorBefore && <p className="text-[9px] text-sky-300/90">Retomada automática aplicada a partir do último ponto interrompido.</p>}{hasInterruptedCursor(latest.cursorAfter) && <p className="text-[9px] text-amber-300/90">Ponto de retomada salvo. A próxima execução continuará desta etapa.</p>}{displayedWarning && <p className="text-[9px] text-amber-300/90">{displayedWarning}</p>}{latest.errors.length > 0 && <p className="text-[9px] text-red-300/90">{latest.errors[0]}</p>}</div>}
               {!connector.available && connector.unavailableReason && <div className="flex items-start gap-2 text-[10px] text-amber-300/90"><ShieldAlert className="w-3.5 h-3.5 mt-0.5 shrink-0" /><span>{connector.unavailableReason}</span></div>}
               <button type="button" disabled={!canRun || isRunning} onClick={() => onRun(connector.id)} className="w-full px-3 py-2 rounded-lg border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest font-mono flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"><Play className="w-3.5 h-3.5" />{isRunning ? 'Sincronizando' : 'Sincronizar agora'}</button>
             </div>
@@ -126,4 +127,13 @@ export default function RadarConnectorPanel({ connectors, runs, runningConnector
       </div>
     </section>
   );
+}
+
+function hasInterruptedCursor(cursor?: string): boolean {
+  if (!cursor) return false;
+  try {
+    return Boolean(JSON.parse(cursor)?.interruptedAt);
+  } catch {
+    return false;
+  }
 }

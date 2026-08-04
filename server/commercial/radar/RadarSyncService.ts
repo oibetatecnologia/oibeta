@@ -56,17 +56,20 @@ export class RadarSyncService {
       throw new Error('A synchronization for this connector is already running');
     }
 
+    const resumeCursor = resolveResumeCursor(connector.id, persistedRuns, input.options);
+    const effectiveOptions: RadarSyncRunRequest = { ...(input.options || {}), cursorBefore: resumeCursor };
+
     const now = new Date().toISOString();
     const base: RadarSyncRun = {
       id: crypto.randomUUID(), organizationId: input.organizationId, workspaceId: input.workspaceId,
       connectorId: connector.id, sourceId: connector.sourceId, status: 'running', startedAt: now,
-      metrics: emptyMetrics(), warnings: [], errors: [], initiatedBy: input.initiatedBy,
+      cursorBefore: resumeCursor, metrics: emptyMetrics(), warnings: [], errors: [], initiatedBy: input.initiatedBy,
       createdAt: now, updatedAt: now,
     };
     const created = await this.db.createCommercialRadarSyncRun(base);
 
     activeRuns.add(lockKey);
-    void this.executeRun(created, input, lockKey).catch((error) => {
+    void this.executeRun(created, { ...input, options: effectiveOptions }, lockKey).catch((error) => {
       console.error('[RadarSync] Background execution failed:', error);
     });
 
@@ -184,4 +187,23 @@ function resolvePriority(deadline?: string): 'low' | 'medium' | 'high' | 'critic
   if (days <= 7) return 'high';
   if (days <= 15) return 'medium';
   return 'low';
+}
+
+function resolveResumeCursor(connectorId: string, runs: RadarSyncRun[], options?: RadarSyncRunRequest): string | undefined {
+  if (connectorId !== 'pncp' || options?.dateFrom || options?.dateTo || options?.cursorBefore) {
+    return options?.cursorBefore;
+  }
+
+  const candidate = runs.find((run) => {
+    if (run.connectorId !== connectorId || !run.cursorAfter) return false;
+    if (run.status !== 'completed_with_warnings' && run.status !== 'failed') return false;
+    try {
+      const cursor = JSON.parse(run.cursorAfter);
+      return Boolean(cursor?.interruptedAt);
+    } catch {
+      return false;
+    }
+  });
+
+  return candidate?.cursorAfter;
 }
