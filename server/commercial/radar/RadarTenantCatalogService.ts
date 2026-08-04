@@ -6,7 +6,7 @@ import type { SupabaseDatabaseAdapter } from '../../database/SupabaseDatabaseAda
 export interface RadarTenantProduct {
   id: string;
   organizationId: string;
-  workspaceId: string;
+  workspaceId?: string;
   name: string;
   description: string;
   category?: string;
@@ -26,7 +26,7 @@ export interface RadarTenantProduct {
 export interface RadarSavedSearch {
   id: string;
   organizationId: string;
-  workspaceId: string;
+  workspaceId?: string;
   name: string;
   keywords: string[];
   state?: string;
@@ -49,14 +49,16 @@ export class RadarTenantCatalogService {
     private readonly adapter: SupabaseDatabaseAdapter,
   ) {}
 
-  async listProducts(organizationId: string, workspaceId: string): Promise<RadarTenantProduct[]> {
+  async listProducts(organizationId: string, workspaceId?: string): Promise<RadarTenantProduct[]> {
     if (this.mode === 'json') return this.readJson().products.filter((item) => item.organizationId === organizationId && item.workspaceId === workspaceId);
-    const { data, error } = await this.adapter.getClient().from('radar_tenant_products').select('*').eq('organization_id', organizationId).eq('workspace_id', workspaceId).order('updated_at', { ascending: false });
+    let query = this.adapter.getClient().from('radar_tenant_products').select('*').eq('organization_id', organizationId);
+    query = workspaceId ? query.eq('workspace_id', workspaceId) : query.is('workspace_id', null);
+    const { data, error } = await query.order('updated_at', { ascending: false });
     if (error) throw error;
     return (data || []).map(this.fromProductRow);
   }
 
-  async saveProduct(input: Partial<RadarTenantProduct> & Pick<RadarTenantProduct, 'organizationId' | 'workspaceId' | 'name'>): Promise<RadarTenantProduct> {
+  async saveProduct(input: Partial<RadarTenantProduct> & Pick<RadarTenantProduct, 'organizationId' | 'name'>): Promise<RadarTenantProduct> {
     const now = new Date().toISOString();
     const item: RadarTenantProduct = {
       id: input.id || randomUUID(),
@@ -101,7 +103,7 @@ export class RadarTenantCatalogService {
         .eq('id', input.id)
         .maybeSingle();
       if (existingError) throw existingError;
-      if (existing && (existing.organization_id !== item.organizationId || existing.workspace_id !== item.workspaceId)) {
+      if (existing && (existing.organization_id !== item.organizationId || (existing.workspace_id || undefined) !== item.workspaceId)) {
         throw new Error('Produto não pertence ao tenant e workspace autenticados.');
       }
       if (existing?.created_at) item.createdAt = existing.created_at;
@@ -111,7 +113,7 @@ export class RadarTenantCatalogService {
     return this.fromProductRow(data);
   }
 
-  async deleteProduct(id: string, organizationId: string, workspaceId: string): Promise<void> {
+  async deleteProduct(id: string, organizationId: string, workspaceId?: string): Promise<void> {
     if (this.mode === 'json') {
       const state = this.readJson();
       state.products = state.products.filter((item) => !(item.id === id && item.organizationId === organizationId && item.workspaceId === workspaceId));
@@ -122,14 +124,16 @@ export class RadarTenantCatalogService {
     if (error) throw error;
   }
 
-  async listSearches(organizationId: string, workspaceId: string): Promise<RadarSavedSearch[]> {
+  async listSearches(organizationId: string, workspaceId?: string): Promise<RadarSavedSearch[]> {
     if (this.mode === 'json') return this.readJson().searches.filter((item) => item.organizationId === organizationId && item.workspaceId === workspaceId);
-    const { data, error } = await this.adapter.getClient().from('radar_saved_searches').select('*').eq('organization_id', organizationId).eq('workspace_id', workspaceId).order('updated_at', { ascending: false });
+    let query = this.adapter.getClient().from('radar_saved_searches').select('*').eq('organization_id', organizationId);
+    query = workspaceId ? query.eq('workspace_id', workspaceId) : query.is('workspace_id', null);
+    const { data, error } = await query.order('updated_at', { ascending: false });
     if (error) throw error;
     return (data || []).map(this.fromSearchRow);
   }
 
-  async saveSearch(input: Partial<RadarSavedSearch> & Pick<RadarSavedSearch, 'organizationId' | 'workspaceId' | 'name'>): Promise<RadarSavedSearch> {
+  async saveSearch(input: Partial<RadarSavedSearch> & Pick<RadarSavedSearch, 'organizationId' | 'name'>): Promise<RadarSavedSearch> {
     const now = new Date().toISOString();
     const item: RadarSavedSearch = {
       id: input.id || randomUUID(), organizationId: input.organizationId, workspaceId: input.workspaceId,
@@ -160,7 +164,7 @@ export class RadarTenantCatalogService {
         .eq('id', input.id)
         .maybeSingle();
       if (existingError) throw existingError;
-      if (existing && (existing.organization_id !== item.organizationId || existing.workspace_id !== item.workspaceId)) {
+      if (existing && (existing.organization_id !== item.organizationId || (existing.workspace_id || undefined) !== item.workspaceId)) {
         throw new Error('Pesquisa não pertence ao tenant e workspace autenticados.');
       }
       if (existing?.created_at) item.createdAt = existing.created_at;
@@ -169,17 +173,19 @@ export class RadarTenantCatalogService {
     if (error) throw error; return this.fromSearchRow(data);
   }
 
-  async deleteSearch(id: string, organizationId: string, workspaceId: string): Promise<void> {
+  async deleteSearch(id: string, organizationId: string, workspaceId?: string): Promise<void> {
     if (this.mode === 'json') { const state = this.readJson(); state.searches = state.searches.filter((item) => !(item.id === id && item.organizationId === organizationId && item.workspaceId === workspaceId)); this.writeJson(state); return; }
-    const { error } = await this.adapter.getClient().from('radar_saved_searches').delete().eq('id', id).eq('organization_id', organizationId).eq('workspace_id', workspaceId); if (error) throw error;
+    let query = this.adapter.getClient().from('radar_saved_searches').delete().eq('id', id).eq('organization_id', organizationId);
+    query = workspaceId ? query.eq('workspace_id', workspaceId) : query.is('workspace_id', null);
+    const { error } = await query; if (error) throw error;
   }
 
   private readJson(): JsonState { try { if (!fs.existsSync(JSON_PATH)) return { products: [], searches: [] }; const parsed = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8')); return { products: Array.isArray(parsed.products) ? parsed.products : [], searches: Array.isArray(parsed.searches) ? parsed.searches : [] }; } catch { return { products: [], searches: [] }; } }
   private writeJson(state: JsonState): void { fs.mkdirSync(path.dirname(JSON_PATH), { recursive: true }); fs.writeFileSync(JSON_PATH, JSON.stringify(state, null, 2)); }
-  private toProductRow(item: RadarTenantProduct) { return { id:item.id, organization_id:item.organizationId, workspace_id:item.workspaceId, name:item.name, description:item.description, category:item.category||null, manufacturer:item.manufacturer||null, brand:item.brand||null, unit:item.unit||null, keywords:item.keywords, synonyms:item.synonyms, classification_codes:item.classificationCodes, regions:item.regions, notes:item.notes||null, active:item.active, created_at:item.createdAt, updated_at:item.updatedAt }; }
-  private fromProductRow = (row:any):RadarTenantProduct => ({ id:row.id, organizationId:row.organization_id, workspaceId:row.workspace_id, name:row.name, description:row.description||'', category:row.category||undefined, manufacturer:row.manufacturer||undefined, brand:row.brand||undefined, unit:row.unit||undefined, keywords:Array.isArray(row.keywords)?row.keywords:[], synonyms:Array.isArray(row.synonyms)?row.synonyms:[], classificationCodes:Array.isArray(row.classification_codes)?row.classification_codes:[], regions:Array.isArray(row.regions)?row.regions:[], notes:row.notes||undefined, active:row.active!==false, createdAt:row.created_at, updatedAt:row.updated_at });
-  private toSearchRow(item: RadarSavedSearch) { return { id:item.id, organization_id:item.organizationId, workspace_id:item.workspaceId, name:item.name, keywords:item.keywords, state:item.state||null, city:item.city||null, active:item.active, created_at:item.createdAt, updated_at:item.updatedAt }; }
-  private fromSearchRow = (row:any):RadarSavedSearch => ({ id:row.id, organizationId:row.organization_id, workspaceId:row.workspace_id, name:row.name, keywords:Array.isArray(row.keywords)?row.keywords:[], state:row.state||undefined, city:row.city||undefined, active:row.active!==false, createdAt:row.created_at, updatedAt:row.updated_at });
+  private toProductRow(item: RadarTenantProduct) { return { id:item.id, organization_id:item.organizationId, workspace_id:item.workspaceId||null, name:item.name, description:item.description, category:item.category||null, manufacturer:item.manufacturer||null, brand:item.brand||null, unit:item.unit||null, keywords:item.keywords, synonyms:item.synonyms, classification_codes:item.classificationCodes, regions:item.regions, notes:item.notes||null, active:item.active, created_at:item.createdAt, updated_at:item.updatedAt }; }
+  private fromProductRow = (row:any):RadarTenantProduct => ({ id:row.id, organizationId:row.organization_id, workspaceId:row.workspace_id||undefined, name:row.name, description:row.description||'', category:row.category||undefined, manufacturer:row.manufacturer||undefined, brand:row.brand||undefined, unit:row.unit||undefined, keywords:Array.isArray(row.keywords)?row.keywords:[], synonyms:Array.isArray(row.synonyms)?row.synonyms:[], classificationCodes:Array.isArray(row.classification_codes)?row.classification_codes:[], regions:Array.isArray(row.regions)?row.regions:[], notes:row.notes||undefined, active:row.active!==false, createdAt:row.created_at, updatedAt:row.updated_at });
+  private toSearchRow(item: RadarSavedSearch) { return { id:item.id, organization_id:item.organizationId, workspace_id:item.workspaceId||null, name:item.name, keywords:item.keywords, state:item.state||null, city:item.city||null, active:item.active, created_at:item.createdAt, updated_at:item.updatedAt }; }
+  private fromSearchRow = (row:any):RadarSavedSearch => ({ id:row.id, organizationId:row.organization_id, workspaceId:row.workspace_id||undefined, name:row.name, keywords:Array.isArray(row.keywords)?row.keywords:[], state:row.state||undefined, city:row.city||undefined, active:row.active!==false, createdAt:row.created_at, updatedAt:row.updated_at });
 }
 
 function cleanList(value: unknown): string[] { const input = Array.isArray(value) ? value : String(value || '').split(','); return [...new Set(input.map((item) => String(item).trim()).filter(Boolean))]; }

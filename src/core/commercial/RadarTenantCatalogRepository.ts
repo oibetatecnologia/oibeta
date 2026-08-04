@@ -6,7 +6,7 @@ export interface RadarTenantProduct {
   keywords: string[]; synonyms: string[]; classificationCodes: string[]; regions: string[];
   notes?: string; active: boolean; createdAt: string; updatedAt: string;
 }
-export interface RadarSavedSearch { id:string; organizationId:string; workspaceId:string; name:string; keywords:string[]; state?:string; city?:string; active:boolean; createdAt:string; updatedAt:string; }
+export interface RadarSavedSearch { id:string; organizationId:string; workspaceId?:string; name:string; keywords:string[]; state?:string; city?:string; active:boolean; createdAt:string; updatedAt:string; }
 export type RadarTenantProductInput = Omit<RadarTenantProduct,'id'|'organizationId'|'workspaceId'|'createdAt'|'updatedAt'> & { id?:string };
 export type RadarSavedSearchInput = Omit<RadarSavedSearch,'id'|'organizationId'|'workspaceId'|'createdAt'|'updatedAt'> & { id?:string };
 

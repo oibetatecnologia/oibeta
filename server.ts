@@ -3220,32 +3220,32 @@ app.post('/api/commercial/radar-connectors/:connectorId/runs', async (req, res) 
 app.get('/api/commercial/radar-catalog/products', async (req, res) => {
   try {
     const { organizationId, workspaceId } = extractTenant(req);
-    if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' });
+    if (!organizationId) return res.status(400).json({ error: 'organizationId is required' });
     res.json(await radarTenantCatalogService.listProducts(organizationId, workspaceId));
   } catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to list radar products' }); }
 });
 app.post('/api/commercial/radar-catalog/products', async (req, res) => {
   try {
     const { organizationId, workspaceId } = extractTenant(req);
-    if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' });
+    if (!organizationId) return res.status(400).json({ error: 'organizationId is required' });
     const product = await radarTenantCatalogService.saveProduct({ ...req.body, organizationId, workspaceId });
     res.status(req.body?.id ? 200 : 201).json(product);
   } catch (error: any) { res.status(400).json({ error: error?.message || 'Unable to save radar product' }); }
 });
 app.delete('/api/commercial/radar-catalog/products/:id', async (req, res) => {
-  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); await radarTenantCatalogService.deleteProduct(req.params.id, organizationId, workspaceId); res.status(204).end(); }
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId) return res.status(400).json({ error: 'organizationId is required' }); await radarTenantCatalogService.deleteProduct(req.params.id, organizationId, workspaceId); res.status(204).end(); }
   catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to delete radar product' }); }
 });
 app.get('/api/commercial/radar-catalog/searches', async (req, res) => {
-  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); res.json(await radarTenantCatalogService.listSearches(organizationId, workspaceId)); }
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId) return res.status(400).json({ error: 'organizationId is required' }); res.json(await radarTenantCatalogService.listSearches(organizationId, workspaceId)); }
   catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to list radar searches' }); }
 });
 app.post('/api/commercial/radar-catalog/searches', async (req, res) => {
-  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); const item = await radarTenantCatalogService.saveSearch({ ...req.body, organizationId, workspaceId }); res.status(req.body?.id ? 200 : 201).json(item); }
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId) return res.status(400).json({ error: 'organizationId is required' }); const item = await radarTenantCatalogService.saveSearch({ ...req.body, organizationId, workspaceId }); res.status(req.body?.id ? 200 : 201).json(item); }
   catch (error: any) { res.status(400).json({ error: error?.message || 'Unable to save radar search' }); }
 });
 app.delete('/api/commercial/radar-catalog/searches/:id', async (req, res) => {
-  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId || !workspaceId) return res.status(400).json({ error: 'organizationId and workspaceId are required' }); await radarTenantCatalogService.deleteSearch(req.params.id, organizationId, workspaceId); res.status(204).end(); }
+  try { const { organizationId, workspaceId } = extractTenant(req); if (!organizationId) return res.status(400).json({ error: 'organizationId is required' }); await radarTenantCatalogService.deleteSearch(req.params.id, organizationId, workspaceId); res.status(204).end(); }
   catch (error: any) { res.status(500).json({ error: error?.message || 'Unable to delete radar search' }); }
 });
 
