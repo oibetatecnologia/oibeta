@@ -3118,7 +3118,12 @@ app.get('/api/commercial/radar-connectors', async (req, res) => {
     if (!organizationId) return res.status(400).json({ error: 'organizationId is required' });
     const role = String(user.role || '').toLowerCase();
     const canConfigureCredential = role === 'master_admin' || role === 'tenant_admin' || role === 'admin';
-    const credentials = await radarConnectorCredentialService.listMetadata(organizationId);
+    let credentials: Awaited<ReturnType<typeof radarConnectorCredentialService.listMetadata>> = [];
+    try {
+      credentials = await radarConnectorCredentialService.listMetadata(organizationId);
+    } catch (credentialError) {
+      console.warn('[CommercialRadar] Connector credential metadata is unavailable; public connectors will remain visible.', credentialError);
+    }
     const connectors = radarSyncService.listConnectors().map((connector) => {
       const tenantCredential = credentials.find((item) => item.connectorId === connector.id && item.scope === 'tenant');
       const globalCredential = credentials.find((item) => item.connectorId === connector.id && item.scope === 'global');

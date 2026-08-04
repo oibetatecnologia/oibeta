@@ -178,16 +178,21 @@ export default function CommercialRadarWorkspace() {
 
     const loadConnectors = async () => {
       try {
-        const [availableConnectors, runs] = await Promise.all([
-          RadarConnectorRepository.listConnectors(),
-          RadarConnectorRepository.listRuns(),
-        ]);
+        const availableConnectors = await RadarConnectorRepository.listConnectors();
         if (isMounted) {
           setConnectors(availableConnectors);
-          setConnectorRuns(runs);
         }
       } catch (error) {
         console.warn('[CommercialRadar] Não foi possível carregar conectores.', error);
+      }
+
+      try {
+        const runs = await RadarConnectorRepository.listRuns();
+        if (isMounted) {
+          setConnectorRuns(runs);
+        }
+      } catch (error) {
+        console.warn('[CommercialRadar] Não foi possível carregar o histórico de sincronizações.', error);
       }
     };
 
