@@ -22,9 +22,14 @@ const resolveStoredUser = (): AuthUser | null => {
   return normalizeAuthenticatedUser(session?.user);
 };
 
-const persistUser = (nextUser: AuthUser | null, accessToken?: string) => {
+const persistUser = (
+  nextUser: AuthUser | null,
+  accessToken?: string,
+  refreshToken?: string,
+  expiresAt?: number,
+) => {
   if (nextUser) {
-    ClientSessionStorage.write(nextUser, accessToken || ClientSessionStorage.getAccessToken());
+    ClientSessionStorage.write(nextUser, accessToken, refreshToken, expiresAt);
   } else {
     ClientSessionStorage.clear();
   }
@@ -318,6 +323,15 @@ export default function App() {
     const storedUser = resolveStoredUser();
 
     try {
+      if (storedUser) {
+        const hasFreshSession = await ClientSessionStorage.ensureFreshSession(120);
+        if (!hasFreshSession && ClientSessionStorage.getAccessToken()) {
+          persistUser(null);
+          setUser(null);
+          return;
+        }
+      }
+
       const res = await fetch('/api/auth/session', { headers: ClientSessionStorage.buildAuthorizationHeader() });
 
       if (res.status === 429) {
@@ -331,6 +345,12 @@ export default function App() {
       }
 
       const data = await safeJson(res) as any;
+
+      if (res.status === 401) {
+        persistUser(null);
+        setUser(null);
+        return;
+      }
 
       if (res.ok && data?.success && data.user) {
         const normalizedUser = normalizeAuthenticatedUser(data.user);
@@ -365,6 +385,35 @@ export default function App() {
   useEffect(() => {
     checkSession();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const refreshSession = async () => {
+      const refreshed = await ClientSessionStorage.ensureFreshSession();
+      if (!refreshed && ClientSessionStorage.isAccessTokenExpiring(0)) {
+        persistUser(null);
+        setUser(null);
+      }
+    };
+
+    const intervalId = window.setInterval(refreshSession, 60_000);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void refreshSession();
+    };
+    const handleFocus = () => void refreshSession();
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    void refreshSession();
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -777,14 +826,14 @@ export default function App() {
   if (!user) {
     return (
       <AuthOverlay
-        onSuccess={(loggedInUser, accessToken) => {
+        onSuccess={(loggedInUser, accessToken, refreshToken, expiresAt) => {
           const normalizedUser = normalizeAuthenticatedUser(loggedInUser);
           if (!normalizedUser) {
             persistUser(null);
             setUser(null);
             return;
           }
-          persistUser(normalizedUser, accessToken);
+          persistUser(normalizedUser, accessToken, refreshToken, expiresAt);
           setUser(normalizedUser);
         }}
       />

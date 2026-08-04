@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { Sparkles, Building2, User, Mail, Lock, LogIn, ArrowRight, RefreshCcw, Eye, EyeOff } from 'lucide-react';
 
 interface AuthOverlayProps {
-  onSuccess: (user: any, accessToken?: string) => void;
+  onSuccess: (
+    user: any,
+    accessToken?: string,
+    refreshToken?: string,
+    expiresAt?: number,
+  ) => void;
 }
 
 export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
@@ -66,7 +71,7 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
           tenantId: authenticatedUser.tenantId || authenticatedUser.organizationId,
           productIds: Array.isArray(authenticatedUser.productIds) ? authenticatedUser.productIds : [],
           licensedProductIds: Array.isArray(authenticatedUser.licensedProductIds) ? authenticatedUser.licensedProductIds : []
-        }, data.token);
+        }, data.token, data.refreshToken, data.expiresAt);
       } else if (mode === 'register') {
         if (!email || !password || !name) {
           throw new Error('Nome, e-mail e senha são obrigatórios.');
@@ -78,7 +83,7 @@ export default function AuthOverlay({ onSuccess }: AuthOverlayProps) {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Erro ao realizar cadastro.');
-        onSuccess(data.user, data.token);
+        onSuccess(data.user, data.token, data.refreshToken, data.expiresAt);
       } else {
         const res = await fetch('/api/auth/reset', {
           method: 'POST',

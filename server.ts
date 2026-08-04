@@ -1132,6 +1132,7 @@ const requireAuth = async (req: any, res: any, next: any) => {
     "/auth/login",
     "/auth/register",
     "/auth/reset",
+    "/auth/refresh",
     "/auth/session",
   ];
 
@@ -3598,6 +3599,8 @@ app.post("/api/auth/register", async (req, res) => {
         success: true,
         user: freshUser,
         token: data.session?.access_token || "mock-token-for-dev",
+        refreshToken: data.session?.refresh_token,
+        expiresAt: data.session?.expires_at,
       });
     } else {
       // JSON File Mode fallback
@@ -3741,6 +3744,8 @@ app.post("/api/auth/login", async (req, res) => {
         success: true,
         user: freshUser,
         token: data.session?.access_token || "mock-token-for-dev",
+        refreshToken: data.session?.refresh_token,
+        expiresAt: data.session?.expires_at,
       });
     } else {
       // JSON File login check
@@ -3770,6 +3775,46 @@ app.post("/api/auth/login", async (req, res) => {
   } catch (err: any) {
     console.error("Error in auth login route:", err);
     res.status(500).json({ error: err.message || "Failed to log in" });
+  }
+});
+
+
+app.post("/api/auth/refresh", async (req, res) => {
+  try {
+    if (dbMode !== "supabase") {
+      return res.json({
+        success: true,
+        token: "mock-json-token-for-dev",
+      });
+    }
+
+    const refreshToken = String(req.body?.refreshToken || "").trim();
+    if (!refreshToken) {
+      return res.status(400).json({ error: "Refresh token ausente." });
+    }
+
+    const authSupabase = (dbAdapter as SupabaseDatabaseAdapter).getAuthClient();
+    const { data, error } = await authSupabase.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    if (error || !data.session?.access_token) {
+      console.warn("Failed to refresh Supabase session", {
+        code: error?.code,
+        message: error?.message,
+      });
+      return res.status(401).json({ error: "Sessão expirada. Faça login novamente." });
+    }
+
+    return res.json({
+      success: true,
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token || refreshToken,
+      expiresAt: data.session.expires_at,
+    });
+  } catch (error) {
+    console.error("Error refreshing authenticated session:", error);
+    return res.status(500).json({ error: "Falha ao renovar a sessão." });
   }
 });
 
