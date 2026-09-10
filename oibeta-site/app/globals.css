@@ -1059,3 +1059,295 @@ svg {
     padding-right: 15px !important;
   }
 }
+
+
+/* =========================================================
+   HERO MOBILE — refinamento visual e melhor distribuição
+   Mantém desktop intacto.
+   ========================================================= */
+@media (max-width: 900px) {
+  .mobile-site-header {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 68px;
+    height: auto;
+    padding: 10px 16px;
+    background: rgba(6, 13, 22, .97);
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .mobile-site-header .brand {
+    min-width: 0;
+    gap: 9px;
+  }
+
+  .mobile-site-header .brand-symbol-image {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px;
+    flex: 0 0 38px;
+  }
+
+  .mobile-site-header .brand strong {
+    font-size: 12px;
+    line-height: 1.05;
+  }
+
+  .mobile-site-header .brand small {
+    margin-top: 3px;
+    font-size: 6.5px;
+    letter-spacing: .22em;
+  }
+
+  .mobile-site-header .header-action {
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 9px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .hero-banner {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: hidden;
+    background: #071316;
+  }
+
+  /* No celular a foto passa a ter uma área própria,
+     sem ficar esticada por todo o conteúdo textual. */
+  .hero-banner-image {
+    top: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 56svh !important;
+    min-height: 430px !important;
+    max-height: 620px !important;
+    object-fit: cover !important;
+    object-position: 31% 18% !important;
+  }
+
+  .hero-banner::after {
+    inset: 0 0 auto 0 !important;
+    height: 56svh !important;
+    min-height: 430px !important;
+    max-height: 620px !important;
+    background:
+      linear-gradient(180deg,
+        rgba(4,15,18,.06) 0%,
+        rgba(4,15,18,.08) 42%,
+        rgba(5,18,20,.48) 72%,
+        #071316 100%
+      ) !important;
+  }
+
+  .hero-desktop-layer {
+    display: none !important;
+  }
+
+  .hero-mobile-copy {
+    position: relative;
+    z-index: 3;
+    display: block;
+    width: calc(100% - 28px);
+    max-width: 680px;
+    margin: clamp(398px, 51svh, 570px) auto 0;
+    padding: 22px 18px 34px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-bottom: 0;
+    border-radius: 22px 22px 0 0;
+    background:
+      linear-gradient(180deg, rgba(7,19,22,.88) 0%, #071316 18%, #071316 100%);
+    box-shadow: 0 -18px 50px rgba(0,0,0,.16);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .hero-mobile-copy .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #8c94ff;
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .18em;
+  }
+
+  .hero-mobile-copy .hero-kicker::before {
+    content: "";
+    width: 22px;
+    height: 2px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #8b5cff, #16d5b0);
+  }
+
+  .hero-mobile-copy h1 {
+    max-width: 100%;
+    margin: 14px 0 14px;
+    font-size: clamp(2.15rem, 9.3vw, 3.65rem);
+    line-height: .98;
+    letter-spacing: -.05em;
+    text-wrap: balance;
+  }
+
+  .hero-mobile-copy h1 em {
+    color: #16d5b0;
+    font-style: normal;
+  }
+
+  .hero-mobile-copy p {
+    max-width: 100%;
+    margin: 0;
+    color: #c7d1d3;
+    font-size: clamp(.94rem, 3.4vw, 1.05rem);
+    line-height: 1.6;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    min-height: 50px;
+    padding: 0 16px;
+    border-radius: 11px;
+    font-size: 11px;
+  }
+
+  .hero-actions .btn-primary {
+    background: linear-gradient(135deg, #8b5cff 0%, #6547ff 48%, #4148ff 100%);
+    box-shadow: 0 14px 30px rgba(88, 63, 255, .24);
+  }
+
+  .hero-actions .btn-ghost {
+    color: #eef3f4;
+    border-color: rgba(255,255,255,.15);
+    background: rgba(255,255,255,.025);
+  }
+
+  .hero-mobile-proof {
+    margin-top: 24px;
+    padding: 20px 0 2px;
+    border-top: 1px solid rgba(255,255,255,.09);
+    display: grid;
+    gap: 5px;
+  }
+
+  .hero-mobile-proof strong {
+    color: #16d5b0;
+    font-size: clamp(1.7rem, 7.5vw, 2.2rem);
+    line-height: 1;
+    letter-spacing: -.03em;
+  }
+
+  .hero-mobile-proof span {
+    max-width: 520px;
+    color: #94a8aa;
+    font-size: .86rem;
+    line-height: 1.52;
+  }
+
+  /* O botão flutuante continua acessível sem cobrir o conteúdo. */
+  .hero-whatsapp-card {
+    right: 10px !important;
+    bottom: 10px !important;
+    transform: scale(.93);
+    transform-origin: right bottom;
+  }
+
+  .hero-whatsapp-card:hover {
+    transform: scale(.93) translateY(-2px);
+  }
+}
+
+@media (max-width: 560px) {
+  .mobile-site-header {
+    padding-inline: 14px;
+  }
+
+  .mobile-site-header .header-action {
+    min-height: 36px;
+    padding-inline: 10px;
+    font-size: 9px;
+  }
+
+  .hero-banner-image {
+    height: 52svh !important;
+    min-height: 390px !important;
+    max-height: 520px !important;
+    object-position: 30% 12% !important;
+  }
+
+  .hero-banner::after {
+    height: 52svh !important;
+    min-height: 390px !important;
+    max-height: 520px !important;
+  }
+
+  .hero-mobile-copy {
+    width: calc(100% - 20px);
+    margin-top: clamp(362px, 47svh, 485px);
+    padding: 20px 15px 30px;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .hero-mobile-copy h1 {
+    font-size: clamp(2rem, 10.7vw, 3rem);
+    margin-top: 12px;
+  }
+
+  .hero-mobile-copy p {
+    font-size: .94rem;
+    line-height: 1.58;
+  }
+
+  .hero-actions {
+    margin-top: 20px;
+  }
+
+  .hero-mobile-proof {
+    margin-top: 22px;
+  }
+}
+
+@media (max-width: 390px) {
+  .mobile-site-header .brand strong {
+    font-size: 11px;
+  }
+
+  .mobile-site-header .header-action {
+    padding-inline: 9px;
+    font-size: 8.5px;
+  }
+
+  .hero-banner-image {
+    object-position: 29% 10% !important;
+  }
+
+  .hero-mobile-copy {
+    width: calc(100% - 16px);
+    padding-inline: 14px;
+  }
+
+  .hero-mobile-copy h1 {
+    font-size: 2rem;
+  }
+
+  .hero-mobile-copy p {
+    font-size: .9rem;
+  }
+}
