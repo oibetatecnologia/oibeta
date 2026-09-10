@@ -1758,3 +1758,23 @@ svg {
     margin-top: clamp(110px, 15svh, 165px) !important;
   }
 }
+
+
+/* Ajuste solicitado — sobe mais ~70% o bloco mobile, quase encostando no cabeçalho */
+@media (max-width: 900px) {
+  .hero-mobile-copy {
+    margin-top: clamp(58px, 8svh, 95px) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-mobile-copy {
+    margin-top: clamp(50px, 7svh, 80px) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-mobile-copy {
+    margin-top: clamp(44px, 6svh, 68px) !important;
+  }
+}
