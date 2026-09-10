@@ -200,8 +200,6 @@ svg {
 }
 
 .hero-banner-image {
-  width: 100% !important;
-  height: 100% !important;
   object-fit: cover;
   object-position: 50% center;
 }
@@ -587,4 +585,26 @@ svg {
   .detail-wide{grid-column:auto}.contact-section{grid-template-columns:1fr;padding:28px;margin-top:60px;margin-bottom:60px}
   .contact-button{width:100%;justify-content:center}.company-photo{min-height:420px}.company-stats{grid-template-columns:1fr}
   .footer{grid-template-columns:1fr;padding:26px 0}.copyright{text-align:left}
+}
+
+
+/* Identidade visual OI BETA: novo ícone, mantendo o nome ao lado. */
+.brand-symbol-image {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: block;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 10px 28px rgba(78, 67, 244, .24);
+}
+
+.hero-brand-symbol-image {
+  width: clamp(42px, 3.45vw, 70px);
+  height: clamp(42px, 3.45vw, 70px);
+  flex: 0 0 auto;
+  display: block;
+  border-radius: clamp(10px, .75vw, 14px);
+  object-fit: cover;
+  box-shadow: 0 10px 26px rgba(78, 67, 244, .28);
 }

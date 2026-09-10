@@ -44,7 +44,7 @@ export default function HomePage() {
     <main>
       <header className="site-header mobile-site-header">
         <a className="brand" href="#inicio" aria-label="OI BETA Tecnologia">
-          <span className="brand-symbol">β</span>
+          <Image className="brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
           <span><strong>OI BETA</strong><small>TECNOLOGIA</small></span>
         </a>
         <a className="header-action" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
@@ -64,7 +64,7 @@ export default function HomePage() {
 
         <div className="hero-desktop-layer">
           <div className="hero-brand">
-            <span className="hero-brand-symbol">β</span>
+            <Image className="hero-brand-symbol-image" src="/oibeta-icon.png" alt="" width={70} height={70} priority />
             <span>
               <strong>OI BETA</strong>
               <small>TECNOLOGIA</small>
@@ -291,7 +291,7 @@ export default function HomePage() {
 
       <footer className="footer">
         <div className="brand footer-brand">
-          <span className="brand-symbol">β</span>
+          <Image className="brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
           <span>
             <strong>OI BETA</strong>
             <small>TECNOLOGIA</small>
