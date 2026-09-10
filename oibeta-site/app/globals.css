@@ -1041,3 +1041,21 @@ svg {
     0 18px 46px rgba(0,0,0,.34),
     0 0 24px rgba(16,223,173,.16) !important;
 }
+
+
+/* Ajuste fino: estende a cápsula à direita para liberar a borda do conteúdo interno */
+.hero-whatsapp-card {
+  padding-right: 22px !important;
+}
+
+@media (max-width: 720px) {
+  .hero-whatsapp-card {
+    padding-right: 18px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-whatsapp-card {
+    padding-right: 15px !important;
+  }
+}
