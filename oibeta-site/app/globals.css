@@ -1351,3 +1351,115 @@ svg {
     font-size: .9rem;
   }
 }
+
+
+/* =========================================================
+   HERO MOBILE — bloco sobreposto e translúcido
+   Ajuste solicitado: sobe o conteúdo e deixa o banner visível
+   através do painel, sem alterar o desktop.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-mobile-copy {
+    /* Sobe o painel para ele entrar sobre a parte inferior da fotografia. */
+    margin-top: clamp(330px, 43svh, 500px) !important;
+
+    width: calc(100% - 24px) !important;
+    max-width: 680px !important;
+    padding: 18px 18px 28px !important;
+
+    border: 1px solid rgba(255,255,255,.13) !important;
+    border-radius: 20px !important;
+
+    /* Fundo translúcido: mantém legibilidade e permite enxergar o banner. */
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 19, 22, .70) 0%,
+        rgba(5, 19, 22, .78) 55%,
+        rgba(5, 19, 22, .88) 100%
+      ) !important;
+
+    box-shadow:
+      0 18px 44px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.04) !important;
+
+    backdrop-filter: blur(7px) saturate(112%) !important;
+    -webkit-backdrop-filter: blur(7px) saturate(112%) !important;
+  }
+
+  .hero-mobile-copy .hero-kicker {
+    margin-bottom: 2px !important;
+  }
+
+  .hero-mobile-copy h1 {
+    margin: 11px 0 13px !important;
+    max-width: 620px !important;
+    font-size: clamp(2rem, 8.8vw, 3.35rem) !important;
+    line-height: .99 !important;
+    letter-spacing: -.045em !important;
+  }
+
+  .hero-mobile-copy p {
+    max-width: 590px !important;
+    font-size: clamp(.92rem, 3vw, 1rem) !important;
+    line-height: 1.55 !important;
+  }
+
+  .hero-actions {
+    margin-top: 18px !important;
+    gap: 9px !important;
+  }
+
+  .hero-actions .btn {
+    min-height: 48px !important;
+  }
+
+  .hero-mobile-proof {
+    margin-top: 20px !important;
+    padding-top: 17px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-mobile-copy {
+    /* Em celulares estreitos, aumenta um pouco a sobreposição para eliminar
+       o espaço visual entre a foto e o conteúdo. */
+    margin-top: clamp(310px, 40svh, 445px) !important;
+    width: calc(100% - 16px) !important;
+    padding: 16px 14px 25px !important;
+    border-radius: 17px !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 19, 22, .66) 0%,
+        rgba(5, 19, 22, .78) 58%,
+        rgba(5, 19, 22, .90) 100%
+      ) !important;
+  }
+
+  .hero-mobile-copy h1 {
+    margin-top: 10px !important;
+    font-size: clamp(1.92rem, 10vw, 2.8rem) !important;
+  }
+
+  .hero-mobile-copy p {
+    font-size: .92rem !important;
+  }
+
+  .hero-actions {
+    margin-top: 17px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-mobile-copy {
+    margin-top: clamp(295px, 39svh, 415px) !important;
+    width: calc(100% - 12px) !important;
+    padding-inline: 13px !important;
+  }
+
+  .hero-mobile-copy h1 {
+    font-size: 1.88rem !important;
+  }
+}
