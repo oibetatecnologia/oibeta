@@ -101,7 +101,7 @@ export default function HomePage() {
 
             <div className="hero-years">
               <span>Estamos há</span>
-              <strong>+ de 8 Anos.</strong>
+              <strong>+8 Anos</strong>
               <small>
                 Desenvolvendo soluções que geram
                 <b> eficiência, transparência e impacto real.</b>
@@ -121,14 +121,24 @@ export default function HomePage() {
             <span>CONHEÇA<br />NOSSAS SOLUÇÕES</span>
           </a>
 
-          <a className="hero-whatsapp-card" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
-            <span className="wa-badge">◔</span>
-            <span>
-              <small>Fale agora</small>
-              <strong>(45) 99128-0745</strong>
-              <em>Atendimento rápido e consultivo</em>
-            </span>
-          </a>
+          <a
+          className="hero-whatsapp-card"
+          href="https://wa.me/5545991280745"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Falar com a OI BETA pelo WhatsApp"
+        >
+          <span className="hero-whatsapp-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" role="img" focusable="false">
+              <path d="M27.3 4.7A15.4 15.4 0 0 0 16.1 0C7.4 0 .3 7 .3 15.7c0 2.8.7 5.5 2.1 7.9L.2 32l8.6-2.2a15.8 15.8 0 0 0 7.3 1.9h.1c8.7 0 15.8-7 15.8-15.7 0-4.2-1.7-8.2-4.7-11.3Zm-11.2 24.4h-.1c-2.3 0-4.6-.6-6.6-1.8l-.5-.3-5.1 1.3 1.4-4.9-.3-.5a13 13 0 0 1-2-6.9C2.9 8.9 8.8 3.1 16.1 3.1c3.5 0 6.8 1.4 9.3 3.8a13 13 0 0 1 3.9 9.3c0 7.2-5.9 12.9-13.2 12.9Zm7.2-9.7c-.4-.2-2.3-1.1-2.7-1.2-.4-.1-.7-.2-1 .2-.3.4-1 1.2-1.3 1.5-.2.3-.5.3-.9.1-.4-.2-1.7-.6-3.2-2-1.2-1-2-2.3-2.2-2.7-.2-.4 0-.6.2-.8l.6-.7c.2-.2.3-.4.4-.7.1-.3.1-.5 0-.7-.1-.2-1-2.3-1.3-3.1-.4-.9-.7-.7-1-.7h-.8c-.3 0-.7.1-1.1.5-.4.4-1.4 1.4-1.4 3.4s1.5 3.9 1.7 4.2c.2.3 3 4.6 7.2 6.4 1 .4 1.8.7 2.4.9 1 .3 1.9.3 2.6.2.8-.1 2.3-.9 2.6-1.8.3-.9.3-1.7.2-1.8-.1-.3-.4-.4-.8-.6Z"/>
+            </svg>
+          </span>
+          <span className="hero-whatsapp-copy">
+            <small>Fale agora</small>
+            <strong>(45) 99128-0745</strong>
+            <em>Atendimento rápido e consultivo</em>
+          </span>
+        </a>
         </div>
 
         <div className="hero-mobile-copy">
@@ -145,7 +155,7 @@ export default function HomePage() {
             <a className="btn btn-ghost" href="#solucoes">Conheça nossas soluções</a>
           </div>
           <div className="hero-mobile-proof">
-            <strong>+ de 8 Anos.</strong>
+            <strong>+8 Anos</strong>
             <span>Desenvolvendo soluções que geram eficiência, transparência e impacto real.</span>
           </div>
         </div>
@@ -305,10 +315,6 @@ export default function HomePage() {
         </div>
         <span className="copyright">© 2026 OI BETA LTDA</span>
       </footer>
-
-      <a className="whatsapp-float" href={WHATSAPP_URL} target="_blank" rel="noreferrer" aria-label="Falar com a OI BETA pelo WhatsApp">
-        WhatsApp
-      </a>
-    </main>
+</main>
   );
 }

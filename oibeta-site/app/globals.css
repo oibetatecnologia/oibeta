@@ -83,11 +83,7 @@ svg {
   min-height: 48px; display: inline-flex; align-items: center; justify-content: center;
   gap: 9px; padding: 0 17px; border-radius: 9px; font-size: 12px; font-weight: 850; text-decoration: none;
 }
-.btn-primary {
-  background: linear-gradient(135deg, #8b5cff 0%, #6547ff 48%, #4148ff 100%);
-  box-shadow: 0 14px 34px rgba(92, 66, 255, .30);
-  border: 1px solid rgba(255,255,255,.10);
-}
+.btn-primary { background: #2f6df6; box-shadow: 0 14px 34px rgba(47,109,246,.22); }
 .btn-ghost { border: 1px solid var(--line-strong); background: rgba(255,255,255,.025); }
 .hero-proof { margin-top: 44px; display: flex; gap: 34px; }
 .hero-proof div { display: flex; flex-direction: column; }
@@ -217,8 +213,8 @@ svg {
 
 .hero-brand {
   position: absolute;
-  top: clamp(18px, 2.6vh, 30px);
-  left: clamp(28px, 7.5vw, 150px);
+  top: 2.3%;
+  left: 8.1%;
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -256,14 +252,12 @@ svg {
 
 .hero-nav {
   position: absolute;
-  top: clamp(28px, 4.1vh, 44px);
-  left: 50%;
-  transform: translateX(-50%);
+  top: 4.5%;
+  left: 45.2%;
   display: flex;
   align-items: center;
-  gap: clamp(20px, 2.35vw, 44px);
-  white-space: nowrap;
-  font-size: clamp(12px, .88vw, 17px);
+  gap: clamp(22px, 2.8vw, 58px);
+  font-size: clamp(12px, .92vw, 20px);
   color: #f4f7f8;
 }
 
@@ -278,8 +272,8 @@ svg {
 
 .hero-whatsapp-top {
   position: absolute;
-  top: clamp(20px, 2.8vh, 32px);
-  right: clamp(28px, 6.8vw, 135px);
+  top: 2.7%;
+  right: 7.1%;
   min-height: clamp(42px, 4vw, 66px);
   display: inline-flex;
   align-items: center;
@@ -301,15 +295,15 @@ svg {
 
 .hero-message {
   position: absolute;
-  left: 39.2%;
-  top: 26%;
-  width: min(49%, 790px);
+  left: 39.5%;
+  top: 23.4%;
+  width: 48%;
 }
 
 .hero-message h1 {
   margin: 0;
-  font-size: clamp(40px, 3.65vw, 72px);
-  line-height: .97;
+  font-size: clamp(38px, 3.9vw, 80px);
+  line-height: .95;
   letter-spacing: -.045em;
   text-shadow: 0 3px 18px rgba(0,0,0,.18);
 }
@@ -325,11 +319,11 @@ svg {
 }
 
 .hero-message > p {
-  max-width: 760px;
-  margin: clamp(14px, 1.7vh, 20px) 0 0;
+  max-width: 92%;
+  margin: 18px 0 0;
   color: #edf3f3;
-  font-size: clamp(14px, 1.02vw, 19px);
-  line-height: 1.52;
+  font-size: clamp(13px, 1.08vw, 22px);
+  line-height: 1.5;
   text-shadow: 0 2px 12px rgba(0,0,0,.32);
 }
 
@@ -339,24 +333,23 @@ svg {
 
 .hero-proposal {
   min-height: clamp(44px, 4.25vw, 72px);
-  margin-top: clamp(20px, 2.4vh, 28px);
+  margin-top: 24px;
   display: inline-flex;
   align-items: center;
   gap: 18px;
   padding: 0 clamp(20px, 1.7vw, 34px);
   border-radius: 13px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: linear-gradient(135deg, #8b5cff 0%, #6547ff 48%, #4148ff 100%);
-  box-shadow: 0 16px 38px rgba(87, 62, 255, .34);
+  background: linear-gradient(135deg, #7057ff, #4f48ff);
+  box-shadow: 0 16px 36px rgba(60, 51, 231, .26);
   font-size: clamp(13px, 1vw, 20px);
   font-weight: 850;
   text-decoration: none;
 }
 
 .hero-years {
-  width: min(360px, 64%);
-  margin-top: clamp(105px, 15vh, 150px);
-  margin-left: clamp(56px, 17%, 140px);
+  width: 54%;
+  margin-top: 26px;
+  margin-left: 17%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -390,8 +383,8 @@ svg {
 
 .hero-keywords {
   position: absolute;
-  top: 34%;
-  right: clamp(26px, 4.6vw, 90px);
+  top: 28.5%;
+  right: 4.8%;
   padding-left: 19px;
   display: flex;
   flex-direction: column;
@@ -404,8 +397,8 @@ svg {
 
 .hero-solutions-link {
   position: absolute;
-  left: clamp(28px, 2.2vw, 46px);
-  bottom: clamp(30px, 9vh, 92px);
+  left: 2.1%;
+  bottom: 10.8%;
   display: inline-flex;
   align-items: center;
   gap: 13px;
@@ -426,8 +419,8 @@ svg {
 
 .hero-whatsapp-card {
   position: absolute;
-  right: clamp(28px, 3vw, 58px);
-  bottom: clamp(34px, 10vh, 102px);
+  right: 2.6%;
+  bottom: 12.2%;
   min-width: 14.5%;
   display: flex;
   align-items: center;
@@ -553,230 +546,6 @@ svg {
   }
 }
 
-
-/* Distribuição adaptativa do hero institucional */
-@media (min-width: 901px) and (max-width: 1350px) {
-  .hero-brand {
-    left: 5%;
-  }
-
-  .hero-brand-symbol {
-    width: 52px;
-    height: 52px;
-  }
-
-  .hero-brand strong {
-    font-size: 20px;
-  }
-
-  .hero-brand small {
-    font-size: 8px;
-  }
-
-  .hero-nav {
-    gap: clamp(16px, 1.9vw, 28px);
-    font-size: 12px;
-  }
-
-  .hero-whatsapp-top {
-    right: 3.5%;
-    min-height: 48px;
-    padding-inline: 16px;
-    font-size: 12px;
-  }
-
-  .hero-message {
-    left: 39%;
-    top: 25%;
-    width: 54%;
-  }
-
-  .hero-message h1 {
-    font-size: clamp(36px, 4.1vw, 56px);
-  }
-
-  .hero-message > p {
-    max-width: 92%;
-    font-size: clamp(13px, 1.25vw, 17px);
-  }
-
-  .hero-years {
-    width: min(330px, 66%);
-    margin-left: 13%;
-  }
-
-  .hero-keywords {
-    right: 2.5%;
-    font-size: 10px;
-  }
-
-  .hero-whatsapp-card {
-    right: 2%;
-  }
-}
-
-@media (min-width: 901px) and (max-width: 1120px) {
-  .hero-brand {
-    left: 3.5%;
-  }
-
-  .hero-nav {
-    left: 51%;
-    gap: 15px;
-    font-size: 11px;
-  }
-
-  .hero-whatsapp-top {
-    right: 2.5%;
-    gap: 8px;
-    padding-inline: 12px;
-  }
-
-  .hero-message {
-    left: 40%;
-    width: 57%;
-  }
-
-  .hero-keywords,
-  .hero-whatsapp-card {
-    display: none;
-  }
-
-  .hero-solutions-link {
-    bottom: 5%;
-  }
-}
-
-@media (min-width: 901px) and (max-height: 760px) {
-  .hero-message {
-    top: 20%;
-  }
-
-  .hero-message h1 {
-    font-size: clamp(34px, 3.45vw, 60px);
-  }
-
-  .hero-message > p {
-    margin-top: 12px;
-    line-height: 1.4;
-  }
-
-  .hero-proposal {
-    margin-top: 16px;
-    min-height: 48px;
-  }
-
-  .hero-years {
-    margin-top: clamp(48px, 8vh, 72px);
-  }
-
-  .hero-years > strong {
-    font-size: clamp(26px, 2.2vw, 42px);
-  }
-
-  .hero-years > small {
-    line-height: 1.25;
-  }
-
-  .hero-solutions-link,
-  .hero-whatsapp-card {
-    bottom: 4%;
-  }
-}
-
-@media (max-width: 900px) {
-  .mobile-site-header {
-    min-height: 70px;
-    height: auto;
-    padding-block: 10px;
-    gap: 12px;
-  }
-
-  .hero-mobile-copy {
-    width: min(100% - 36px, 680px);
-    padding: clamp(260px, 43vh, 470px) 0 clamp(34px, 5vh, 52px);
-  }
-
-  .hero-mobile-copy h1 {
-    max-width: 640px;
-    margin: 12px 0 16px;
-    font-size: clamp(2.45rem, 10vw, 4.4rem);
-    line-height: .98;
-  }
-
-  .hero-mobile-copy p {
-    max-width: 590px;
-    font-size: clamp(.96rem, 2.3vw, 1.08rem);
-    line-height: 1.58;
-  }
-
-  .hero-actions {
-    margin-top: 24px;
-    gap: 12px;
-  }
-
-  .hero-mobile-proof {
-    margin-top: 26px;
-  }
-}
-
-@media (max-width: 560px) {
-  .mobile-site-header {
-    grid-template-columns: 1fr auto;
-    width: min(100% - 24px, 1200px);
-  }
-
-  .mobile-site-header .header-action {
-    min-height: 38px;
-    padding-inline: 12px;
-    font-size: 10px;
-  }
-
-  .brand {
-    gap: 8px;
-  }
-
-  .brand strong {
-    font-size: 12px;
-  }
-
-  .brand small {
-    font-size: 7px;
-  }
-
-  .hero-banner {
-    min-height: calc(100svh - 64px);
-  }
-
-  .hero-banner-image {
-    object-position: 29% center;
-  }
-
-  .hero-mobile-copy {
-    width: calc(100% - 28px);
-    padding-top: clamp(250px, 40vh, 410px);
-    padding-bottom: 30px;
-  }
-
-  .hero-mobile-copy h1 {
-    font-size: clamp(2.25rem, 11vw, 3.35rem);
-  }
-
-  .hero-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .hero-actions .btn {
-    width: 100%;
-    min-height: 50px;
-  }
-
-  .hero-mobile-proof strong {
-    font-size: 1.8rem;
-  }
-}
-
 /* Product pages */
 .product-header { height:74px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
 .back-link { color:#99a7b9; font-size:10px; font-weight:800; text-decoration:none; }
@@ -831,20 +600,157 @@ svg {
 }
 
 
-/* OI BETA — acabamento do ícone e posição do bloco de experiência */
-.brand-symbol-image,
-.hero-brand-symbol-image {
+/* WhatsApp flutuante unificado — substitui o botão compacto anterior */
+.hero-whatsapp-card {
+  position: fixed !important;
+  right: clamp(16px, 2.4vw, 34px) !important;
+  bottom: clamp(16px, 2.4vw, 30px) !important;
+  z-index: 1200 !important;
+
+  display: grid !important;
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 0 !important;
+
+  width: min(310px, calc(100vw - 32px)) !important;
+  min-height: 68px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: #fff !important;
+  text-decoration: none !important;
+  border: 1.5px solid #10dfad !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(7, 68, 66, .97), rgba(7, 43, 46, .97)) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .28), 0 0 0 1px rgba(16, 223, 173, .08) !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.hero-whatsapp-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(16, 223, 173, .12), transparent 45%);
+}
+
+.hero-whatsapp-icon {
+  position: relative;
+  z-index: 1;
+
+  width: 58px !important;
+  height: 58px !important;
+  margin-left: 4px;
+
+  display: grid !important;
+  place-items: center !important;
+
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #15e8b1 0%, #06bd82 100%) !important;
+  box-shadow: 0 8px 20px rgba(5, 205, 144, .25);
+}
+
+.hero-whatsapp-icon svg {
+  width: 30px;
+  height: 30px;
+  fill: #fff;
   display: block;
-  clip-path: inset(0 round 22%);
-  border-radius: 22%;
 }
 
-.hero-brand {
-  isolation: isolate;
+.hero-whatsapp-copy {
+  position: relative;
+  z-index: 1;
+
+  min-width: 0;
+  padding: 10px 18px 10px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  line-height: 1.1 !important;
 }
 
-@media (max-width: 900px) {
-  .hero-years {
-    margin-top: 28px;
+.hero-whatsapp-copy small {
+  color: rgba(255,255,255,.9) !important;
+  font-size: 11px !important;
+  font-style: normal !important;
+}
+
+.hero-whatsapp-copy strong {
+  color: #fff !important;
+  font-size: clamp(14px, 1.15vw, 17px) !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.hero-whatsapp-copy em {
+  margin-top: 2px;
+  color: rgba(255,255,255,.66) !important;
+  font-size: 9px !important;
+  font-style: normal !important;
+  white-space: nowrap !important;
+}
+
+.hero-whatsapp-card:hover {
+  transform: translateY(-2px);
+  border-color: #32f2c1 !important;
+  box-shadow: 0 18px 46px rgba(0,0,0,.34), 0 0 24px rgba(16,223,173,.16) !important;
+}
+
+@media (max-width: 720px) {
+  .hero-whatsapp-card {
+    right: 12px !important;
+    bottom: 12px !important;
+    width: min(282px, calc(100vw - 24px)) !important;
+    grid-template-columns: 52px minmax(0, 1fr) !important;
+    min-height: 60px !important;
+  }
+
+  .hero-whatsapp-icon {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .hero-whatsapp-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .hero-whatsapp-copy {
+    padding: 8px 14px 8px 10px !important;
+  }
+
+  .hero-whatsapp-copy strong {
+    font-size: 14px !important;
+  }
+
+  .hero-whatsapp-copy em {
+    font-size: 8px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-whatsapp-card {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 24px) !important;
+    grid-template-columns: 48px auto !important;
+  }
+
+  .hero-whatsapp-icon {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .hero-whatsapp-copy {
+    padding-right: 12px !important;
+  }
+
+  .hero-whatsapp-copy em {
+    display: none !important;
   }
 }
