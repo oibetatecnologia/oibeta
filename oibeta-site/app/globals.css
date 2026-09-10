@@ -1463,3 +1463,42 @@ svg {
     font-size: 1.88rem !important;
   }
 }
+
+
+/* Ajuste fino solicitado — sobe ~30% o bloco mobile e aumenta a translucidez */
+@media (max-width: 900px) {
+  .hero-mobile-copy {
+    margin-top: clamp(250px, 34svh, 390px) !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 19, 22, .50) 0%,
+        rgba(5, 19, 22, .60) 52%,
+        rgba(5, 19, 22, .72) 100%
+      ) !important;
+
+    backdrop-filter: blur(5px) saturate(108%) !important;
+    -webkit-backdrop-filter: blur(5px) saturate(108%) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-mobile-copy {
+    margin-top: clamp(225px, 31svh, 340px) !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 19, 22, .46) 0%,
+        rgba(5, 19, 22, .58) 55%,
+        rgba(5, 19, 22, .70) 100%
+      ) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-mobile-copy {
+    margin-top: clamp(210px, 29svh, 315px) !important;
+  }
+}
