@@ -83,7 +83,11 @@ svg {
   min-height: 48px; display: inline-flex; align-items: center; justify-content: center;
   gap: 9px; padding: 0 17px; border-radius: 9px; font-size: 12px; font-weight: 850; text-decoration: none;
 }
-.btn-primary { background: #2f6df6; box-shadow: 0 14px 34px rgba(47,109,246,.22); }
+.btn-primary {
+  background: linear-gradient(135deg, #8b5cff 0%, #6547ff 48%, #4148ff 100%);
+  box-shadow: 0 14px 34px rgba(92, 66, 255, .30);
+  border: 1px solid rgba(255,255,255,.10);
+}
 .btn-ghost { border: 1px solid var(--line-strong); background: rgba(255,255,255,.025); }
 .hero-proof { margin-top: 44px; display: flex; gap: 34px; }
 .hero-proof div { display: flex; flex-direction: column; }
@@ -213,8 +217,8 @@ svg {
 
 .hero-brand {
   position: absolute;
-  top: 2.3%;
-  left: 8.1%;
+  top: clamp(18px, 2.6vh, 30px);
+  left: clamp(28px, 7.5vw, 150px);
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -252,12 +256,14 @@ svg {
 
 .hero-nav {
   position: absolute;
-  top: 4.5%;
-  left: 45.2%;
+  top: clamp(28px, 4.1vh, 44px);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: clamp(22px, 2.8vw, 58px);
-  font-size: clamp(12px, .92vw, 20px);
+  gap: clamp(20px, 2.35vw, 44px);
+  white-space: nowrap;
+  font-size: clamp(12px, .88vw, 17px);
   color: #f4f7f8;
 }
 
@@ -272,8 +278,8 @@ svg {
 
 .hero-whatsapp-top {
   position: absolute;
-  top: 2.7%;
-  right: 7.1%;
+  top: clamp(20px, 2.8vh, 32px);
+  right: clamp(28px, 6.8vw, 135px);
   min-height: clamp(42px, 4vw, 66px);
   display: inline-flex;
   align-items: center;
@@ -295,15 +301,15 @@ svg {
 
 .hero-message {
   position: absolute;
-  left: 39.5%;
-  top: 23.4%;
-  width: 48%;
+  left: 39.2%;
+  top: 26%;
+  width: min(49%, 790px);
 }
 
 .hero-message h1 {
   margin: 0;
-  font-size: clamp(38px, 3.9vw, 80px);
-  line-height: .95;
+  font-size: clamp(40px, 3.65vw, 72px);
+  line-height: .97;
   letter-spacing: -.045em;
   text-shadow: 0 3px 18px rgba(0,0,0,.18);
 }
@@ -319,11 +325,11 @@ svg {
 }
 
 .hero-message > p {
-  max-width: 92%;
-  margin: 18px 0 0;
+  max-width: 760px;
+  margin: clamp(14px, 1.7vh, 20px) 0 0;
   color: #edf3f3;
-  font-size: clamp(13px, 1.08vw, 22px);
-  line-height: 1.5;
+  font-size: clamp(14px, 1.02vw, 19px);
+  line-height: 1.52;
   text-shadow: 0 2px 12px rgba(0,0,0,.32);
 }
 
@@ -333,23 +339,24 @@ svg {
 
 .hero-proposal {
   min-height: clamp(44px, 4.25vw, 72px);
-  margin-top: 24px;
+  margin-top: clamp(20px, 2.4vh, 28px);
   display: inline-flex;
   align-items: center;
   gap: 18px;
   padding: 0 clamp(20px, 1.7vw, 34px);
   border-radius: 13px;
-  background: linear-gradient(135deg, #7057ff, #4f48ff);
-  box-shadow: 0 16px 36px rgba(60, 51, 231, .26);
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(135deg, #8b5cff 0%, #6547ff 48%, #4148ff 100%);
+  box-shadow: 0 16px 38px rgba(87, 62, 255, .34);
   font-size: clamp(13px, 1vw, 20px);
   font-weight: 850;
   text-decoration: none;
 }
 
 .hero-years {
-  width: 54%;
-  margin-top: 26px;
-  margin-left: 17%;
+  width: min(360px, 64%);
+  margin-top: clamp(22px, 2.6vh, 30px);
+  margin-left: clamp(56px, 17%, 140px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -383,8 +390,8 @@ svg {
 
 .hero-keywords {
   position: absolute;
-  top: 28.5%;
-  right: 4.8%;
+  top: 34%;
+  right: clamp(26px, 4.6vw, 90px);
   padding-left: 19px;
   display: flex;
   flex-direction: column;
@@ -397,8 +404,8 @@ svg {
 
 .hero-solutions-link {
   position: absolute;
-  left: 2.1%;
-  bottom: 10.8%;
+  left: clamp(28px, 2.2vw, 46px);
+  bottom: clamp(30px, 9vh, 92px);
   display: inline-flex;
   align-items: center;
   gap: 13px;
@@ -419,8 +426,8 @@ svg {
 
 .hero-whatsapp-card {
   position: absolute;
-  right: 2.6%;
-  bottom: 12.2%;
+  right: clamp(28px, 3vw, 58px);
+  bottom: clamp(34px, 10vh, 102px);
   min-width: 14.5%;
   display: flex;
   align-items: center;
@@ -546,6 +553,230 @@ svg {
   }
 }
 
+
+/* Distribuição adaptativa do hero institucional */
+@media (min-width: 901px) and (max-width: 1350px) {
+  .hero-brand {
+    left: 5%;
+  }
+
+  .hero-brand-symbol {
+    width: 52px;
+    height: 52px;
+  }
+
+  .hero-brand strong {
+    font-size: 20px;
+  }
+
+  .hero-brand small {
+    font-size: 8px;
+  }
+
+  .hero-nav {
+    gap: clamp(16px, 1.9vw, 28px);
+    font-size: 12px;
+  }
+
+  .hero-whatsapp-top {
+    right: 3.5%;
+    min-height: 48px;
+    padding-inline: 16px;
+    font-size: 12px;
+  }
+
+  .hero-message {
+    left: 39%;
+    top: 25%;
+    width: 54%;
+  }
+
+  .hero-message h1 {
+    font-size: clamp(36px, 4.1vw, 56px);
+  }
+
+  .hero-message > p {
+    max-width: 92%;
+    font-size: clamp(13px, 1.25vw, 17px);
+  }
+
+  .hero-years {
+    width: min(330px, 66%);
+    margin-left: 13%;
+  }
+
+  .hero-keywords {
+    right: 2.5%;
+    font-size: 10px;
+  }
+
+  .hero-whatsapp-card {
+    right: 2%;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .hero-brand {
+    left: 3.5%;
+  }
+
+  .hero-nav {
+    left: 51%;
+    gap: 15px;
+    font-size: 11px;
+  }
+
+  .hero-whatsapp-top {
+    right: 2.5%;
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .hero-message {
+    left: 40%;
+    width: 57%;
+  }
+
+  .hero-keywords,
+  .hero-whatsapp-card {
+    display: none;
+  }
+
+  .hero-solutions-link {
+    bottom: 5%;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 760px) {
+  .hero-message {
+    top: 20%;
+  }
+
+  .hero-message h1 {
+    font-size: clamp(34px, 3.45vw, 60px);
+  }
+
+  .hero-message > p {
+    margin-top: 12px;
+    line-height: 1.4;
+  }
+
+  .hero-proposal {
+    margin-top: 16px;
+    min-height: 48px;
+  }
+
+  .hero-years {
+    margin-top: 14px;
+  }
+
+  .hero-years > strong {
+    font-size: clamp(26px, 2.2vw, 42px);
+  }
+
+  .hero-years > small {
+    line-height: 1.25;
+  }
+
+  .hero-solutions-link,
+  .hero-whatsapp-card {
+    bottom: 4%;
+  }
+}
+
+@media (max-width: 900px) {
+  .mobile-site-header {
+    min-height: 70px;
+    height: auto;
+    padding-block: 10px;
+    gap: 12px;
+  }
+
+  .hero-mobile-copy {
+    width: min(100% - 36px, 680px);
+    padding: clamp(260px, 43vh, 470px) 0 clamp(34px, 5vh, 52px);
+  }
+
+  .hero-mobile-copy h1 {
+    max-width: 640px;
+    margin: 12px 0 16px;
+    font-size: clamp(2.45rem, 10vw, 4.4rem);
+    line-height: .98;
+  }
+
+  .hero-mobile-copy p {
+    max-width: 590px;
+    font-size: clamp(.96rem, 2.3vw, 1.08rem);
+    line-height: 1.58;
+  }
+
+  .hero-actions {
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .hero-mobile-proof {
+    margin-top: 26px;
+  }
+}
+
+@media (max-width: 560px) {
+  .mobile-site-header {
+    grid-template-columns: 1fr auto;
+    width: min(100% - 24px, 1200px);
+  }
+
+  .mobile-site-header .header-action {
+    min-height: 38px;
+    padding-inline: 12px;
+    font-size: 10px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand strong {
+    font-size: 12px;
+  }
+
+  .brand small {
+    font-size: 7px;
+  }
+
+  .hero-banner {
+    min-height: calc(100svh - 64px);
+  }
+
+  .hero-banner-image {
+    object-position: 29% center;
+  }
+
+  .hero-mobile-copy {
+    width: calc(100% - 28px);
+    padding-top: clamp(250px, 40vh, 410px);
+    padding-bottom: 30px;
+  }
+
+  .hero-mobile-copy h1 {
+    font-size: clamp(2.25rem, 11vw, 3.35rem);
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    min-height: 50px;
+  }
+
+  .hero-mobile-proof strong {
+    font-size: 1.8rem;
+  }
+}
+
 /* Product pages */
 .product-header { height:74px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
 .back-link { color:#99a7b9; font-size:10px; font-weight:800; text-decoration:none; }
@@ -588,23 +819,13 @@ svg {
 }
 
 
-/* Identidade visual OI BETA: novo ícone, mantendo o nome ao lado. */
-.brand-symbol-image {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  display: block;
-  border-radius: 10px;
-  object-fit: cover;
-  box-shadow: 0 10px 28px rgba(78, 67, 244, .24);
-}
-
+/* OI BETA — novo ícone institucional */
+.brand-symbol-image,
 .hero-brand-symbol-image {
-  width: clamp(42px, 3.45vw, 70px);
-  height: clamp(42px, 3.45vw, 70px);
-  flex: 0 0 auto;
-  display: block;
-  border-radius: clamp(10px, .75vw, 14px);
   object-fit: cover;
-  box-shadow: 0 10px 26px rgba(78, 67, 244, .28);
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  font-size: 0;
+  flex: 0 0 auto;
 }
