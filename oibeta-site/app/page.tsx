@@ -44,7 +44,7 @@ export default function HomePage() {
     <main>
       <header className="site-header mobile-site-header">
         <a className="brand" href="#inicio" aria-label="OI BETA Tecnologia">
-          <Image className="brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
+          <Image className="brand-symbol brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
           <span><strong>OI BETA</strong><small>TECNOLOGIA</small></span>
         </a>
         <a className="header-action" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
@@ -64,7 +64,7 @@ export default function HomePage() {
 
         <div className="hero-desktop-layer">
           <div className="hero-brand">
-            <Image className="hero-brand-symbol-image" src="/oibeta-icon.png" alt="" width={70} height={70} priority />
+            <Image className="hero-brand-symbol hero-brand-symbol-image" src="/oibeta-icon.png" alt="" width={70} height={70} priority />
             <span>
               <strong>OI BETA</strong>
               <small>TECNOLOGIA</small>
@@ -101,7 +101,7 @@ export default function HomePage() {
 
             <div className="hero-years">
               <span>Estamos há</span>
-              <strong>+8 Anos</strong>
+              <strong>+ de 8 Anos.</strong>
               <small>
                 Desenvolvendo soluções que geram
                 <b> eficiência, transparência e impacto real.</b>
@@ -145,7 +145,7 @@ export default function HomePage() {
             <a className="btn btn-ghost" href="#solucoes">Conheça nossas soluções</a>
           </div>
           <div className="hero-mobile-proof">
-            <strong>+8 Anos</strong>
+            <strong>+ de 8 Anos.</strong>
             <span>Desenvolvendo soluções que geram eficiência, transparência e impacto real.</span>
           </div>
         </div>
@@ -291,7 +291,7 @@ export default function HomePage() {
 
       <footer className="footer">
         <div className="brand footer-brand">
-          <Image className="brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
+          <Image className="brand-symbol brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
           <span>
             <strong>OI BETA</strong>
             <small>TECNOLOGIA</small>

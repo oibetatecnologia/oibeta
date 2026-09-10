@@ -355,7 +355,7 @@ svg {
 
 .hero-years {
   width: min(360px, 64%);
-  margin-top: clamp(22px, 2.6vh, 30px);
+  margin-top: clamp(105px, 15vh, 150px);
   margin-left: clamp(56px, 17%, 140px);
   display: flex;
   flex-direction: column;
@@ -667,7 +667,7 @@ svg {
   }
 
   .hero-years {
-    margin-top: 14px;
+    margin-top: clamp(48px, 8vh, 72px);
   }
 
   .hero-years > strong {
@@ -828,4 +828,23 @@ svg {
   background: transparent;
   font-size: 0;
   flex: 0 0 auto;
+}
+
+
+/* OI BETA — acabamento do ícone e posição do bloco de experiência */
+.brand-symbol-image,
+.hero-brand-symbol-image {
+  display: block;
+  clip-path: inset(0 round 22%);
+  border-radius: 22%;
+}
+
+.hero-brand {
+  isolation: isolate;
+}
+
+@media (max-width: 900px) {
+  .hero-years {
+    margin-top: 28px;
+  }
 }
