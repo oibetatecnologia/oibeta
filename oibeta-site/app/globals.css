@@ -189,17 +189,6 @@ svg {
   background: #071b1c;
 }
 
-.hero-banner::before {
-  content: "";
-  position: absolute;
-  inset: -24px;
-  z-index: 0;
-  pointer-events: none;
-  background: url("/hero-oibeta-clean.png") center center / cover no-repeat;
-  filter: blur(18px) brightness(.58);
-  transform: scale(1.04);
-}
-
 .hero-banner::after {
   content: "";
   position: absolute;
@@ -211,11 +200,10 @@ svg {
 }
 
 .hero-banner-image {
-  z-index: 1;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
   object-position: 50% center;
-  transform: scale(.75);
-  transform-origin: center center;
 }
 
 .hero-desktop-layer {
