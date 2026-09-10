@@ -1735,3 +1735,26 @@ svg {
     display: none;
   }
 }
+
+
+/* =========================================================
+   HERO MOBILE — sobe o bloco para próximo do cabeçalho
+   Mantém desktop intacto.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-mobile-copy {
+    margin-top: clamp(135px, 18svh, 220px) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-mobile-copy {
+    margin-top: clamp(120px, 16svh, 185px) !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-mobile-copy {
+    margin-top: clamp(110px, 15svh, 165px) !important;
+  }
+}
