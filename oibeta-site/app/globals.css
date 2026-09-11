@@ -5015,3 +5015,33 @@ svg {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* =========================================================
+   DESTAQUE — aumenta a legibilidade das tags
+   ========================================================= */
+.featured-product .tag-row span {
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+  padding: 7px 10px !important;
+}
+
+@media (max-width: 760px) {
+  .featured-product .tag-row span {
+    font-size: 10px !important;
+    padding: 7px 9px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .featured-product .tag-row span {
+    font-size: 9.5px !important;
+    padding: 6px 8px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .featured-product .tag-row span {
+    font-size: 9px !important;
+  }
+}
