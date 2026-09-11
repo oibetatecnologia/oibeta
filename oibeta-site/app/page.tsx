@@ -238,16 +238,7 @@ export default function HomePage() {
       <section className="featured-product">
         <div className="featured-copy">
           <span className="section-kicker">DESTAQUE</span>
-          <div className="featured-title-row">
-            <h2>{featured.name}</h2>
-            <Link
-              className="mobile-featured-arrow"
-              href={`/produtos/${featured.slug}`}
-              aria-label="Ver detalhes da Inteligência Eleitoral"
-            >
-              <Arrow />
-            </Link>
-          </div>
+          <h2>{featured.name}</h2>
           <p>{featured.summary}</p>
           <div className="tag-row">
             {featured.solves.slice(0, 5).map((item) => <span key={item}>{item}</span>)}

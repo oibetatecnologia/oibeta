@@ -3481,3 +3481,58 @@ svg {
     max-width: 140px !important;
   }
 }
+
+
+/* =========================================================
+   DESTAQUE — mapa integrado ao fundo, sem moldura e sem seta
+   ========================================================= */
+@media (max-width: 900px) {
+  .featured-title-row {
+    display: contents !important;
+  }
+
+  .mobile-featured-arrow {
+    display: none !important;
+  }
+
+  .featured-product {
+    background:
+      radial-gradient(circle at 82% 48%, rgba(14, 70, 145, .18), transparent 34%),
+      linear-gradient(180deg, rgba(3, 20, 30, .99), rgba(3, 14, 22, .99)) !important;
+  }
+
+  .featured-visual {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .featured-brazil-image {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 205px !important;
+    margin: 0 auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    object-fit: contain !important;
+    opacity: .96 !important;
+    filter:
+      drop-shadow(0 0 10px rgba(0, 125, 255, .20))
+      drop-shadow(0 0 22px rgba(0, 88, 220, .10)) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .featured-brazil-image {
+    max-width: 155px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .featured-brazil-image {
+    max-width: 132px !important;
+  }
+}
