@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { products } from '../lib/products';
+import RotatingWord from './RotatingWord';
 
 const PLATFORM_URL =
   process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://sis.oibeta.com.br';
@@ -117,7 +118,7 @@ export default function HomePage() {
           <div className="hero-message">
             <h1>
               A OI BETA
-              <span><em>aprimora</em> a sua gestão!</span>
+              <span><RotatingWord /> a sua gestão!</span>
             </h1>
             <p>
               Desenvolvemos sistemas e plataformas que impulsionam organizações
