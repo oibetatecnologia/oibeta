@@ -3190,3 +3190,41 @@ svg {
     width: 82% !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — ajuste final correto da posição da foto
+   Move a pessoa moderadamente para a direita e sobe a cabeça,
+   sem cortar o rosto. Somente CSS.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner-image-mobile {
+    left: auto !important;
+    right: -6% !important;
+    width: 106% !important;
+    top: -72px !important;
+    height: 900px !important;
+    object-fit: cover !important;
+    object-position: 58% 0% !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner-image-mobile {
+    right: -8% !important;
+    width: 108% !important;
+    top: -78px !important;
+    height: 870px !important;
+    object-position: 56% 0% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner-image-mobile {
+    right: -10% !important;
+    width: 110% !important;
+    top: -82px !important;
+    height: 850px !important;
+    object-position: 54% 0% !important;
+  }
+}
