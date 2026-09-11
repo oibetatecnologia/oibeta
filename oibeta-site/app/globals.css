@@ -4271,3 +4271,242 @@ svg {
     max-width: 250px !important;
   }
 }
+
+
+/* =========================================================
+   DESTAQUE MOBILE — layout final refinado
+   Mantém TODAS as informações e botões do desktop.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .featured-product {
+    width: calc(100% - 20px) !important;
+    margin: 18px auto 84px !important;
+    padding: 26px 18px 24px !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "copy"
+      "visual" !important;
+    gap: 22px !important;
+    align-items: start !important;
+
+    border: 1px solid rgba(63, 143, 181, .30) !important;
+    border-radius: 22px !important;
+
+    background:
+      radial-gradient(circle at 82% 44%, rgba(23, 79, 171, .16), transparent 30%),
+      linear-gradient(180deg, rgba(3, 20, 30, .99), rgba(3, 14, 22, .99)) !important;
+
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.025) !important;
+    overflow: hidden !important;
+  }
+
+  .featured-copy {
+    grid-area: copy !important;
+    min-width: 0 !important;
+  }
+
+  .featured-product .section-kicker {
+    display: inline-block !important;
+    margin: 0 0 12px !important;
+
+    color: #2ab5ff !important;
+    font-size: 8px !important;
+    font-weight: 900 !important;
+    letter-spacing: .20em !important;
+  }
+
+  .featured-product h2 {
+    max-width: 100% !important;
+    margin: 0 0 14px !important;
+
+    font-size: clamp(2rem, 9vw, 2.75rem) !important;
+    line-height: .96 !important;
+    letter-spacing: -.045em !important;
+  }
+
+  .featured-product p {
+    max-width: 100% !important;
+    margin: 0 !important;
+
+    color: #c4d0d6 !important;
+    font-size: .90rem !important;
+    line-height: 1.55 !important;
+  }
+
+  /* Mapa ganha uma linha própria para não esmagar o texto. */
+  .featured-visual {
+    grid-area: visual !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    margin: 2px 0 0 !important;
+    padding: 4px 0 2px !important;
+
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .featured-brazil-image {
+    width: min(72%, 320px) !important;
+    max-width: 320px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    filter:
+      drop-shadow(0 0 12px rgba(0,125,255,.20))
+      drop-shadow(0 0 26px rgba(0,88,220,.10)) !important;
+  }
+
+  /* Tags sempre presentes, mas agora distribuídas de forma natural. */
+  .featured-product .tag-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 7px !important;
+    margin-top: 20px !important;
+  }
+
+  .featured-product .tag-row span {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 28px !important;
+    padding: 6px 9px !important;
+
+    border: 1px solid rgba(130, 173, 194, .18) !important;
+    border-radius: 999px !important;
+
+    color: #aebcc5 !important;
+    background: rgba(255,255,255,.015) !important;
+
+    font-size: 8px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  /* Todos os botões do desktop permanecem disponíveis. */
+  .featured-product .featured-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    margin-top: 20px !important;
+  }
+
+  .featured-product .featured-actions .btn {
+    width: 100% !important;
+    min-height: 46px !important;
+    padding: 0 15px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 11px !important;
+    font-size: 10px !important;
+  }
+
+  .featured-product .featured-actions a:not(.btn) {
+    min-height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+
+    padding: 0 14px !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 11px !important;
+
+    color: #eef4f6 !important;
+    background: rgba(255,255,255,.018) !important;
+
+    font-size: 10px !important;
+    text-decoration: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .featured-product {
+    width: calc(100% - 14px) !important;
+    padding: 22px 14px 20px !important;
+    gap: 18px !important;
+    border-radius: 19px !important;
+  }
+
+  .featured-product .section-kicker {
+    margin-bottom: 10px !important;
+    font-size: 7.5px !important;
+  }
+
+  .featured-product h2 {
+    margin-bottom: 12px !important;
+    font-size: clamp(1.85rem, 10vw, 2.35rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .84rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .featured-brazil-image {
+    width: min(78%, 280px) !important;
+    max-width: 280px !important;
+  }
+
+  .featured-product .tag-row {
+    gap: 6px !important;
+    margin-top: 17px !important;
+  }
+
+  .featured-product .tag-row span {
+    min-height: 26px !important;
+    padding: 5px 8px !important;
+    font-size: 7.3px !important;
+  }
+
+  .featured-product .featured-actions {
+    margin-top: 17px !important;
+  }
+
+  .featured-product .featured-actions .btn,
+  .featured-product .featured-actions a:not(.btn) {
+    min-height: 44px !important;
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .featured-product {
+    width: calc(100% - 10px) !important;
+    padding-inline: 12px !important;
+  }
+
+  .featured-product h2 {
+    font-size: 1.8rem !important;
+  }
+
+  .featured-product p {
+    font-size: .81rem !important;
+  }
+
+  .featured-brazil-image {
+    width: min(82%, 245px) !important;
+    max-width: 245px !important;
+  }
+
+  .featured-product .tag-row span {
+    font-size: 7px !important;
+  }
+}
