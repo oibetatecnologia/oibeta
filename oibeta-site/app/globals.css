@@ -2973,3 +2973,26 @@ svg {
     max-width: 130px !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — ajuste fino do enquadramento da foto
+   Pedido: rosto mais à direita e cabeça mais acima.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner-image-mobile {
+    object-position: 94% 5% !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner-image-mobile {
+    object-position: 96% 3% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner-image-mobile {
+    object-position: 98% 2% !important;
+  }
+}
