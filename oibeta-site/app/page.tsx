@@ -51,12 +51,13 @@ export default function HomePage() {
 
         <div className="mobile-header-actions">
           <a className="header-action mobile-header-whatsapp" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
-            <span className="mobile-wa-mark" aria-hidden="true">
-              <svg viewBox="0 0 32 32" focusable="false">
-                <path d="M27.3 4.7A15.4 15.4 0 0 0 16.1 0C7.4 0 .3 7 .3 15.7c0 2.8.7 5.5 2.1 7.9L.2 32l8.6-2.2a15.8 15.8 0 0 0 7.3 1.9h.1c8.7 0 15.8-7 15.8-15.7 0-4.2-1.7-8.2-4.7-11.3Zm-11.2 24.4h-.1c-2.3 0-4.6-.6-6.6-1.8l-.5-.3-5.1 1.3 1.4-4.9-.3-.5a13 13 0 0 1-2-6.9C2.9 8.9 8.8 3.1 16.1 3.1c3.5 0 6.8 1.4 9.3 3.8a13 13 0 0 1 3.9 9.3c0 7.2-5.9 12.9-13.2 12.9Z"/>
+            <span className="mobile-wa-mark mobile-contact-message" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M7 18.5 3.8 20l1.1-3.5A8 8 0 1 1 7 18.5Z" />
+                <path d="M8 10h8M8 13h5" />
               </svg>
             </span>
-            <span>Falar no WhatsApp</span>
+            <span>Fale Conosco</span>
           </a>
 
           <details className="mobile-menu">
@@ -110,8 +111,13 @@ export default function HomePage() {
           </nav>
 
           <a className="hero-whatsapp-top" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
-            <span className="wa-circle">◔</span>
-            Falar no WhatsApp
+            <span className="contact-message-icon">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M7 18.5 3.8 20l1.1-3.5A8 8 0 1 1 7 18.5Z" />
+                <path d="M8 10h8M8 13h5" />
+              </svg>
+            </span>
+            Fale Conosco
             <Arrow />
           </a>
 
