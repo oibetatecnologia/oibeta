@@ -3588,3 +3588,75 @@ svg {
   .rotating-word { transition: none; }
   .rotating-word-visible { animation: none; }
 }
+
+
+/* =========================================================
+   BOTÃO "FALE CONOSCO" — desktop e mobile
+   Ícone genérico de mensagem, mantendo o link de contato.
+   ========================================================= */
+.contact-message-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+}
+
+.contact-message-icon svg,
+.mobile-contact-message svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hero-whatsapp-top .contact-message-icon {
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .mobile-contact-message {
+    color: #14dcc1 !important;
+  }
+
+  .mobile-contact-message svg {
+    width: 23px !important;
+    height: 23px !important;
+    fill: none !important;
+    stroke: currentColor !important;
+  }
+}
+
+
+/* =========================================================
+   FALE CONOSCO — ícone de mensagem maior que o texto
+   ========================================================= */
+.contact-message-icon {
+  width: 26px !important;
+  height: 26px !important;
+  flex: 0 0 26px !important;
+}
+
+.contact-message-icon svg {
+  width: 26px !important;
+  height: 26px !important;
+  stroke-width: 1.9 !important;
+}
+
+@media (max-width: 900px) {
+  .mobile-contact-message {
+    width: 25px !important;
+    height: 25px !important;
+    flex: 0 0 25px !important;
+  }
+
+  .mobile-contact-message svg {
+    width: 25px !important;
+    height: 25px !important;
+    stroke-width: 1.9 !important;
+  }
+}
