@@ -3228,3 +3228,43 @@ svg {
     object-position: 54% 0% !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — recorte corrigido da foto
+   Traz a pessoa de volta para dentro do quadro, preservando
+   a cabeça alta e evitando corte lateral do rosto/tronco.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    top: -62px !important;
+    height: 900px !important;
+    object-fit: cover !important;
+    object-position: 78% 0% !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    top: -68px !important;
+    height: 870px !important;
+    object-position: 79% 0% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    top: -72px !important;
+    height: 850px !important;
+    object-position: 80% 0% !important;
+  }
+}
