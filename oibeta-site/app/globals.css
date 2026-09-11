@@ -4866,3 +4866,72 @@ svg {
     margin-bottom: 8px !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — reduz em ~50% a área vazia inferior do banner
+   Mantém o enquadramento e não sobrepõe o bloco de destaque.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner {
+    min-height: 760px !important;
+    height: 760px !important;
+  }
+
+  .hero-banner-image-mobile,
+  .hero-banner::after {
+    height: 760px !important;
+  }
+
+  .featured-product {
+    margin-top: 8px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-banner {
+    min-height: 720px !important;
+    height: 720px !important;
+  }
+
+  .hero-banner-image-mobile,
+  .hero-banner::after {
+    height: 720px !important;
+  }
+
+  .featured-product {
+    margin-top: 6px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-banner {
+    min-height: 680px !important;
+    height: 680px !important;
+  }
+
+  .hero-banner-image-mobile,
+  .hero-banner::after {
+    height: 680px !important;
+  }
+
+  .featured-product {
+    margin-top: 4px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-banner {
+    min-height: 650px !important;
+    height: 650px !important;
+  }
+
+  .hero-banner-image-mobile,
+  .hero-banner::after {
+    height: 650px !important;
+  }
+
+  .featured-product {
+    margin-top: 4px !important;
+  }
+}
