@@ -4773,3 +4773,48 @@ svg {
     min-width: 0 !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — reduz grandes vazios entre os blocos (~80%)
+   Mantém o layout atual, apenas aproxima as seções.
+   ========================================================= */
+@media (max-width: 900px) {
+  /* Aproxima o bloco de destaque do fim do hero/carrossel */
+  .featured-product {
+    margin-top: -54px !important;
+    margin-bottom: 18px !important;
+  }
+
+  /* Reduz o espaço após o bloco de destaque */
+  .featured-product + section,
+  .featured-product + .section,
+  .featured-product + .portfolio,
+  .featured-product + .solutions,
+  .featured-product + [class*="portfolio"],
+  .featured-product + [class*="solutions"] {
+    margin-top: 0 !important;
+    padding-top: 18px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .featured-product {
+    margin-top: -48px !important;
+    margin-bottom: 16px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .featured-product {
+    margin-top: -42px !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .featured-product {
+    margin-top: -36px !important;
+    margin-bottom: 12px !important;
+  }
+}
