@@ -4056,3 +4056,218 @@ svg {
     margin: 0 !important;
   }
 }
+
+
+/* =========================================================
+   DESTAQUE MOBILE — responsivo SEM remover conteúdo
+   Mantém todas as informações, tags e botões da versão desktop.
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .featured-product {
+    width: calc(100% - 28px) !important;
+    margin: 18px auto 88px !important;
+    padding: 32px 22px !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(180px, .95fr) !important;
+    gap: 24px !important;
+    align-items: center !important;
+
+    border: 1px solid rgba(72,146,180,.28) !important;
+    border-radius: 24px !important;
+    background:
+      radial-gradient(circle at 84% 46%, rgba(18,74,156,.16), transparent 34%),
+      linear-gradient(180deg, rgba(3,20,30,.98), rgba(3,14,22,.99)) !important;
+  }
+
+  .featured-product .section-kicker {
+    display: inline-block !important;
+    margin-bottom: 12px !important;
+  }
+
+  .featured-product h2 {
+    margin: 0 0 14px !important;
+    max-width: 100% !important;
+    font-size: clamp(2rem, 6.8vw, 3.1rem) !important;
+    line-height: .97 !important;
+  }
+
+  .featured-product p {
+    margin: 0 !important;
+    max-width: 100% !important;
+    font-size: clamp(.88rem, 2.25vw, .98rem) !important;
+    line-height: 1.55 !important;
+  }
+
+  .featured-product .tag-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 7px !important;
+    margin-top: 18px !important;
+  }
+
+  .featured-product .tag-row span {
+    padding: 6px 8px !important;
+    font-size: 8px !important;
+    white-space: nowrap !important;
+  }
+
+  .featured-product .featured-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 22px !important;
+  }
+
+  .featured-product .featured-actions .btn {
+    width: auto !important;
+    min-height: 44px !important;
+    padding-inline: 14px !important;
+    font-size: 10px !important;
+  }
+
+  .featured-visual {
+    width: 100% !important;
+    max-width: 340px !important;
+    justify-self: end !important;
+  }
+
+  .featured-brazil-image {
+    width: 100% !important;
+    max-width: 330px !important;
+    height: auto !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .featured-product {
+    width: calc(100% - 20px) !important;
+    padding: 25px 17px !important;
+
+    grid-template-columns: minmax(0, 1fr) 145px !important;
+    gap: 14px !important;
+  }
+
+  .featured-product h2 {
+    font-size: clamp(1.9rem, 8.3vw, 2.5rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .84rem !important;
+    line-height: 1.48 !important;
+  }
+
+  /* Reativa explicitamente tudo que existe no desktop. */
+  .featured-product .tag-row {
+    display: flex !important;
+    margin-top: 16px !important;
+    gap: 6px !important;
+  }
+
+  .featured-product .tag-row span {
+    padding: 5px 7px !important;
+    font-size: 7.5px !important;
+  }
+
+  .featured-product .featured-actions {
+    display: flex !important;
+    margin-top: 18px !important;
+    gap: 8px !important;
+  }
+
+  .featured-product .featured-actions .btn {
+    min-height: 42px !important;
+    padding-inline: 12px !important;
+    font-size: 9px !important;
+  }
+
+  .featured-visual {
+    max-width: 145px !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 145px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .featured-product {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+    padding: 24px 16px !important;
+  }
+
+  .featured-copy {
+    min-width: 0 !important;
+  }
+
+  .featured-product h2 {
+    font-size: clamp(2rem, 9.6vw, 2.55rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .88rem !important;
+    line-height: 1.52 !important;
+  }
+
+  .featured-product .tag-row {
+    display: flex !important;
+    gap: 6px !important;
+    margin-top: 16px !important;
+  }
+
+  .featured-product .tag-row span {
+    font-size: 7.5px !important;
+  }
+
+  .featured-product .featured-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    margin-top: 18px !important;
+  }
+
+  .featured-product .featured-actions .btn {
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+  }
+
+  .featured-visual {
+    width: min(72%, 300px) !important;
+    max-width: 300px !important;
+    justify-self: center !important;
+  }
+
+  .featured-brazil-image {
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .featured-product {
+    width: calc(100% - 14px) !important;
+    padding: 22px 13px !important;
+  }
+
+  .featured-product h2 {
+    font-size: 1.9rem !important;
+  }
+
+  .featured-product p {
+    font-size: .82rem !important;
+  }
+
+  .featured-product .tag-row span {
+    font-size: 7px !important;
+  }
+
+  .featured-visual,
+  .featured-brazil-image {
+    max-width: 250px !important;
+  }
+}
