@@ -3884,3 +3884,175 @@ svg {
     width: min(88%, 320px) !important;
   }
 }
+
+
+/* =========================================================
+   DESTAQUE MOBILE — responsividade refinada
+   Mantém a identidade da versão desktop, adaptando apenas
+   proporções, ordem e espaçamentos em telas menores.
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .featured-product {
+    width: calc(100% - 28px) !important;
+    margin: 18px auto 84px !important;
+    padding: 34px 22px !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(180px, .95fr) !important;
+    gap: 24px !important;
+    align-items: center !important;
+
+    border: 1px solid rgba(72,146,180,.28) !important;
+    border-radius: 24px !important;
+    background:
+      radial-gradient(circle at 84% 46%, rgba(18,74,156,.16), transparent 34%),
+      linear-gradient(180deg, rgba(3,20,30,.98), rgba(3,14,22,.99)) !important;
+    box-shadow: none !important;
+  }
+
+  .featured-product .section-kicker {
+    margin-bottom: 12px !important;
+    font-size: 9px !important;
+    letter-spacing: .18em !important;
+  }
+
+  .featured-product h2 {
+    margin: 0 0 14px !important;
+    max-width: 100% !important;
+    font-size: clamp(2rem, 6.8vw, 3.2rem) !important;
+    line-height: .96 !important;
+  }
+
+  .featured-product p {
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: clamp(.88rem, 2.3vw, 1rem) !important;
+    line-height: 1.55 !important;
+  }
+
+  .featured-product .tag-row {
+    margin-top: 18px !important;
+    gap: 7px !important;
+  }
+
+  .featured-product .tag-row span {
+    padding: 6px 8px !important;
+    font-size: 8px !important;
+  }
+
+  .featured-product .featured-actions {
+    margin-top: 22px !important;
+    gap: 12px !important;
+  }
+
+  .featured-visual {
+    justify-self: end !important;
+    width: 100% !important;
+    max-width: 360px !important;
+  }
+
+  .featured-brazil-image {
+    width: 100% !important;
+    max-width: 340px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .featured-product {
+    width: calc(100% - 20px) !important;
+    margin-top: 12px !important;
+    padding: 26px 18px !important;
+
+    grid-template-columns: minmax(0, 1fr) 150px !important;
+    gap: 16px !important;
+  }
+
+  .featured-product h2 {
+    font-size: clamp(1.9rem, 8.6vw, 2.6rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .86rem !important;
+    line-height: 1.48 !important;
+  }
+
+  .featured-product .tag-row {
+    display: none !important;
+  }
+
+  .featured-product .featured-actions {
+    display: none !important;
+  }
+
+  .featured-visual {
+    max-width: 150px !important;
+    justify-self: end !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 150px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .featured-product {
+    width: calc(100% - 16px) !important;
+    padding: 22px 14px !important;
+
+    grid-template-columns: minmax(0, 1fr) 118px !important;
+    gap: 10px !important;
+
+    border-radius: 20px !important;
+  }
+
+  .featured-product .section-kicker {
+    margin-bottom: 10px !important;
+    font-size: 8px !important;
+  }
+
+  .featured-product h2 {
+    margin-bottom: 12px !important;
+    font-size: clamp(1.72rem, 9.3vw, 2.15rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .79rem !important;
+    line-height: 1.43 !important;
+  }
+
+  .featured-visual {
+    max-width: 118px !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 118px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .featured-product {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  .featured-product h2 {
+    font-size: 1.9rem !important;
+  }
+
+  .featured-product p {
+    font-size: .82rem !important;
+  }
+
+  .featured-visual {
+    max-width: 190px !important;
+    justify-self: start !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 190px !important;
+    margin: 0 !important;
+  }
+}
