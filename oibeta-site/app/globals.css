@@ -2361,3 +2361,248 @@ svg {
     font-size: 9.5px;
   }
 }
+
+
+/* =========================================================
+   MOBILE — refinamento final igual ao modelo central aprovado
+   ========================================================= */
+
+.hero-banner-image-mobile {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  /* Usa no mobile a mesma foto original do usuário, somente espelhada.
+     O desktop continua usando hero-oibeta-clean.png normalmente. */
+  .hero-banner-image {
+    display: none !important;
+  }
+
+  .hero-banner-image-mobile {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 760px !important;
+    object-fit: cover !important;
+    object-position: 56% center !important;
+    z-index: 0 !important;
+  }
+
+  .hero-banner {
+    min-height: auto !important;
+    height: auto !important;
+    padding-bottom: 18px !important;
+  }
+
+  .hero-banner::after {
+    height: 760px !important;
+    background:
+      linear-gradient(90deg,
+        rgba(3, 16, 23, .96) 0%,
+        rgba(3, 16, 23, .84) 36%,
+        rgba(3, 16, 23, .34) 64%,
+        rgba(3, 16, 23, .10) 100%),
+      linear-gradient(180deg,
+        rgba(3, 14, 21, .06) 0%,
+        rgba(3, 14, 21, .08) 62%,
+        rgba(5, 18, 25, .96) 100%) !important;
+  }
+
+  .hero-mobile-copy {
+    padding-top: 88px !important;
+  }
+
+  /* Botão de WhatsApp do cabeçalho igual ao modelo: pill amplo,
+     ícone grande e borda verde/turquesa. */
+  .mobile-header-whatsapp {
+    min-height: 46px !important;
+    padding: 0 18px !important;
+    gap: 10px !important;
+    border: 1.5px solid #14d9bd !important;
+    border-radius: 999px !important;
+    background: rgba(5, 25, 32, .72) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.04),
+      0 8px 24px rgba(0,0,0,.18) !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+  }
+
+  .mobile-wa-mark {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .mobile-wa-mark svg {
+    width: 24px !important;
+    height: 24px !important;
+    fill: #14d9bd !important;
+  }
+
+  /* Hero mais parecido com o modelo central */
+  .hero-mobile-copy h1 {
+    max-width: 74% !important;
+  }
+
+  .hero-mobile-copy p {
+    width: 58% !important;
+    max-width: 355px !important;
+  }
+
+  .hero-actions {
+    width: 72% !important;
+  }
+
+  /* Remove o grande vazio que estava separando o destaque do hero. */
+  .featured-product {
+    margin: 8px auto 92px !important;
+    width: calc(100% - 20px) !important;
+    min-height: 0 !important;
+    padding: 28px 20px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 34%) !important;
+    align-items: center !important;
+    gap: 16px !important;
+  }
+
+  .featured-product > div:first-child {
+    min-width: 0 !important;
+  }
+
+  .featured-product h2 {
+    max-width: 100% !important;
+    margin-bottom: 14px !important;
+  }
+
+  .featured-product p {
+    max-width: 100% !important;
+  }
+
+  .featured-visual {
+    min-height: 0 !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    display: grid !important;
+    place-items: center !important;
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .featured-brazil-image {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 250px !important;
+    border-radius: 24px !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 14px 28px rgba(21, 64, 175, .20));
+  }
+}
+
+@media (max-width: 560px) {
+  .mobile-site-header {
+    padding: 10px 12px !important;
+  }
+
+  .mobile-header-whatsapp {
+    min-height: 42px !important;
+    padding-inline: 13px !important;
+    font-size: 9.6px !important;
+  }
+
+  .mobile-wa-mark {
+    width: 23px !important;
+    height: 23px !important;
+  }
+
+  .mobile-wa-mark svg {
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  .hero-banner-image-mobile,
+  .hero-banner::after {
+    height: 720px !important;
+  }
+
+  .hero-banner-image-mobile {
+    object-position: 54% center !important;
+  }
+
+  .hero-mobile-copy {
+    padding-top: 74px !important;
+  }
+
+  .hero-mobile-copy h1 {
+    max-width: 79% !important;
+  }
+
+  .hero-mobile-copy p {
+    width: 64% !important;
+  }
+
+  .hero-actions {
+    width: 82% !important;
+  }
+
+  .featured-product {
+    grid-template-columns: minmax(0, 1fr) 145px !important;
+    gap: 10px !important;
+    padding: 24px 16px !important;
+  }
+
+  .featured-product h2 {
+    font-size: clamp(1.9rem, 8.1vw, 2.6rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .91rem !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 155px !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .mobile-header-whatsapp {
+    width: auto !important;
+    min-width: 42px !important;
+    padding-inline: 11px !important;
+  }
+
+  .mobile-header-whatsapp span:last-child {
+    display: inline !important;
+  }
+
+  .hero-mobile-copy h1 {
+    max-width: 84% !important;
+  }
+
+  .hero-mobile-copy p {
+    width: 70% !important;
+  }
+
+  .hero-actions {
+    width: 88% !important;
+  }
+
+  .featured-product {
+    grid-template-columns: minmax(0, 1fr) 126px !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 130px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .mobile-header-whatsapp span:last-child {
+    display: none !important;
+  }
+
+  .mobile-header-whatsapp {
+    width: 42px !important;
+    padding: 0 !important;
+  }
+}

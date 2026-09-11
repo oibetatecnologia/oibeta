@@ -82,6 +82,14 @@ export default function HomePage() {
           priority
           sizes="100vw"
         />
+        <Image
+          className="hero-banner-image-mobile"
+          src="/hero-oibeta-mobile.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+        />
 
         <div className="hero-desktop-layer">
           <div className="hero-brand">
@@ -246,35 +254,14 @@ export default function HomePage() {
         </div>
 
         <div className="featured-visual">
-          <div className="mock-app">
-            <div className="mock-top">
-              <span className="mock-logo">IE</span>
-              <span>Inteligência Eleitoral</span>
-            </div>
-            <div className="mock-body">
-              <aside>
-                <span className="active" />
-                <span />
-                <span />
-                <span />
-                <span />
-              </aside>
-              <div className="mock-content">
-                <div className="mock-kpis">
-                  <div><span>Territórios</span><strong>63</strong></div>
-                  <div><span>Apoiadores</span><strong>2.600+</strong></div>
-                  <div><span>Lideranças</span><strong>170+</strong></div>
-                </div>
-                <div className="mock-map">
-                  <div className="map-grid" />
-                  <div className="map-dot one" />
-                  <div className="map-dot two" />
-                  <div className="map-dot three" />
-                </div>
-              </div>
-            </div>
+            <Image
+              className="featured-brazil-image"
+              src="/brasil-inteligencia-eleitoral.png"
+              alt="Mapa do Brasil representando a Inteligência Eleitoral"
+              width={520}
+              height={520}
+            />
           </div>
-        </div>
       </section>
 
       <section className="solutions" id="solucoes">
