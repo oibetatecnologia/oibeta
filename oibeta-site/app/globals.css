@@ -2996,3 +2996,33 @@ svg {
     object-position: 98% 2% !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — corrige enquadramento para levar a pessoa à esquerda
+   Mantém a cabeça alta e aproxima a orelha da borda esquerda.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner-image-mobile {
+    left: -18% !important;
+    right: auto !important;
+    width: 118% !important;
+    object-position: 100% 5% !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner-image-mobile {
+    left: -22% !important;
+    width: 122% !important;
+    object-position: 100% 3% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner-image-mobile {
+    left: -25% !important;
+    width: 125% !important;
+    object-position: 100% 2% !important;
+  }
+}
