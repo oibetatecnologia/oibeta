@@ -3058,3 +3058,135 @@ svg {
     object-position: 68% 0% !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — composição final igual ao modelo aprovado
+   Ajusta somente enquadramento, proporções e espaçamentos.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner {
+    min-height: 920px !important;
+    height: 920px !important;
+  }
+
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    top: -48px !important;
+    width: 100% !important;
+    height: 910px !important;
+    object-fit: cover !important;
+    object-position: 83% 0% !important;
+  }
+
+  .hero-banner::after {
+    height: 920px !important;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(3, 17, 24, .97) 0%,
+        rgba(3, 17, 24, .90) 30%,
+        rgba(3, 17, 24, .62) 50%,
+        rgba(3, 17, 24, .18) 76%,
+        rgba(3, 17, 24, .08) 100%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(3, 14, 21, .03) 0%,
+        rgba(3, 14, 21, .06) 58%,
+        rgba(4, 17, 23, .40) 78%,
+        #06131b 100%
+      ) !important;
+  }
+
+  .hero-mobile-copy {
+    padding-top: 92px !important;
+  }
+
+  .hero-mobile-copy h1 {
+    width: 73% !important;
+    max-width: 520px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .hero-mobile-copy p {
+    width: 50% !important;
+    max-width: 345px !important;
+  }
+
+  .hero-actions {
+    width: 65% !important;
+    max-width: 430px !important;
+  }
+
+  .mobile-proof-grid {
+    margin-top: 30px !important;
+  }
+
+  .featured-product {
+    margin-top: 10px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner {
+    min-height: 860px !important;
+    height: 860px !important;
+  }
+
+  .hero-banner-image-mobile {
+    top: -55px !important;
+    height: 860px !important;
+    object-position: 84% 0% !important;
+  }
+
+  .hero-banner::after {
+    height: 860px !important;
+  }
+
+  .hero-mobile-copy {
+    padding-top: 78px !important;
+  }
+
+  .hero-mobile-copy h1 {
+    width: 77% !important;
+  }
+
+  .hero-mobile-copy p {
+    width: 57% !important;
+  }
+
+  .hero-actions {
+    width: 73% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner {
+    min-height: 835px !important;
+    height: 835px !important;
+  }
+
+  .hero-banner-image-mobile {
+    top: -58px !important;
+    height: 835px !important;
+    object-position: 85% 0% !important;
+  }
+
+  .hero-banner::after {
+    height: 835px !important;
+  }
+
+  .hero-mobile-copy h1 {
+    width: 82% !important;
+  }
+
+  .hero-mobile-copy p {
+    width: 64% !important;
+  }
+
+  .hero-actions {
+    width: 82% !important;
+  }
+}
