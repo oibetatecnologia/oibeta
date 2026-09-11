@@ -3268,3 +3268,37 @@ svg {
     object-position: 80% 0% !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — ajuste leve do enquadramento da cabeça
+   Move a pessoa um pouco para a direita e um pouco para cima,
+   preservando rosto e tronco dentro da área desejada.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    top: -84px !important;
+    height: 900px !important;
+    object-fit: cover !important;
+    object-position: 74% 0% !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner-image-mobile {
+    top: -88px !important;
+    height: 870px !important;
+    object-position: 75% 0% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner-image-mobile {
+    top: -90px !important;
+    height: 850px !important;
+    object-position: 76% 0% !important;
+  }
+}
