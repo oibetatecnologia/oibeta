@@ -4818,3 +4818,51 @@ svg {
     margin-bottom: 12px !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — corrige corte do topo do bloco de destaque
+   Mantém o espaçamento reduzido, sem usar margem negativa.
+   ========================================================= */
+@media (max-width: 900px) {
+  .featured-product {
+    position: relative !important;
+    z-index: 5 !important;
+
+    /* remove o avanço por baixo do hero */
+    margin-top: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  /* Mantém a próxima seção próxima do destaque */
+  .featured-product + section,
+  .featured-product + .section,
+  .featured-product + .portfolio,
+  .featured-product + .solutions,
+  .featured-product + [class*="portfolio"],
+  .featured-product + [class*="solutions"] {
+    margin-top: 0 !important;
+    padding-top: 14px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .featured-product {
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .featured-product {
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .featured-product {
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+  }
+}
