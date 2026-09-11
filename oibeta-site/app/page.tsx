@@ -180,10 +180,12 @@ export default function HomePage() {
         <div className="hero-mobile-copy">
           <span className="hero-kicker">OI BETA TECNOLOGIA</span>
 
-          <h1>
-            Gestão inteligente<br />
-            para um futuro<br />
-            <em>mais eficiente.</em>
+          <h1 className="hero-mobile-rotating-title">
+            <span className="hero-mobile-title-prefix">A OI BETA</span>
+            <span className="hero-mobile-rotating-line">
+              <RotatingWord />
+            </span>
+            <span className="hero-mobile-title-tail">a sua gestão!</span>
           </h1>
 
           <p>

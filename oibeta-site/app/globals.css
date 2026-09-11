@@ -3660,3 +3660,227 @@ svg {
     stroke-width: 1.9 !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — DESTAQUE IGUAL AO DESKTOP + TEXTO ROTATIVO
+   ========================================================= */
+@media (max-width: 900px) {
+  /* Mesmo texto/loop do hero desktop no mobile. */
+  .hero-mobile-copy .hero-kicker {
+    margin-bottom: 15px !important;
+  }
+
+  .hero-mobile-rotating-title {
+    width: min(100%, 620px) !important;
+    max-width: 100% !important;
+    margin: 0 0 18px !important;
+    color: #fff !important;
+    font-size: clamp(2.15rem, 8.7vw, 3.5rem) !important;
+    line-height: .98 !important;
+    letter-spacing: -.052em !important;
+  }
+
+  .hero-mobile-title-prefix,
+  .hero-mobile-rotating-line,
+  .hero-mobile-title-tail {
+    display: block !important;
+  }
+
+  .hero-mobile-rotating-line {
+    min-height: 1em;
+  }
+
+  .hero-mobile-title-tail {
+    color: #fff !important;
+  }
+
+  .hero-mobile-rotating-title .rotating-word {
+    color: #16d5b0 !important;
+    max-width: 100% !important;
+  }
+
+  .hero-mobile-rotating-title .rotating-word-visible,
+  .hero-mobile-rotating-title .rotating-word-measure {
+    font: inherit !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
+  }
+
+  /* Destaque: mesma estrutura e linguagem visual do desktop. */
+  .featured-product {
+    position: relative !important;
+    z-index: auto !important;
+
+    width: calc(100% - 32px) !important;
+    max-width: 1200px !important;
+    margin: 0 auto 88px !important;
+    padding: 58px 0 !important;
+
+    display: grid !important;
+    grid-template-columns: .85fr 1.15fr !important;
+    align-items: center !important;
+    gap: clamp(24px, 5vw, 56px) !important;
+
+    border: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .featured-copy {
+    min-width: 0 !important;
+  }
+
+  .featured-product .section-kicker {
+    display: inline-block !important;
+    margin: 0 !important;
+    color: inherit !important;
+  }
+
+  .featured-product h2 {
+    max-width: none !important;
+    margin: 11px 0 16px !important;
+    color: inherit !important;
+    font-size: clamp(2.45rem, 8vw, 4.25rem) !important;
+    line-height: 1 !important;
+    letter-spacing: -.045em !important;
+  }
+
+  .featured-product p {
+    max-width: none !important;
+    margin: 0 !important;
+    color: var(--muted) !important;
+    font-size: .98rem !important;
+    line-height: 1.7 !important;
+  }
+
+  /* No mobile, não esconder conteúdo que existe no desktop. */
+  .featured-product .tag-row {
+    display: flex !important;
+    margin-top: 22px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .featured-product .tag-row span {
+    padding: 7px 9px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    color: #9eabbc !important;
+    font-size: 9px !important;
+  }
+
+  .featured-product .featured-actions {
+    display: flex !important;
+    margin-top: 28px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 18px !important;
+  }
+
+  .featured-product .featured-actions .btn {
+    width: auto !important;
+  }
+
+  .featured-visual {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+
+  .featured-brazil-image {
+    display: block !important;
+    width: min(100%, 520px) !important;
+    height: auto !important;
+    max-width: 520px !important;
+    margin: 0 auto !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+
+    filter:
+      drop-shadow(0 0 14px rgba(0,125,255,.22))
+      drop-shadow(0 0 30px rgba(0,88,220,.11)) !important;
+  }
+
+  .mobile-featured-arrow,
+  .featured-title-row {
+    display: contents !important;
+  }
+}
+
+/* Em celulares estreitos, preserva a mesma aparência do desktop,
+   mudando apenas a disposição para não comprimir o conteúdo. */
+@media (max-width: 620px) {
+  .hero-mobile-rotating-title {
+    font-size: clamp(2rem, 9.6vw, 2.9rem) !important;
+  }
+
+  .featured-product {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+    padding: 48px 0 !important;
+  }
+
+  .featured-product h2 {
+    font-size: clamp(2.35rem, 11vw, 3.5rem) !important;
+  }
+
+  .featured-product p {
+    font-size: .94rem !important;
+  }
+
+  .featured-visual {
+    justify-items: start !important;
+  }
+
+  .featured-brazil-image {
+    width: min(82%, 390px) !important;
+    max-width: 390px !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-mobile-rotating-title {
+    font-size: clamp(1.9rem, 9.8vw, 2.45rem) !important;
+  }
+
+  .featured-product {
+    width: calc(100% - 24px) !important;
+    padding: 42px 0 !important;
+  }
+
+  .featured-product .featured-actions {
+    align-items: stretch !important;
+  }
+
+  .featured-product .featured-actions .btn {
+    width: 100% !important;
+  }
+
+  .featured-brazil-image {
+    width: min(88%, 320px) !important;
+  }
+}
