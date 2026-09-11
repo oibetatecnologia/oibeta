@@ -3026,3 +3026,35 @@ svg {
     object-position: 100% 2% !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE — enquadramento final da pessoa no lado direito
+   Cabeça e tronco posicionados na área indicada pelo usuário.
+   A fotografia não é alterada; somente o enquadramento CSS.
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 850px !important;
+    object-fit: cover !important;
+    object-position: 72% 0% !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-banner-image-mobile {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    object-position: 70% 0% !important;
+  }
+}
+
+@media (max-width: 410px) {
+  .hero-banner-image-mobile {
+    object-position: 68% 0% !important;
+  }
+}
