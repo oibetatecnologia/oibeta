@@ -44,12 +44,33 @@ export default function HomePage() {
     <main>
       <header className="site-header mobile-site-header">
         <a className="brand" href="#inicio" aria-label="OI BETA Tecnologia">
-          <Image className="brand-symbol brand-symbol-image" src="/oibeta-icon.png" alt="" width={38} height={38} />
+          <Image className="brand-symbol brand-symbol-image" src="/oibeta-icon.png" alt="" width={42} height={42} />
           <span><strong>OI BETA</strong><small>TECNOLOGIA</small></span>
         </a>
-        <a className="header-action" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
-          Falar no WhatsApp
-        </a>
+
+        <div className="mobile-header-actions">
+          <a className="header-action mobile-header-whatsapp" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+            <span className="mobile-wa-mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false">
+                <path d="M27.3 4.7A15.4 15.4 0 0 0 16.1 0C7.4 0 .3 7 .3 15.7c0 2.8.7 5.5 2.1 7.9L.2 32l8.6-2.2a15.8 15.8 0 0 0 7.3 1.9h.1c8.7 0 15.8-7 15.8-15.7 0-4.2-1.7-8.2-4.7-11.3Zm-11.2 24.4h-.1c-2.3 0-4.6-.6-6.6-1.8l-.5-.3-5.1 1.3 1.4-4.9-.3-.5a13 13 0 0 1-2-6.9C2.9 8.9 8.8 3.1 16.1 3.1c3.5 0 6.8 1.4 9.3 3.8a13 13 0 0 1 3.9 9.3c0 7.2-5.9 12.9-13.2 12.9Z"/>
+              </svg>
+            </span>
+            <span>Falar no WhatsApp</span>
+          </a>
+
+          <details className="mobile-menu">
+            <summary aria-label="Abrir menu">
+              <span></span><span></span><span></span>
+            </summary>
+            <nav aria-label="Menu mobile">
+              <a href="#solucoes">Soluções</a>
+              <a href="#atuacao">Setores</a>
+              <a href="#solucoes">Cases</a>
+              <a href="#empresa">Sobre</a>
+              <a href="#contato">Contato</a>
+            </nav>
+          </details>
+        </div>
       </header>
 
       <section className="hero-banner" id="inicio" aria-label="OI BETA Tecnologia">
@@ -101,7 +122,7 @@ export default function HomePage() {
 
             <div className="hero-years">
               <span>Estamos há</span>
-              <strong>+8 Anos</strong>
+              <strong>+ de 8 Anos.</strong>
               <small>
                 Desenvolvendo soluções que geram
                 <b> eficiência, transparência e impacto real.</b>
@@ -143,20 +164,65 @@ export default function HomePage() {
 
         <div className="hero-mobile-copy">
           <span className="hero-kicker">OI BETA TECNOLOGIA</span>
-          <h1>A OI BETA <em>aprimora</em> a sua gestão!</h1>
+
+          <h1>
+            Gestão inteligente<br />
+            para um futuro<br />
+            <em>mais eficiente.</em>
+          </h1>
+
           <p>
-            Desenvolvemos sistemas e plataformas que impulsionam organizações
-            privadas e públicas por meio da tecnologia, gestão e pessoas.
+            Tecnologia, dados e pessoas trabalhando juntos por melhores resultados.
           </p>
+
           <div className="hero-actions">
             <a className="btn btn-primary" href={WHATSAPP_URL} target="_blank" rel="noreferrer">
               Solicite uma proposta <Arrow />
             </a>
-            <a className="btn btn-ghost" href="#solucoes">Conheça nossas soluções</a>
+            <a className="btn btn-ghost" href="#solucoes">
+              Conheça nossas soluções
+            </a>
           </div>
-          <div className="hero-mobile-proof">
-            <strong>+8 Anos</strong>
-            <span>Desenvolvendo soluções que geram eficiência, transparência e impacto real.</span>
+
+          <div className="mobile-proof-grid" aria-label="Diferenciais OI BETA">
+            <div className="mobile-proof-item">
+              <span className="mobile-proof-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3.5" y="5.5" width="17" height="15" rx="2"/>
+                  <path d="M7 3v5M17 3v5M3.5 10h17M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/>
+                </svg>
+              </span>
+              <strong>+ de 8 anos</strong>
+              <span>no mercado</span>
+            </div>
+
+            <div className="mobile-proof-item">
+              <span className="mobile-proof-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="m12 3 8 4-8 4-8-4 8-4Z"/>
+                  <path d="m4 12 8 4 8-4M4 17l8 4 8-4"/>
+                </svg>
+              </span>
+              <strong>Soluções</strong>
+              <span>personalizadas</span>
+            </div>
+
+            <div className="mobile-proof-item">
+              <span className="mobile-proof-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="9" cy="8" r="3"/>
+                  <circle cx="17" cy="9" r="2.5"/>
+                  <path d="M3.5 20v-2a5.5 5.5 0 0 1 11 0v2M14.5 20v-1.5a4 4 0 0 1 6 0V20"/>
+                </svg>
+              </span>
+              <strong>Clientes</strong>
+              <span>em todo o Brasil</span>
+            </div>
+          </div>
+
+          <div className="mobile-hero-dots" aria-hidden="true">
+            <span className="active"></span>
+            <span></span>
           </div>
         </div>
       </section>
