@@ -3302,3 +3302,182 @@ svg {
     object-position: 76% 0% !important;
   }
 }
+
+
+/* =========================================================
+   DESTAQUE MOBILE — igual ao modelo aprovado
+   Visual do Brasil limpo, seta circular e composição compacta.
+   ========================================================= */
+.mobile-featured-arrow {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .featured-product {
+    position: relative !important;
+    width: calc(100% - 20px) !important;
+    margin: 12px auto 92px !important;
+    padding: 26px 18px !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 36% !important;
+    grid-template-areas:
+      "copy visual" !important;
+    align-items: center !important;
+    gap: 14px !important;
+
+    overflow: hidden !important;
+    border: 1px solid rgba(72, 146, 180, .30) !important;
+    border-radius: 24px !important;
+    background:
+      radial-gradient(circle at 86% 38%, rgba(26, 73, 171, .20), transparent 28%),
+      linear-gradient(180deg, rgba(3, 20, 30, .98), rgba(3, 14, 22, .99)) !important;
+    box-shadow: none !important;
+  }
+
+  .featured-copy {
+    grid-area: copy !important;
+    min-width: 0 !important;
+  }
+
+  .featured-product .section-kicker {
+    display: block !important;
+    margin-bottom: 13px !important;
+    color: #27aef9 !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    letter-spacing: .20em !important;
+  }
+
+  .featured-title-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 42px !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .featured-title-row h2,
+  .featured-product h2 {
+    margin: 0 !important;
+    max-width: none !important;
+    color: #fff !important;
+    font-size: clamp(2rem, 8vw, 2.7rem) !important;
+    line-height: .95 !important;
+    letter-spacing: -.045em !important;
+  }
+
+  .mobile-featured-arrow {
+    display: grid !important;
+    place-items: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    border: 1.5px solid rgba(234,244,248,.72) !important;
+    border-radius: 50% !important;
+    color: #fff !important;
+    background: rgba(255,255,255,.02) !important;
+    text-decoration: none !important;
+  }
+
+  .mobile-featured-arrow svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .featured-product p {
+    margin: 0 !important;
+    max-width: 100% !important;
+    color: #c0ccd2 !important;
+    font-size: .92rem !important;
+    line-height: 1.48 !important;
+  }
+
+  .featured-product .tag-row,
+  .featured-product .featured-actions {
+    display: none !important;
+  }
+
+  .featured-visual {
+    grid-area: visual !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+
+  .featured-brazil-image {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 210px !important;
+    margin: 0 !important;
+
+    object-fit: contain !important;
+    border-radius: 22px !important;
+    filter: drop-shadow(0 12px 26px rgba(24, 70, 185, .22)) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .featured-product {
+    grid-template-columns: minmax(0, 1fr) 34% !important;
+    padding: 24px 16px !important;
+    gap: 10px !important;
+  }
+
+  .featured-title-row {
+    grid-template-columns: minmax(0, 1fr) 38px !important;
+    gap: 7px !important;
+  }
+
+  .featured-title-row h2,
+  .featured-product h2 {
+    font-size: clamp(1.8rem, 8.6vw, 2.35rem) !important;
+  }
+
+  .mobile-featured-arrow {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .featured-product p {
+    font-size: .84rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 165px !important;
+    border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .featured-product {
+    grid-template-columns: minmax(0, 1fr) 32% !important;
+    padding: 22px 14px !important;
+  }
+
+  .featured-title-row h2,
+  .featured-product h2 {
+    font-size: 1.72rem !important;
+  }
+
+  .featured-product p {
+    font-size: .80rem !important;
+  }
+
+  .featured-brazil-image {
+    max-width: 140px !important;
+  }
+}
